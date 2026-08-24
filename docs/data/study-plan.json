@@ -1,0 +1,1057 @@
+{
+  "meta": {
+    "student": "يوسف صالح عبدالله البلوشي",
+    "student_id": "141386",
+    "university": "جامعة السلطان قابوس",
+    "college": "كلية التربية",
+    "department": "قسم التربية الفنية",
+    "degree": "بكالوريوس التربية — التربية الفنية",
+    "cohort": "2022",
+    "plan_edition": "خطة الدرجة 2020-2021-2022-2023",
+    "total_credits": 125,
+    "cgpa_band": "2.00-2.99",
+    "on_probation": false,
+    "overload_eligible": false,
+    "start_term": "خريف 2026/2027",
+    "start_term_index": 9,
+    "start_term_index_note": "مفترض: خريف2026 هو الفصل التاسع المسجَّل (خريف2022 = الفصل الأول/التأسيسي). يجب تثبيته من عمادة القبول والتسجيل لأنه يغيّر نتيجة فحص جدول الحد الأدنى للتقدم (د-6).",
+    "advisor": "د. سلمان الحجري (رئيس القسم والمرشد الأكاديمي)",
+    "advisor_form_status": "مقترح غير معتمد — لم يُعطَ عليه ضمان بالقبول"
+  },
+  "regulations": {
+    "source": "النظام الأكاديمي للدراسات الجامعية الأولى — جامعة السلطان قابوس (الطبعة المنشورة 2019)",
+    "url": "https://www.squ.edu.om/Portals/53/pdf/academic-ar-2019.pdf",
+    "regular_term": {
+      "clause": "ب-3",
+      "min_credits": 9,
+      "normal_credits": 15,
+      "max_credits": 18,
+      "max_courses": 6,
+      "normal_courses_range": [
+        4,
+        6
+      ],
+      "final_term_min_exempt": true,
+      "quote": "يتم تسجيل الطالب في الفصول الدراسية المعتادة فيما يتراوح بين 4 إلى 6 مقررات (15 ساعة معتمدة) متزامنة أو في 6 مقررات (18 ساعة معتمدة) متزامنة كحدٍ أقصى … يمكن للطالب تسجيل 9 ساعات معتمدة كحد أدنى في الفصل الدراسي المعتاد (الخريف والربيع) إلا إذا كان في فصله الدراسي الأخير"
+    },
+    "overload": {
+      "clause": "ب-3",
+      "requires_gpa": 3.0,
+      "quote": "يتم زيادة العبء الدراسي للطالب إذا كان: معدل نقاط تقديره مع عبء دراسي كامل خلال الفصلين الدراسيين السابقين لا يقل عن 3.00، أو المعدل التراكمي لا يقل عن 3.00",
+      "applies_to_student": false
+    },
+    "probation": {
+      "clause": "ج-10",
+      "max_credits": 12,
+      "min_credits": 9,
+      "triggers": [
+        "تراكمي < 2.00",
+        "تراكمي ≥ 2.00 وفصلي < 1.00",
+        "فصلي < 2.00 لفصلين متتاليين"
+      ]
+    },
+    "summer": {
+      "clause": "ب-1-1",
+      "min_credits": 5,
+      "min_courses": 2,
+      "max_credits_non_graduating": 8,
+      "max_credits_graduating": 9,
+      "blocked_on_probation_from_cohort": 2011,
+      "department_offers_summer": false,
+      "department_offers_summer_source": "تأكيد الطالب — قسم التربية الفنية لا يطرح مقررات صيفية"
+    },
+    "graduation": {
+      "clause": "د-2",
+      "min_gpa": 2.0,
+      "quote": "إكمال الخطة الدراسية بمعدل تخرج لا يقل عن 2.0 · استيفاء أية شروط إضافية وردت في خطة الدراسة الجامعية · إخلاء طرف من جميع وحدات الجامعة"
+    },
+    "max_duration": {
+      "normal_terms": 10,
+      "extra_terms_allowed": 4,
+      "max_terms": 14,
+      "quote": "ويمكن تحديد الحد الأقصى للدراسة بأربعة فصول دراسية زيادة على الفترة التي يحتاجها الطلبة في الحالات العادية"
+    },
+    "min_progress_table": {
+      "clause": "د-6",
+      "applies_to_cohorts": "2011 وما بعد",
+      "note": "المفتاح = رقم الفصل الدراسي؛ القيمة = [الحد الأدنى للساعات المكتسبة المقبولة، سقف الساعات غير المقبولة المؤدية إلى الانسحاب]",
+      "rows": {
+        "8": [
+          73,
+          72
+        ],
+        "9": [
+          85,
+          84
+        ],
+        "10": [
+          97,
+          96
+        ],
+        "11": [
+          109,
+          108
+        ],
+        "12": [
+          121,
+          120
+        ],
+        "13": [
+          133,
+          132
+        ]
+      }
+    },
+    "field_training_gate": {
+      "source": "خطة القسم — شروط تسجيل مقرر التدريب الميداني",
+      "conditions": [
+        "إكمال جميع المقررات في الخطة الدراسية المعتمدة بنجاح عدا مقرر مشروع التخرج الذي يتم دراسته كمقرر مصاحب مع مقرر التدريب الميداني",
+        "أن يكون المعدل التراكمي للمرشح 2 على الأقل في نهاية الفصل الدراسي الذي يسبق التدريب الميداني"
+      ]
+    }
+  },
+  "seasonality_evidence": {
+    "observed_term": "خريف 2025/2026",
+    "source_files": [
+      "RPT_CourseSchedule_New.rdlc*.pdf (6 ملفات)"
+    ],
+    "method": "مقرر يظهر في جدول الخريف ⇒ يُطرح خريفاً. مقرر من الخطة لا يظهر ⇒ يُرجَّح أنه ربيعي.",
+    "confidence": "لقطة فصل واحد فقط — استنتاج قوي لأنه يطابق ترتيب الخطة النموذجية ومقترح المرشد، لكنه يحتاج تثبيتاً من القسم.",
+    "ared_offered_fall_2025": [
+      "ARED1110",
+      "ARED1130",
+      "ARED1220",
+      "ARED2110",
+      "ARED2120",
+      "ARED2220",
+      "ARED2240",
+      "ARED2250",
+      "ARED3110",
+      "ARED3111",
+      "ARED3120",
+      "ARED3150",
+      "ARED3240",
+      "ARED3250",
+      "ARED3260",
+      "ARED4130",
+      "ARED4140",
+      "ARED4150",
+      "ARED4260"
+    ],
+    "cutm_offered_fall_2025": [
+      "CUTM3007",
+      "CUTM3401",
+      "CUTM3402",
+      "CUTM3403",
+      "CUTM3404",
+      "CUTM3405",
+      "CUTM3406",
+      "CUTM3407",
+      "CUTM3408",
+      "CUTM4010",
+      "CUTM4011",
+      "CUTM4012",
+      "CUTM4016",
+      "CUTM4017",
+      "CUTM4018",
+      "CUTM4027",
+      "CUTM4029",
+      "CUTM4400",
+      "CUTM4500",
+      "CUTM4600"
+    ],
+    "cutm3027_absent_from_fall": true,
+    "other_offered_fall_2025": [
+      "EDUC2020",
+      "EDUC3010",
+      "EDUC3050",
+      "PSYC1500",
+      "PSYC2500",
+      "PSYC3500",
+      "PSYC4500",
+      "TECH3005",
+      "ARAB1060",
+      "SOCY1005"
+    ]
+  },
+  "courses": {
+    "ARED1120": {
+      "ar": "ترفن1120",
+      "name": "مدخل إلى التربية الفنية ونظرياتها",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "?",
+      "status": "completed"
+    },
+    "ARED1110": {
+      "ar": "ترفن1110",
+      "name": "الرسم 1",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "fall",
+      "status": "completed"
+    },
+    "ARED1220": {
+      "ar": "ترفن1220",
+      "name": "أسس التصميم",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "fall",
+      "status": "completed"
+    },
+    "ARED1230": {
+      "ar": "ترفن1230",
+      "name": "تاريخ الفنون والحضارات القديمة",
+      "cr": 2,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "spring",
+      "status": "completed"
+    },
+    "ARED1130": {
+      "ar": "ترفن1130",
+      "name": "الخزف 1",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "fall",
+      "status": "completed"
+    },
+    "ARED1210": {
+      "ar": "ترفن1210",
+      "name": "التصوير 1",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "spring",
+      "status": "completed"
+    },
+    "ARED2220": {
+      "ar": "ترفن2220",
+      "name": "نحت 1",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "fall",
+      "status": "completed"
+    },
+    "ARED2120": {
+      "ar": "ترفن2120",
+      "name": "الرسم 2",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [
+        "ARED1110"
+      ],
+      "season": "fall",
+      "status": "completed"
+    },
+    "ARED2210": {
+      "ar": "ترفن2210",
+      "name": "الطباعة على المنسوجات",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "spring",
+      "status": "completed"
+    },
+    "ARED2240": {
+      "ar": "ترفن2240",
+      "name": "فن الطفل",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "fall",
+      "status": "completed"
+    },
+    "ARED2230": {
+      "ar": "ترفن2230",
+      "name": "التصوير 2",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [
+        "ARED1210"
+      ],
+      "season": "spring",
+      "status": "completed"
+    },
+    "ARED3120": {
+      "ar": "ترفن3120",
+      "name": "الأشغال الفنية",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "fall",
+      "status": "completed"
+    },
+    "ARED2250": {
+      "ar": "ترفن2250",
+      "name": "تاريخ الفن الإسلامي",
+      "cr": 2,
+      "cat": "م ت",
+      "prereq": [
+        "ARED1230"
+      ],
+      "season": "fall",
+      "status": "completed"
+    },
+    "ARED3220": {
+      "ar": "ترفن3220",
+      "name": "الخزف 2",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [
+        "ARED1130"
+      ],
+      "season": "spring",
+      "status": "completed"
+    },
+    "ARED3260": {
+      "ar": "ترفن3260",
+      "name": "التصميم الجرافيكي 1",
+      "cr": 2,
+      "cat": "م ت",
+      "prereq": [
+        "ARED1220"
+      ],
+      "season": "fall",
+      "status": "completed"
+    },
+    "LANC1006": {
+      "ar": "LANC1006",
+      "name": "لغة إنجليزية تربوي",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "both",
+      "status": "completed"
+    },
+    "TECH3005": {
+      "ar": "تكنو3005",
+      "name": "التكنولوجيا من أجل التعلم",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "both",
+      "status": "completed"
+    },
+    "PSYC1500": {
+      "ar": "علنف1500",
+      "name": "نمو وإرشاد المتعلمين",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "both",
+      "status": "completed"
+    },
+    "PSYC2500": {
+      "ar": "علنف2500",
+      "name": "علم النفس التربوي",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [
+        "PSYC1500"
+      ],
+      "season": "both",
+      "status": "completed"
+    },
+    "PSYC3500": {
+      "ar": "علنف3500",
+      "name": "القياس والتقييم الصفي",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [
+        "PSYC2500"
+      ],
+      "season": "both",
+      "status": "completed"
+    },
+    "EDUC2020": {
+      "ar": "اصتر2020",
+      "name": "مدخل إلى التربية",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "both",
+      "status": "completed"
+    },
+    "EDUC3010": {
+      "ar": "اصتر3010",
+      "name": "نظام التعليم في عمان والاتجاهات المعاصرة",
+      "cr": 2,
+      "cat": "م ت",
+      "prereq": [
+        "EDUC2020"
+      ],
+      "season": "both",
+      "status": "completed"
+    },
+    "CUTM3407": {
+      "ar": "منطر3407",
+      "name": "المنهج المدرسي للتربية الفنية",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "both",
+      "status": "completed"
+    },
+    "ARAB1060": {
+      "ar": "عربي1060",
+      "name": "اللغة العربية",
+      "cr": 2,
+      "cat": "م ج",
+      "prereq": [],
+      "season": "both",
+      "status": "completed"
+    },
+    "ISLM1010": {
+      "ar": "تاريخ1010 / اسلم1010",
+      "name": "عمان والحضارة الإسلامية أو الثقافة الإسلامية",
+      "cr": 2,
+      "cat": "م ج",
+      "prereq": [],
+      "season": "both",
+      "status": "completed"
+    },
+    "UNIVELEC1": {
+      "ar": "*****",
+      "name": "اختياري جامعة (1)",
+      "cr": 2,
+      "cat": "ا ج",
+      "prereq": [],
+      "season": "both",
+      "status": "completed"
+    },
+    "UNIVELEC2": {
+      "ar": "*****",
+      "name": "اختياري جامعة (2)",
+      "cr": 2,
+      "cat": "ا ج",
+      "prereq": [],
+      "season": "both",
+      "status": "completed"
+    },
+    "UNIVELEC3": {
+      "ar": "*****",
+      "name": "اختياري جامعة (3)",
+      "cr": 2,
+      "cat": "ا ج",
+      "prereq": [],
+      "season": "both",
+      "status": "completed"
+    },
+    "CUTM3027": {
+      "ar": "منطر3027",
+      "name": "طرق تدريس التربية الفنية (1)",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [
+        "TECH3005",
+        "CUTM3407"
+      ],
+      "season": "spring",
+      "status": "remaining",
+      "critical": true
+    },
+    "ARED4111": {
+      "ar": "ترفن4111",
+      "name": "تصميم جرافيكي 2",
+      "cr": 2,
+      "cat": "م ت",
+      "prereq": [
+        "ARED3260"
+      ],
+      "season": "spring",
+      "status": "remaining"
+    },
+    "ARED2130": {
+      "ar": "ترفن2130",
+      "name": "تطبيقات التصميم",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [
+        "ARED1220"
+      ],
+      "season": "spring",
+      "status": "remaining"
+    },
+    "ARED3140": {
+      "ar": "ترفن3140",
+      "name": "نحت (2) — اختياري تخصص (أ)",
+      "cr": 3,
+      "cat": "ا ت",
+      "prereq": [],
+      "season": "spring",
+      "status": "remaining",
+      "alternatives": [
+        "ARED3230 الحرف الفنية",
+        "ARED3130 تشكيل مجسم"
+      ]
+    },
+    "ARED3210": {
+      "ar": "ترفن3210",
+      "name": "تاريخ الفن الحديث والمعاصر",
+      "cr": 2,
+      "cat": "م ت",
+      "prereq": [
+        "ARED1230"
+      ],
+      "season": "spring",
+      "status": "remaining",
+      "critical": true
+    },
+    "ARED3170": {
+      "ar": "ترفن3170",
+      "name": "جماليات التشكيل بالخط العربي — اختياري تخصص (ج)",
+      "cr": 3,
+      "cat": "ا ت",
+      "prereq": [],
+      "season": "spring",
+      "status": "remaining",
+      "alternatives": [
+        "ARED3160 مهارات فنية حياتية"
+      ]
+    },
+    "ARED4120": {
+      "ar": "ترفن4120",
+      "name": "النقد والتذوق الفني",
+      "cr": 2,
+      "cat": "م ت",
+      "prereq": [
+        "ARED3210"
+      ],
+      "season": "spring",
+      "status": "remaining",
+      "prereq_disputed": true,
+      "prereq_dispute_note": "صفحة الجدول الفصلي في الخطة تذكر المتطلب ترفن3210، بينما (القائمة و) الرسمية تتركه بلا متطلب سابق. يجب حسمه مع القسم."
+    },
+    "ARED2110": {
+      "ar": "ترفن2110",
+      "name": "النسيج بالألياف المختلفة",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [],
+      "season": "fall",
+      "status": "remaining",
+      "note": "الخطة تكتب متطلبه السابق (ترفن2110) — إحالة ذاتية، تُعامَل كخطأ مطبعي أي بلا متطلب."
+    },
+    "ARED3111": {
+      "ar": "ترفن3111",
+      "name": "الفن المعاصر",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [
+        "ARED1210",
+        "ARED2230"
+      ],
+      "season": "fall",
+      "status": "remaining"
+    },
+    "ARED3250": {
+      "ar": "ترفن3250",
+      "name": "تقنيات معاصرة في الفن — اختياري تخصص (ب)",
+      "cr": 3,
+      "cat": "ا ت",
+      "prereq": [],
+      "season": "fall",
+      "status": "remaining",
+      "alternatives": [
+        "ARED3240 التجريب بخامات مختلفة",
+        "ARED3150 مبادئ الحفر الجرافيكي"
+      ]
+    },
+    "ARED4140": {
+      "ar": "ترفن4140",
+      "name": "التربية الفنية للفئات الخاصة — اختياري تخصص (د)",
+      "cr": 2,
+      "cat": "ا ت",
+      "prereq": [],
+      "season": "fall",
+      "status": "remaining",
+      "alternatives": [
+        "ARED4130 التثقيف بالفن وخدمة المجتمع",
+        "ARED4150 قراءات نقدية في الفن التشكيلي"
+      ]
+    },
+    "CUTM4027": {
+      "ar": "منطر4027",
+      "name": "طرق تدريس التربية الفنية (2)",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [
+        "CUTM3027"
+      ],
+      "season": "fall",
+      "status": "remaining",
+      "critical": true
+    },
+    "ARED4260": {
+      "ar": "ترفن4260",
+      "name": "المشروع الفني",
+      "cr": 2,
+      "cat": "م ت",
+      "prereq": [
+        "ARED2210",
+        "ARED2110",
+        "ARED2130",
+        "ARED3120",
+        "ARED3111",
+        "ARED3220",
+        "ARED4111"
+      ],
+      "season": "fall",
+      "status": "remaining",
+      "critical": true
+    },
+    "PSYC4500": {
+      "ar": "علنف4500",
+      "name": "المتعلمون ذوو الاحتياجات الخاصة",
+      "cr": 2,
+      "cat": "م ت",
+      "prereq": [
+        "PSYC3500"
+      ],
+      "season": "both",
+      "status": "remaining"
+    },
+    "EDUC3050": {
+      "ar": "اصتر3050",
+      "name": "الإدارة والقيادة المدرسية",
+      "cr": 3,
+      "cat": "م ت",
+      "prereq": [
+        "EDUC2020"
+      ],
+      "season": "both",
+      "status": "remaining"
+    },
+    "SOCY1005": {
+      "ar": "اجمع1005",
+      "name": "عمان: الدولة والإنسان",
+      "cr": 2,
+      "cat": "م ج",
+      "prereq": [],
+      "season": "both",
+      "status": "remaining"
+    },
+    "CUTM4400": {
+      "ar": "منطر4400",
+      "name": "مشروع التخرج",
+      "cr": 2,
+      "cat": "م ت",
+      "prereq": [
+        "CUTM4027"
+      ],
+      "coreq": [
+        "CUTM4600"
+      ],
+      "season": "both",
+      "status": "remaining"
+    },
+    "CUTM4600": {
+      "ar": "منطر4600",
+      "name": "التدريب الميداني",
+      "cr": 7,
+      "cat": "م ت",
+      "prereq": [
+        "CUTM4027"
+      ],
+      "gate": "all_except_CUTM4400",
+      "season": "both",
+      "status": "remaining",
+      "critical": true
+    }
+  },
+  "exceptions": {
+    "E1": {
+      "label": "طرح/تسجيل ترفن3210 في فصل خريف",
+      "cost": "منخفض — مقرر محاضرة نظرية (2 ساعة) بلا مختبر أو ورشة",
+      "authority": "رئيس القسم + مساعد العميد + القبول والتسجيل"
+    },
+    "E2": {
+      "label": "تسجيل 7 مقررات (18 ساعة) في ربيع 2027",
+      "cost": "الأدنى — سقف الساعات (18) مستوفى تماماً، والمتجاوَز هو عدد المقررات فقط",
+      "authority": "رئيس القسم + مساعد العميد + القبول والتسجيل"
+    },
+    "E3": {
+      "label": "اعتماد ترفن4120 بلا متطلب سابق (حسم التعارض لصالح القائمة و)",
+      "cost": "لا شيء إن حُسم التعارض — تصحيح توثيقي لا استثناء",
+      "authority": "مجلس القسم"
+    },
+    "E4": {
+      "label": "تزامن ترفن3210 مع ترفن4120 في ربيع 2027",
+      "cost": "متوسط",
+      "authority": "رئيس القسم"
+    },
+    "E5": {
+      "label": "تزامن مقرر متبقٍ واحد مع التدريب الميداني",
+      "cost": "مرتفع — يمس بوابة التدريب الميداني نصاً",
+      "authority": "مجلس الكلية"
+    }
+  },
+  "scenarios": {
+    "A": {
+      "title": "المسار الأسرع — أقصى سرعة",
+      "requires_exceptions": [
+        "E2",
+        "E3"
+      ],
+      "graduation": "نهاية ربيع 2028 (يونيو 2028)",
+      "terms": [
+        {
+          "name": "خريف 2026/2027",
+          "index": 9,
+          "season": "fall",
+          "courses": [
+            "ARED2110",
+            "ARED3111",
+            "ARED3250",
+            "PSYC4500",
+            "EDUC3050"
+          ]
+        },
+        {
+          "name": "ربيع 2026/2027",
+          "index": 10,
+          "season": "spring",
+          "courses": [
+            "CUTM3027",
+            "ARED4111",
+            "ARED2130",
+            "ARED3140",
+            "ARED3210",
+            "ARED3170",
+            "ARED4120"
+          ],
+          "exception": "E2",
+          "waive_prereq": [
+            [
+              "ARED4120",
+              "ARED3210"
+            ]
+          ],
+          "waive_prereq_exception": "E3"
+        },
+        {
+          "name": "خريف 2027/2028",
+          "index": 11,
+          "season": "fall",
+          "courses": [
+            "CUTM4027",
+            "ARED4260",
+            "ARED4140",
+            "SOCY1005"
+          ]
+        },
+        {
+          "name": "ربيع 2027/2028",
+          "index": 12,
+          "season": "spring",
+          "courses": [
+            "CUTM4600",
+            "CUTM4400"
+          ],
+          "final": true
+        }
+      ]
+    },
+    "B": {
+      "title": "التوازن الأمثل — الموصى به",
+      "requires_exceptions": [
+        "E1"
+      ],
+      "graduation": "نهاية ربيع 2028 (يونيو 2028)",
+      "terms": [
+        {
+          "name": "خريف 2026/2027",
+          "index": 9,
+          "season": "fall",
+          "courses": [
+            "ARED2110",
+            "ARED3111",
+            "ARED3250",
+            "ARED3210",
+            "EDUC3050"
+          ],
+          "exception": "E1",
+          "waive_season": [
+            "ARED3210"
+          ]
+        },
+        {
+          "name": "ربيع 2026/2027",
+          "index": 10,
+          "season": "spring",
+          "courses": [
+            "CUTM3027",
+            "ARED4111",
+            "ARED2130",
+            "ARED3140",
+            "ARED3170",
+            "ARED4120"
+          ]
+        },
+        {
+          "name": "خريف 2027/2028",
+          "index": 11,
+          "season": "fall",
+          "courses": [
+            "CUTM4027",
+            "ARED4260",
+            "ARED4140",
+            "SOCY1005",
+            "PSYC4500"
+          ]
+        },
+        {
+          "name": "ربيع 2027/2028",
+          "index": 12,
+          "season": "spring",
+          "courses": [
+            "CUTM4600",
+            "CUTM4400"
+          ],
+          "final": true
+        }
+      ]
+    },
+    "C": {
+      "title": "أقل ضغط — بلا أي استثناء",
+      "requires_exceptions": [],
+      "graduation": "نهاية خريف 2028/2029 (يناير 2029)",
+      "warning": "يقع في خانة التحذير من جدول الحد الأدنى للتقدّم (د-6) في الفصلين 11 و12 إذا كان خريف2026 هو الفصل التاسع — يجب تثبيت رقم الفصل مع القبول والتسجيل.",
+      "terms": [
+        {
+          "name": "خريف 2026/2027",
+          "index": 9,
+          "season": "fall",
+          "courses": [
+            "ARED2110",
+            "ARED3111",
+            "ARED3250",
+            "EDUC3050"
+          ]
+        },
+        {
+          "name": "ربيع 2026/2027",
+          "index": 10,
+          "season": "spring",
+          "courses": [
+            "CUTM3027",
+            "ARED4111",
+            "ARED2130",
+            "ARED3210"
+          ]
+        },
+        {
+          "name": "خريف 2027/2028",
+          "index": 11,
+          "season": "fall",
+          "courses": [
+            "CUTM4027",
+            "ARED4260",
+            "ARED4140",
+            "SOCY1005"
+          ]
+        },
+        {
+          "name": "ربيع 2027/2028",
+          "index": 12,
+          "season": "spring",
+          "courses": [
+            "ARED4120",
+            "ARED3140",
+            "ARED3170",
+            "PSYC4500"
+          ]
+        },
+        {
+          "name": "خريف 2028/2029",
+          "index": 13,
+          "season": "fall",
+          "courses": [
+            "CUTM4600",
+            "CUTM4400"
+          ],
+          "final": true
+        }
+      ]
+    },
+    "D": {
+      "title": "خطة الطوارئ — الرسوب في منطر3027 (نقطة الانهيار الوحيدة)",
+      "requires_exceptions": [
+        "E1"
+      ],
+      "graduation": "نهاية ربيع 2029 (يونيو 2029) — الفصل الرابع عشر، آخر فصل مسموح",
+      "warning": "يفترض الرسوب في منطر3027 في ربيع2027. النتيجة ليست تأخّر فصل واحد بل فصلان مُعطَّلان (12 و13) لا يوجد فيهما ما يُسجَّل قانوناً، والهبوط على آخر فصل مسموح.",
+      "terms": [
+        {
+          "name": "خريف 2026/2027",
+          "index": 9,
+          "season": "fall",
+          "courses": [
+            "ARED2110",
+            "ARED3111",
+            "ARED3210",
+            "EDUC3050"
+          ],
+          "waive_season": [
+            "ARED3210"
+          ],
+          "exception": "E1"
+        },
+        {
+          "name": "ربيع 2026/2027",
+          "index": 10,
+          "season": "spring",
+          "courses": [
+            "CUTM3027",
+            "ARED4111",
+            "ARED2130",
+            "ARED3140",
+            "ARED3170",
+            "ARED4120"
+          ],
+          "failed": [
+            "CUTM3027"
+          ]
+        },
+        {
+          "name": "خريف 2027/2028",
+          "index": 11,
+          "season": "fall",
+          "courses": [
+            "ARED4260",
+            "ARED3250",
+            "ARED4140",
+            "SOCY1005",
+            "PSYC4500"
+          ]
+        },
+        {
+          "name": "ربيع 2027/2028",
+          "index": 12,
+          "season": "spring",
+          "courses": [
+            "CUTM3027"
+          ],
+          "under_min_ack": "إعادة منطر3027 وحده — لا يتبقى أي مقرر ربيعي آخر يُسجَّل معه"
+        },
+        {
+          "name": "خريف 2028/2029",
+          "index": 13,
+          "season": "fall",
+          "courses": [
+            "CUTM4027"
+          ],
+          "under_min_ack": "منطر4027 وحده — لا يتبقى أي مقرر خريفي آخر يُسجَّل معه"
+        },
+        {
+          "name": "ربيع 2028/2029",
+          "index": 14,
+          "season": "spring",
+          "courses": [
+            "CUTM4600",
+            "CUTM4400"
+          ],
+          "final": true
+        }
+      ]
+    },
+    "ADVISOR_DRAFT": {
+      "title": "مقترح المرشد كما هو (اختبار سلبي — يُتوقَّع فشله)",
+      "requires_exceptions": [],
+      "graduation": "غير محدَّد — التدريب الميداني غائب عن المقترح",
+      "expect_fail": true,
+      "terms": [
+        {
+          "name": "خريف 2026/2027",
+          "index": 9,
+          "season": "fall",
+          "courses": [
+            "CUTM3027",
+            "ARED4111",
+            "ARED2130",
+            "ARED3140",
+            "ARED3210"
+          ]
+        },
+        {
+          "name": "ربيع 2026/2027",
+          "index": 10,
+          "season": "spring",
+          "courses": [
+            "ARED3111",
+            "ARED3250",
+            "ARED4140",
+            "CUTM4027",
+            "ARED2110",
+            "ARED4260"
+          ]
+        },
+        {
+          "name": "خريف 2027/2028",
+          "index": 11,
+          "season": "fall",
+          "courses": [
+            "PSYC4500",
+            "ARED3170",
+            "SOCY1005",
+            "ARED4120",
+            "CUTM4400",
+            "EDUC3050"
+          ]
+        }
+      ]
+    },
+    "ADVISOR_DRAFT_SPRING_FIRST": {
+      "title": "مقترح المرشد بترتيبه المقصود، بداية ربيعية (اختبار سلبي — يعزل الخلل الجوهري)",
+      "requires_exceptions": [],
+      "graduation": "غير محدَّد — التدريب الميداني غائب عن المقترح",
+      "expect_fail": true,
+      "terms": [
+        {
+          "name": "ربيع 2026/2027",
+          "index": 10,
+          "season": "spring",
+          "courses": [
+            "CUTM3027",
+            "ARED4111",
+            "ARED2130",
+            "ARED3140",
+            "ARED3210"
+          ]
+        },
+        {
+          "name": "خريف 2027/2028",
+          "index": 11,
+          "season": "fall",
+          "courses": [
+            "ARED3111",
+            "ARED3250",
+            "ARED4140",
+            "CUTM4027",
+            "ARED2110",
+            "ARED4260"
+          ]
+        },
+        {
+          "name": "ربيع 2027/2028",
+          "index": 12,
+          "season": "spring",
+          "courses": [
+            "PSYC4500",
+            "ARED3170",
+            "SOCY1005",
+            "ARED4120",
+            "CUTM4400",
+            "EDUC3050"
+          ]
+        }
+      ]
+    }
+  }
+}
