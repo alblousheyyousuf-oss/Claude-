@@ -1,4 +1,5 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>أنشطة منزلية لبناء الانتباه المشترك</title><style>
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<title>أنشطة منزلية لبناء الانتباه المشترك</title><style>
 @page { size: A4; margin: 20mm 18mm 18mm 18mm; }
 *{box-sizing:border-box}
 :root{
@@ -95,24 +96,47 @@ td.c{text-align:center; color:var(--ink3)}
 .toc .l2{margin:0 0 1.5mm 0; padding-inline-start:9mm; color:var(--ink2); font-size:9.8pt}
 .toc .grp{margin-top:5mm; font-size:8.8pt; font-weight:700; letter-spacing:.14em; color:var(--teal)}
 .avoid-break{break-inside:avoid}
-</style></head><body><div class="cover">
-  <div class="kicker">دليل عملي للأسرة · مبني على الأدلة العلمية</div>
-  <h1>أنشطة منزلية لبناء الانتباه المشترك<br>لدى الأطفال دون سن الثالثة<br>المصابين باضطراب طيف التوحد</h1>
-  <div class="rule"></div>
-  <p class="sub">سبعة عشر نشاطاً يمكن تنفيذها بأدوات موجودة في كل بيت، مرتّبة خطوة بخطوة،
-  تهدف إلى كسر الانسحاب وبناء التواصل البصري والانتباه المشترك — يليها ملحق علمي كامل بالمنهجية والأدلة والمراجع.</p>
-  <div class="cond">
-    <p><b>شرط أساسي قبل أن تبدأ:</b> هذا الدليل مكتوب لأسرة طفل <strong>يتابع بالفعل</strong> لدى جهة صحية متخصصة —
-    طبيب أطفال نمائي، أو مركز تدخل مبكر، أو أخصائي نطق ولغة، أو معالج وظيفي. الأنشطة هنا <strong>تُضاف</strong>
-    إلى برنامج طفلكم ولا تحلّ محلّه، ولا تُغني عن التقييم والتشخيص.</p>
-    <p style="margin-top:3mm">إن لم يكن طفلكم تحت متابعة مختص بعد، فالخطوة الأولى ليست في هذا الكتاب:
-    <strong>احجزوا موعد تقييم أولاً.</strong></p>
-  </div>
-  <div class="foot">
-    <span>الفئة العمرية · 12–36 شهراً</span><span>17 نشاطاً في 6 مجموعات</span>
-    <span>25 مرجعاً محكّماً</span><span>بابان: للأسرة · للمختصين</span>
-  </div>
-</div>
+
+@page cover { margin: 0; }
+.sheet-cover{ page:cover; break-after:page; height:297mm; width:210mm; position:relative; overflow:hidden; }
+
+/* ---------- FRONT ---------- */
+.fc{ background:linear-gradient(165deg,#0B3330 0%,#124F4B 45%,#17635F 100%); color:#F4F1E8;
+     display:flex; flex-direction:column; padding:22mm 20mm 18mm; }
+.fc .kick{ font-family:var(--body); font-size:9pt; font-weight:700; letter-spacing:.26em; color:#7FC9C0; }
+.fc .mark{ flex:1; display:flex; align-items:center; justify-content:center; margin:2mm 0 0; }
+.fc .mark svg{ width:134mm; height:auto; }
+.fc h1{ font-family:var(--display); font-size:27pt; line-height:1.5; color:#FBF8F0; margin:0 0 5mm; }
+.fc .tl{ height:2pt; width:34mm; background:#E8B45A; margin:0 0 5mm; }
+.fc .sub{ font-family:var(--body); font-size:11pt; line-height:1.8; color:#BEDCD7; max-width:132mm; margin:0; }
+.fc .base{ margin-top:9mm; padding-top:5mm; border-top:.7pt solid rgba(244,241,232,.28);
+           display:flex; flex-wrap:wrap; gap:4mm 7mm; font-family:var(--body); font-size:8.6pt; color:#9CC8C2; }
+.fc .base b{ color:#E8B45A; font-weight:700 }
+
+/* ---------- BACK ---------- */
+.bc{ background:#F4F8F7; color:var(--ink); padding:16mm 15mm 14mm; display:flex; flex-direction:column; }
+.bc .hd{ text-align:center; margin-bottom:7mm }
+.bc .eyebrow{ font-family:var(--body); font-size:8.6pt; font-weight:700; letter-spacing:.2em; color:#17635F; }
+.bc h2{ font-family:var(--display); font-size:29pt; color:#0F4F4B; margin:2.5mm 0 3mm; line-height:1.35 }
+.bc .cut{ font-family:var(--body); font-size:9.6pt; color:#4A5D66; }
+.bc .grid{ display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(3,1fr); gap:6mm; flex:1 }
+.rule{ background:#fff; border:.7pt solid #CFDEDC; border-radius:2.5mm; padding:6mm 6mm; display:flex; gap:4.5mm; align-items:center }
+.rule .n{ flex:none; width:12.5mm; height:12.5mm; border-radius:50%; background:#17635F; color:#fff;
+          font-family:var(--display); font-size:17pt; font-weight:700;
+          display:flex; align-items:center; justify-content:center; }
+.rule .tx h3{ font-family:var(--display); font-size:16pt; color:#0F4F4B; margin:0 0 1.5mm; line-height:1.35 }
+.rule .tx p{ font-family:var(--body); font-size:10.4pt; line-height:1.75; color:#3C4F58; margin:0; text-align:start }
+.bc .seventh{ margin-top:5mm; background:#0F4F4B; color:#EAF3F1; border-radius:2.5mm; padding:5mm 6mm; display:flex; gap:4mm; align-items:flex-start }
+.bc .seventh .st{ font-family:var(--display); font-size:13pt; color:#E8B45A; flex:none }
+.bc .seventh p{ font-family:var(--body); font-size:10.2pt; line-height:1.75; margin:0; text-align:start }
+.bc .foot{ margin-top:5mm; text-align:center; font-family:var(--body); font-size:8.2pt; color:#7A8D93; line-height:1.7 }
+</style></head><body><div class="box" style="margin-bottom:7mm"><span class="lbl">شرط أساسي قبل أن تبدؤوا</span>
+<p>هذا الدليل مكتوب لأسرة طفل <strong>يتابع بالفعل</strong> لدى جهة صحية متخصصة — طبيب أطفال نمائي،
+أو مركز تدخل مبكر، أو أخصائي نطق ولغة، أو معالج وظيفي. الأنشطة هنا <strong>تُضاف</strong> إلى برنامج طفلكم
+ولا تحلّ محلّه، ولا تُغني عن التقييم والتشخيص.</p>
+<p style="margin-top:2.5mm">إن لم يكن طفلكم تحت متابعة مختص بعد، فالخطوة الأولى ليست في هذا الكتاب:
+<strong>احجزوا موعد تقييم أولاً.</strong></p></div>
+
 <h2 class="sec"><span class="n">تمهيد</span>كيف تستخدمون هذا الدليل</h2><div class="srule"></div>
 <p>قُسّم هذا الدليل إلى بابين، لأن قارئيه نوعان:</p>
 <table>
@@ -147,7 +171,8 @@ td.c{text-align:center; color:var(--ink3)}
   <div class="l1"><span class="n">12</span><span>حدود الأدلة والتحفّظات المنهجية</span></div>
   <div class="l1"><span class="n">13</span><span>المراجع</span></div>
   <div class="l1"><span class="n">14</span><span>إخلاء مسؤولية</span></div>
-</div><div class="part">
+</div>
+<div class="part">
   <div class="tag">الباب الأول</div>
   <h2>للأسرة</h2>
   <div class="rule"></div>
@@ -437,7 +462,8 @@ td.c{text-align:center; color:var(--ink3)}
   <li><strong>إيذاء نفسه</strong>، أو ازدياد حاد في حدّة الحركات المتكررة.</li>
   <li><strong>عدم ظهور أي تغيّر بعد اثني عشر أسبوعاً</strong> من التطبيق المنتظم — قد يحتاج البرنامج إلى تعديل.</li>
   <li>أي شك في <strong>نوبات تشنّج</strong> أو <strong>ضعف في السمع</strong> — كثير من حالات «لا يستجيب لاسمه» سببها ضعف سمع يجب استبعاده أولاً.</li>
-</ul></div><div class="part">
+</ul></div>
+<div class="part">
   <div class="tag">الباب الثاني</div>
   <h2>الأساس العلمي</h2>
   <div class="rule"></div>
