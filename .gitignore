@@ -1,0 +1,5 @@
+# مخرجات بناء الـ PDF — تُولَّد بـ scripts/build_pdf.py
+docs/graduation-roadmap-print.html
+docs/fonts/
+__pycache__/
+*.pyc
