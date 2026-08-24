@@ -15,6 +15,7 @@ import re
 import subprocess
 import sys
 import urllib.request
+from collections import defaultdict
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / "docs" / "data" / "study-plan.json"
@@ -214,6 +215,58 @@ ol.ck li::before{ content:"☐"; color:var(--ink-3); flex:0 0 auto }
 .letter{ border:.8pt solid var(--rule); padding:6mm 7mm; font-size:9pt; line-height:1.9 }
 .sig{ display:flex; justify-content:space-between; margin-top:9mm; font-size:8.4pt; color:var(--ink-2) }
 .sig div{ border-top:.5pt solid var(--rule); padding-top:1.5mm; width:58mm; text-align:center }
+
+/* ── الاستمارة الرسمية ─────────────────────── */
+.form{ border:1.5pt solid var(--ink); padding:6mm; height:100%; display:flex; flex-direction:column }
+.form h1{ font-size:14pt; text-align:center; text-decoration:underline;
+  text-underline-offset:3pt; color:var(--stamp); margin:0 0 5mm }
+.form .fields{ font-size:9pt; line-height:2.1; margin-bottom:4mm }
+.form .fields span{ display:inline-block; min-width:34mm }
+.form .fields b{ font-weight:600; border-bottom:.5pt dotted var(--ink-3); padding:0 3mm }
+.fgrid{ display:grid; grid-template-columns:repeat(3,1fr); border:.8pt solid var(--ink);
+  border-inline-start:0; margin-bottom:0 }
+.fgrid > div{ border-inline-start:.8pt solid var(--ink); display:flex; flex-direction:column }
+.fband{ background:#F3E3E3; text-align:center; font-weight:600; font-size:9pt;
+  padding:1.4mm; border-bottom:.8pt solid var(--ink) }
+.fsub{ display:grid; grid-template-columns:1fr 22mm; font-size:7.4pt; color:var(--ink-2);
+  text-align:center; border-bottom:.5pt solid var(--rule) }
+.fsub span{ padding:1mm .5mm }
+.fsub span:first-child{ border-inline-start:.5pt solid var(--rule) }
+.frow{ display:grid; grid-template-columns:1fr 22mm; font-size:8pt; min-height:6mm }
+.frow span{ padding:1.1mm 2mm }
+.frow span:last-child{ text-align:center; border-inline-end:.5pt solid var(--rule-2) }
+.ftot{ display:grid; grid-template-columns:1fr 22mm; font-size:8.4pt; font-weight:600;
+  border-top:.8pt solid var(--ink); margin-top:auto; background:var(--wash) }
+.ftot span{ padding:1.4mm 2mm } .ftot span:last-child{ text-align:center }
+.fnote{ border:.8pt solid var(--ink); border-top:0; padding:3mm; font-size:8pt; min-height:20mm }
+.fnote .lbl{ background:#F3E3E3; display:block; margin:-3mm -3mm 2mm; padding:1.4mm;
+  text-align:center; font-weight:600; font-size:9pt; border-bottom:.8pt solid var(--ink) }
+.fsig{ display:flex; justify-content:space-around; margin-top:auto; padding-top:8mm; font-size:8.4pt }
+.fsig div{ border-top:.5pt dotted var(--ink-3); padding-top:1.5mm; width:52mm; text-align:center }
+.ffoot{ text-align:center; font-size:7.4pt; color:var(--ink-2); margin-top:4mm; line-height:1.7 }
+
+/* ── الجدول الأسبوعي ───────────────────────── */
+.wk{ margin-bottom:4mm }
+.wk-hd{ display:flex; align-items:baseline; gap:3mm; margin-bottom:1.5mm }
+.wk-hd .t{ font-family:"Reem Kufi",sans-serif; font-weight:600; font-size:10pt }
+.wk-hd .m{ margin-inline-start:auto; font-size:7.8pt; color:var(--ink-2) }
+.wk-days{ display:grid; grid-template-columns:14mm repeat(5,1fr); font-size:7.6pt;
+  font-weight:600; color:var(--ink-2); text-align:center }
+.wk-days span{ padding:1mm 0; border-bottom:.8pt solid var(--rule) }
+.wk-body{ display:grid; grid-template-columns:14mm repeat(5,1fr); position:relative }
+.wk-times{ position:relative; font-size:6.6pt; color:var(--ink-3) }
+.wk-times i{ position:absolute; inset-inline-end:1.5mm; font-style:normal; transform:translateY(-1mm) }
+.wk-col{ position:relative; border-inline-start:.5pt solid var(--rule-2) }
+.wk-col:last-child{ border-inline-end:.5pt solid var(--rule-2) }
+.wk-hr{ position:absolute; inset-inline:0; border-top:.5pt solid var(--rule-2) }
+.wk-blk{ position:absolute; inset-inline:.6mm; border:.6pt solid; border-inline-start-width:1.6pt;
+  padding:.8mm 1mm; font-size:6.8pt; line-height:1.3; overflow:hidden }
+.wk-blk b{ display:block; font-weight:600; font-size:7.2pt }
+.wk-blk .s{ display:block; margin-top:.4mm; font-size:6.2pt; opacity:.85 }
+.wk-blk.fall{ color:var(--fall); background:var(--fall-wash) }
+.wk-blk.spring{ color:var(--spring); background:var(--spring-wash) }
+.wk-blk.field{ color:var(--stamp); background:var(--stamp-wash) }
+.wk-legend{ font-size:7.4pt; color:var(--ink-2); margin-top:1.5mm; line-height:1.6 }
 """
 
 
@@ -711,6 +764,38 @@ def pages_rest(doc, d):
 
     pages_tail(doc, d)
 
+    # القسم الثاني: استمارة رسمية لكل خطة، ثم جداولها الأسبوعية
+    meetings = load_meetings()
+    doc.sheet("""
+<p class="lede">القسم الأول من هذه الوثيقة يحلّل الخطط. وهذا القسم يحوّلها إلى ورق عملي:
+<strong>استمارة تدقيق رسمية مملوءة</strong> لكل خطة جاهزة للتوقيع، ثم <strong>جدول أسبوعي
+لكل فصل</strong> في كل خطة.</p>
+<h3>ما تضيفه الجداول الأسبوعية</h3>
+<p>الخطط حتى الآن فُحصت ضد الساعات والمتطلبات السابقة والموسمية. الجداول الأسبوعية تفحصها ضد
+بُعد رابع لم يُختبر: <strong>الساعة والدقيقة</strong>. لكل فصل بُحث آلياً عن إسناد شعبة لكل مقرر
+بحيث لا يتعارض مقرران، والنتيجة أن <strong>الفصول التسعة عشر في الخطط الأربع كلها خالية من
+التعارض</strong>.</p>
+<div class="box ok"><span class="lbl">أثر ذلك على طلب الاستثناء</span>
+<p>فصل ربيع 2027 في السيناريو أ — سبعة مقررات و18 ساعة — <strong>يتوزّع على أربعة أيام
+والخميس فيه فارغ</strong>. هذه حجّة مادية أمام رئيس القسم: لا تطلب استثناءً على ورق، بل تعرض
+جدولاً أسبوعياً فعلياً يعمل. والتوزيع شبه إجباري لأن أربعة من السبعة لها شعبة واحدة فقط.</p></div>
+<div class="box" style="border-top:2pt solid var(--fall)">
+<span class="lbl">تعارض حقيقي جرى تفاديه</span>
+<p><strong>ترفن4140</strong> مقفل على الأحد صباحاً، و<strong>منطر4027</strong> شعبتاه 01 و02 على
+الأحد صباحاً أيضاً. لولا هذا الفحص لاصطدمتَ بذلك يوم التسجيل. الحل: الشعبة 03 (الثلاثاء) —
+وهو ما اختاره الحلّال تلقائياً.</p></div>
+<div class="box stamp" style="border-top-width:1pt"><span class="lbl">حدود هذه المواعيد</span>
+<p class="sm">المواعيد مستخرَجة من جدولَي <strong>خريف وربيع 2025/2026</strong> الرسميين
+(1803 لقاء، تغطية 98%). القسم يعيد نشر جداوله كل عام وقد تتغيّر الأوقات والقاعات وأعداد الشعب.
+اعتبرها <strong>نمطاً متوقَّعاً لا التزاماً</strong>، وثبّتها عند فتح التسجيل.
+ومقرر <strong>اجمع1005</strong> لم تُستخرج مواعيده (ملف قسم الاجتماع تعذّر تحليله) وله عشر شعب
+فيُختار منها ما يناسب الفراغ.</p></div>""",
+        title="القسم الثاني · الاستمارات والجداول الأسبوعية", tag="مدخل")
+    for k in ["A", "B", "C", "D"]:
+        page_form(doc, d, k)
+    for k in ["A", "B", "C", "D"]:
+        pages_weekly(doc, d, k, meetings)
+
 
 def pages_tail(doc, d):
     C = d["courses"]
@@ -775,6 +860,9 @@ def pages_tail(doc, d):
 إنهاء جميع مقررات الخطة قبله.<br>
 ٣ · عليه، يجب تسجيل السبعة كلها في فصل ربيع 2027، وهو ما يستوفي سقف الساعات (18) تماماً
 لكنه يتجاوز سقف عدد المقررات (6) بمقرر واحد.</p>
+<p>٤ · وقد راجعتُ مواعيد المحاضرات الفعلية للمقررات السبعة، فتبيّن أنها
+<strong>تتوزّع على أربعة أيام دون أي تعارض زمني، ويبقى يوم الخميس فارغاً</strong> —
+والجدول الأسبوعي مرفق.</p>
 <p>وعليه ألتمس من سعادتكم الموافقة على <strong>أحد</strong> الخيارين:</p>
 <p><strong>الأول:</strong> الموافقة على تسجيلي في <strong>سبعة مقررات (18 ساعة معتمدة)</strong>
 في فصل ربيع 2027، علماً بأن سقف الساعات المنصوص عليه في البند (ب-3) من النظام الأكاديمي
@@ -784,8 +872,9 @@ def pages_tail(doc, d):
 أو سعة معملية.</p>
 <p>وأودّ الإفادة بأن أياً من الخيارين يمكّنني من التخرج في <strong>ربيع 2028</strong> وفق الخطة
 المرفقة، بينما يؤدي تعذّرهما إلى تأخير التخرج فصلاً كاملاً إلى يناير 2029.</p>
-<p><strong>مرفق:</strong> خطة فصلية تفصيلية موضّح فيها المتطلبات السابقة والموسمية لكل مقرر
-(الصفحات 9–{len(doc.pages) - 1} من هذه الوثيقة).</p>
+<p><strong>المرفقات:</strong> خطة فصلية تفصيلية موضّح فيها المتطلبات السابقة والموسمية
+لكل مقرر · استمارة تدقيق الخطة الدراسية مملوءة · جدول أسبوعي لكل فصل يثبت خلوّه من
+التعارض الزمني.</p>
 <p>شاكراً لكم حسن تعاونكم،</p>
 <div class="sig"><div>توقيع الطالب</div><div>التاريخ</div></div>
 </div>
@@ -817,6 +906,237 @@ def main():
     print(f"✓ {PDF_OUT.name}  —  {PDF_OUT.stat().st_size // 1024} KB")
     return 0
 
+
+
+# ══════════════════════════════════════════════════════════════
+# المواعيد وحلّال التعارض
+# ══════════════════════════════════════════════════════════════
+MEETINGS_PATH = ROOT / "docs" / "data" / "meetings.json"
+DAYS = ["SUN", "MON", "TUE", "WED", "THU"]
+DAY_AR = {"SUN": "الأحد", "MON": "الاثنين", "TUE": "الثلاثاء",
+          "WED": "الأربعاء", "THU": "الخميس"}
+
+
+def load_meetings():
+    if not MEETINGS_PATH.exists():
+        return {}
+    return json.loads(MEETINGS_PATH.read_text(encoding="utf-8"))["meetings"]
+
+
+def _mins(hhmm):
+    h, m = hhmm.split(":")
+    return int(h) * 60 + int(m)
+
+
+def _clash(a, b):
+    return a["day"] == b["day"] and _mins(a["start"]) < _mins(b["end"]) \
+        and _mins(b["start"]) < _mins(a["end"])
+
+
+def candidates(meetings, term_season, code):
+    """شعب المقرر بعد إسقاط المكرّرة زمنياً — أقلّ بحثاً وأوضح عرضاً."""
+    secs = meetings.get(f"{term_season}:{code}", {})
+    seen, out = set(), []
+    for sec in sorted(secs):
+        slots = sorted(secs[sec], key=lambda m: (DAYS.index(m["day"]), m["start"]))
+        sig = tuple((m["day"], m["start"], m["end"]) for m in slots)
+        if sig and sig not in seen:
+            seen.add(sig)
+            out.append((sec, slots))
+    return out
+
+
+def solve_term(meetings, season, codes):
+    """يبحث عن إسناد شعبة لكل مقرر بلا تعارض زمني.
+
+    يعيد dict فيه: assignment · flexible (مقررات بلا مواعيد) · forced (بلا بديل)
+    · ok · conflicts (عند التعذّر).
+    """
+    pool = {c: candidates(meetings, season, c) for c in codes}
+    flexible = [c for c, v in pool.items() if not v]
+    fixed = [c for c in codes if pool[c]]
+    fixed.sort(key=lambda c: len(pool[c]))          # الأكثر تقييداً أولاً
+
+    assign, chosen = {}, []
+
+    def place(i):
+        if i == len(fixed):
+            return True
+        code = fixed[i]
+        for sec, slots in pool[code]:
+            if any(_clash(s, t) for s in slots for _, t in chosen):
+                continue
+            assign[code] = (sec, slots)
+            chosen.extend((code, s) for s in slots)
+            if place(i + 1):
+                return True
+            del assign[code]
+            del chosen[len(chosen) - len(slots):]
+        return False
+
+    ok = place(0)
+    if not ok:
+        clashes = []
+        for a in range(len(fixed)):
+            for b in range(a + 1, len(fixed)):
+                ca, cb = fixed[a], fixed[b]
+                if all(_clash(s, t) for _, sa in [pool[ca][0]] for s in sa
+                       for _, sb in [pool[cb][0]] for t in sb):
+                    clashes.append((ca, cb))
+        return {"ok": False, "assignment": {}, "flexible": flexible,
+                "forced": [], "conflicts": clashes}
+
+    forced = [c for c in fixed if len(pool[c]) == 1]
+    return {"ok": True, "assignment": assign, "flexible": flexible,
+            "forced": forced, "conflicts": [],
+            "alternatives": {c: len(pool[c]) for c in fixed}}
+
+
+# ══════════════════════════════════════════════════════════════
+# صفحات الاستمارة الرسمية والجداول الأسبوعية
+# ══════════════════════════════════════════════════════════════
+AR_KEY = {"A": "أ", "B": "ب", "C": "ج", "D": "د"}
+
+
+def form_cell(d, term):
+    """خلية فصل واحد في شبكة الاستمارة."""
+    C = d["courses"]
+    rows = "".join(
+        f'<div class="frow"><span>{C[c]["ar"]} {C[c]["name"].split("—")[0].strip()}</span>'
+        f'<span>{C[c]["cr"]}</span></div>' for c in term["courses"])
+    if not term["courses"]:
+        rows = f'<div class="frow"><span style="color:var(--stamp)">{term.get("note","—")}</span><span>—</span></div>'
+    return (f'<div><div class="fband">{term["name"]}</div>'
+            f'<div class="fsub"><span>رمز المقرر واسمه</span><span>عدد الساعات</span></div>'
+            f'{rows}<div class="ftot"><span>مجموع الساعات</span>'
+            f'<span>{credits(d, term["courses"])}</span></div></div>')
+
+
+def page_form(doc, d, key):
+    s, m = d["scenarios"][key], d["meta"]
+    grad_year = "2028" if key in ("A", "B") else "2029"
+    exc = " و".join(s["requires_exceptions"]) or "لا يوجد"
+    terms = s["terms"]
+    bands = [terms[i:i + 3] for i in range(0, len(terms), 3)]
+    grid = "".join('<div class="fgrid">' + "".join(form_cell(d, t) for t in band)
+                   + ("<div></div>" * (3 - len(band))) + "</div>" for band in bands)
+    note = (f'الخطة مبنية على السيناريو <b>{AR_KEY[key]}</b> — {s["title"].split("—")[0].strip()}. '
+            f'الاستثناء المطلوب: <b>{exc}</b>. '
+            + ("الجدول الأسبوعي المرفق يثبت خلوّ الفصول من التعارض الزمني."
+               if s.get("recommended") else
+               "يُنظر إليه بديلاً إن تعذّر السيناريو الموصى به."))
+    doc.sheet(f"""
+<div class="form">
+  <h1>استمارة ملخص تدقيق الخطة الدراسية</h1>
+  <div class="fields">
+    <span>اسم الطالب</span>: <b>{m["student"]}</b><br>
+    <span>الرقم الجامعي</span>: <b>{m["student_id"]}</b><br>
+    <span>التخصص</span>: <b>التربية الفنية</b><br>
+    <span>الدفعة</span>: <b>{m["cohort"]}</b><br>
+    <span>توقع التخرج</span>: <b>{grad_year}</b><br>
+    <span>اسم المرشد الأكاديمي</span>: <b>{m["advisor"].replace("(رئيس القسم والمرشد الأكاديمي)", "").strip()}</b>
+  </div>
+  {grid}
+  <div class="fnote"><span class="lbl">ملاحظات المرشد الأكاديمي</span>{note}</div>
+  <div class="fsig"><div>توقيع الطالب</div><div>توقيع المرشد الأكاديمي</div></div>
+  <p class="ffoot">بتوقيع الطالب على هذه الاستمارة فإنه يؤكد قيامه بمراجعة الخطة مع مرشده الأكاديمي
+  ويعزم على الالتزام بما جاء بها حتى يتخرج في الوقت المحدد<br>
+  مكتب مساعد العميد للدراسات الجامعية — كلية التربية</p>
+</div>""")
+
+
+DAY_START, DAY_END, MM_PER_MIN = 8 * 60, 18 * 60 + 30, 0.155
+
+
+def merge_slots(slots):
+    """يدمج لقاءات اليوم الواحد المتلاصقة (فجوة ≤ 15 دقيقة) في كتلة واحدة."""
+    by_day = defaultdict(list)
+    for s in slots:
+        by_day[s["day"]].append(s)
+    out = []
+    for day, group in by_day.items():
+        group.sort(key=lambda s: _mins(s["start"]))
+        cur = dict(group[0])
+        for nxt in group[1:]:
+            if _mins(nxt["start"]) - _mins(cur["end"]) <= 15:
+                cur["end"] = max(cur["end"], nxt["end"])
+            else:
+                out.append(cur)
+                cur = dict(nxt)
+        out.append(cur)
+    return out
+
+
+def weekly_block(d, key, term, res):
+    """شبكة أسبوعية لفصل واحد."""
+    C = d["courses"]
+    height = (DAY_END - DAY_START) * MM_PER_MIN
+    hours = "".join(
+        f'<i style="top:{(h * 60 - DAY_START) * MM_PER_MIN:.1f}mm">{h}:00</i>'
+        for h in range(8, 19))
+    lines = "".join(
+        f'<div class="wk-hr" style="top:{(h * 60 - DAY_START) * MM_PER_MIN:.1f}mm"></div>'
+        for h in range(9, 19))
+    cols = []
+    for day in DAYS:
+        blocks = ""
+        for code, (sec, slots) in res["assignment"].items():
+            for sl in merge_slots(slots):
+                if sl["day"] != day:
+                    continue
+                top = (_mins(sl["start"]) - DAY_START) * MM_PER_MIN
+                hgt = (_mins(sl["end"]) - _mins(sl["start"])) * MM_PER_MIN
+                cls = "field" if code == "CUTM4600" else term["season"]
+                name = C[code]["name"].split("—")[0].strip()
+                # الكتل القصيرة لا تتسع للاسم كاملاً — يُقلَّص حتى لا يُقصّ سطر الوقت
+                if hgt < 13:
+                    name = ""
+                elif hgt < 19:
+                    name = name[:20] + ("…" if len(name) > 20 else "")
+                blocks += (f'<div class="wk-blk {cls}" style="top:{top:.1f}mm;height:{hgt:.1f}mm">'
+                           f'<b>{C[code]["ar"]}</b>{name}'
+                           f'<span class="s">ش{sec} · {sl["start"]}–{sl["end"]}</span></div>')
+        cols.append(f'<div class="wk-col">{lines}{blocks}</div>')
+
+    busy = {sl["day"] for _, slots in res["assignment"].values() for sl in slots}
+    free = [DAY_AR[x] for x in DAYS if x not in busy]
+    flex = [C[c]["ar"] for c in res["flexible"]]
+    legend = []
+    if free:
+        legend.append("أيام فارغة: " + " · ".join(free))
+    if res["forced"]:
+        legend.append("مقفلة على شعبة واحدة: " + " · ".join(C[c]["ar"] for c in res["forced"]))
+    if flex:
+        legend.append("بلا وقت في بيانات 2025/2026 (يُختار عند التسجيل): " + " · ".join(flex))
+    if not legend:
+        legend.append("كل المقررات لها بدائل شعب — مرونة كاملة في الترتيب")
+
+    return (f'<div class="wk"><div class="wk-hd"><span class="chip {term["season"]}">'
+            f'{SEASON_AR[term["season"]]}</span><span class="t">{term["name"]}</span>'
+            f'<span class="m">{credits(d, term["courses"])} ساعة · {len(term["courses"])} مقررات · '
+            f'{"بلا تعارض ✓" if res["ok"] else "تعارض ✗"}</span></div>'
+            f'<div class="wk-days"><span></span>'
+            + "".join(f"<span>{DAY_AR[x]}</span>" for x in DAYS) + '</div>'
+            f'<div class="wk-body" style="height:{height:.1f}mm">'
+            f'<div class="wk-times">{hours}</div>{"".join(cols)}</div>'
+            f'<p class="wk-legend">{" · ".join(legend)}</p></div>')
+
+
+def pages_weekly(doc, d, key, meetings):
+    s = d["scenarios"][key]
+    blocks = []
+    for t in s["terms"]:
+        if not t["courses"]:
+            continue
+        res = solve_term(meetings, t["season"], t["courses"])
+        blocks.append(weekly_block(d, key, t, res))
+    intro = (f'<p class="lede">السيناريو <strong>{AR_KEY[key]}</strong> — '
+             f'{s["title"].split("—")[0].strip()}. المواعيد من جدولَي 2025/2026 '
+             f'<strong>استرشادية</strong>، والشعب مختارة آلياً بحيث لا يتعارض مقرران في الفصل الواحد.</p>')
+    for i in range(0, len(blocks), 2):
+        doc.sheet((intro if i == 0 else "") + "".join(blocks[i:i + 2]),
+                  title=f"الجدول الأسبوعي · السيناريو {AR_KEY[key]}",
+                  tag="تتمة" if i else f"{len(blocks)} فصول")
 
 if __name__ == "__main__":
     sys.exit(main())
