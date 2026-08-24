@@ -1,0 +1,566 @@
+<title>الطريق إلى يونيو 2028</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+:root{
+  --ground:#F6F8F5; --surface:#FFFFFF; --surface-2:#EDF1EE;
+  --ink:#16211E; --ink-2:#4E5C58; --ink-3:#76837E;
+  --rule:#D4DCD7; --rule-2:#E6EBE8;
+  --fall:#8A6A2F; --fall-wash:#F3EDE1;
+  --spring:#1D6B62; --spring-wash:#E4EFED;
+  --stamp:#9E3226; --stamp-wash:#F6E7E4;
+  --ok:#3B6F4B;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1412; --surface:#161D1A; --surface-2:#1D2622;
+    --ink:#E7ECE9; --ink-2:#A3B0AB; --ink-3:#7C8A85;
+    --rule:#2A3531; --rule-2:#222C29;
+    --fall:#C89C52; --fall-wash:#241D10;
+    --spring:#57ADA1; --spring-wash:#0F2320;
+    --stamp:#E07C6A; --stamp-wash:#2A1512;
+    --ok:#71B481;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1412; --surface:#161D1A; --surface-2:#1D2622;
+  --ink:#E7ECE9; --ink-2:#A3B0AB; --ink-3:#7C8A85;
+  --rule:#2A3531; --rule-2:#222C29;
+  --fall:#C89C52; --fall-wash:#241D10;
+  --spring:#57ADA1; --spring-wash:#0F2320;
+  --stamp:#E07C6A; --stamp-wash:#2A1512;
+  --ok:#71B481;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans Arabic",system-ui,"Segoe UI",sans-serif;
+  font-weight:400; font-size:16.5px; line-height:1.75;
+  direction:rtl; text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+.wrap{max-width:1120px; margin:0 auto; padding:0 clamp(18px,4vw,44px)}
+.col{max-width:70ch; margin-inline:0}
+
+h1,h2,h3,.kufi{font-family:"Reem Kufi","IBM Plex Sans Arabic",sans-serif; font-weight:600; text-wrap:balance; line-height:1.4}
+h2{font-size:clamp(1.35rem,2.6vw,1.75rem); margin:0 0 .5rem}
+h3{font-size:1.05rem; margin:0 0 .35rem; font-weight:500}
+p{margin:0 0 1rem}
+a{color:var(--spring); text-underline-offset:3px}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--spring); outline-offset:3px}
+strong{font-weight:600}
+code,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.88em; direction:ltr; unicode-bidi:isolate}
+
+/* ── masthead ─────────────────────────────── */
+.mast{border-bottom:2px solid var(--ink); padding:clamp(30px,6vw,60px) 0 22px}
+.eyebrow{font-family:"IBM Plex Mono",monospace; font-size:.72rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-3); margin:0 0 14px}
+h1{font-size:clamp(2rem,5.6vw,3.1rem); font-weight:700; margin:0 0 .35rem; letter-spacing:-.01em}
+.sub{font-size:clamp(1rem,2vw,1.12rem); color:var(--ink-2); margin:0 0 26px; max-width:52ch}
+.meta{display:flex; flex-wrap:wrap; gap:0 30px; font-size:.86rem; color:var(--ink-2); margin:0}
+.meta span{white-space:nowrap}
+.meta b{font-weight:500; color:var(--ink)}
+
+.verdict{border:1px solid var(--stamp); border-top-width:3px; background:var(--stamp-wash);
+  padding:20px 22px; margin:34px 0 0}
+.verdict .kufi{font-size:1.05rem; color:var(--stamp); display:block; margin-bottom:.4rem}
+.verdict p{margin:0; font-size:.97rem}
+
+section{padding:clamp(38px,6vw,64px) 0; border-bottom:1px solid var(--rule-2)}
+section:last-of-type{border-bottom:0}
+.lede{color:var(--ink-2); max-width:66ch; margin-bottom:1.6rem}
+
+/* ── tables ───────────────────────────────── */
+.scroll{overflow-x:auto; margin:0 0 1.4rem; border:1px solid var(--rule)}
+table{border-collapse:collapse; width:100%; min-width:min(640px,100%); font-size:.88rem; background:var(--surface)}
+th,td{padding:11px 14px; text-align:right; vertical-align:top; border-bottom:1px solid var(--rule-2)}
+thead th{background:var(--surface-2); font-weight:600; font-size:.78rem; letter-spacing:.03em;
+  color:var(--ink-2); border-bottom:1px solid var(--rule); white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+td.num{font-variant-numeric:tabular-nums; white-space:nowrap}
+.code{font-family:"IBM Plex Mono",monospace; font-size:.8rem; white-space:nowrap; color:var(--ink-2)}
+
+/* ── figures ──────────────────────────────── */
+figure{margin:0 0 1.6rem; border:1px solid var(--rule); background:var(--surface); padding:22px 20px 16px}
+figure svg{display:block; width:100%; max-width:100%; height:auto; color:var(--ink)}
+figcaption{margin-top:14px; padding-top:12px; border-top:1px solid var(--rule-2);
+  font-size:.83rem; color:var(--ink-2); line-height:1.6}
+.s-lane-fall{fill:var(--fall-wash)} .s-lane-spring{fill:var(--spring-wash)}
+.s-fall{fill:var(--fall)} .s-spring{fill:var(--spring)} .s-stamp{fill:var(--stamp)}
+.s-fall-s{stroke:var(--fall)} .s-spring-s{stroke:var(--spring)} .s-stamp-s{stroke:var(--stamp)}
+.s-node{fill:var(--surface); stroke:currentColor; stroke-width:1.5}
+.s-t{fill:currentColor; font-family:"IBM Plex Sans Arabic",sans-serif; font-size:13px}
+.s-t-sm{fill:var(--ink-3); font-family:"IBM Plex Sans Arabic",sans-serif; font-size:11.5px}
+.s-t-lbl{font-family:"Reem Kufi",sans-serif; font-size:13px; font-weight:600}
+.s-line{stroke:currentColor; fill:none; stroke-width:1.5}
+.s-dash{stroke-dasharray:5 4}
+.s-hair{stroke:var(--rule); stroke-width:1}
+
+/* ── season chips + blocks ────────────────── */
+.chip{display:inline-block; font-family:"IBM Plex Sans Arabic",sans-serif; font-size:.72rem;
+  font-weight:500; padding:2px 9px; border:1px solid currentColor; white-space:nowrap}
+.chip.fall{color:var(--fall)} .chip.spring{color:var(--spring)}
+.chip.stamp{color:var(--stamp)} .chip.ok{color:var(--ok)}
+
+.term{border:1px solid var(--rule); border-top:3px solid var(--rule); background:var(--surface); margin:0 0 20px}
+.term.fall{border-top-color:var(--fall)} .term.spring{border-top-color:var(--spring)}
+.term-hd{display:flex; flex-wrap:wrap; align-items:baseline; gap:12px;
+  padding:14px 18px; border-bottom:1px solid var(--rule-2)}
+.term-hd .kufi{font-size:1.02rem; margin:0}
+.term-hd .load{margin-inline-start:auto; font-size:.82rem; color:var(--ink-2); font-variant-numeric:tabular-nums}
+.term .scroll{margin:0; border:0; border-top:0}
+.term table{min-width:720px}
+
+/* ── scenario grid ────────────────────────── */
+.grid{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); margin:0 0 1.4rem}
+.card{border:1px solid var(--rule); border-top:3px solid var(--ink-3); background:var(--surface); padding:18px}
+.card.pick{border-top-color:var(--ok); border-color:var(--ok)}
+.card.warn{border-top-color:var(--stamp)}
+.card h3{font-size:1rem; margin-bottom:.2rem}
+.card .when{font-family:"IBM Plex Mono",monospace; font-size:.94rem; font-weight:500; margin:.3rem 0 .7rem}
+.card ul{margin:.6rem 0 0; padding-inline-start:1.1rem; font-size:.85rem; color:var(--ink-2); line-height:1.65}
+.card li{margin-bottom:.25rem}
+.loads{font-family:"IBM Plex Mono",monospace; font-size:.8rem; color:var(--ink-2); direction:ltr; text-align:right}
+
+.risk{display:flex; gap:12px; padding:13px 0; border-bottom:1px solid var(--rule-2); align-items:flex-start}
+.risk:last-child{border-bottom:0}
+.risk .dot{flex:0 0 auto; width:9px; height:9px; margin-top:9px; background:var(--ink-3)}
+.risk.hi .dot{background:var(--stamp)} .risk.mid .dot{background:var(--fall)}
+.risk div p{margin:0; font-size:.9rem}
+.risk div p.t{font-weight:600; margin-bottom:.15rem}
+
+ol.check{list-style:none; padding:0; margin:0; counter-reset:c}
+ol.check li{counter-increment:c; padding:11px 0 11px 0; border-bottom:1px solid var(--rule-2);
+  font-size:.9rem; display:flex; gap:12px}
+ol.check li:last-child{border-bottom:0}
+ol.check li::before{content:counter(c,decimal-leading-zero); font-family:"IBM Plex Mono",monospace;
+  font-size:.76rem; color:var(--ink-3); flex:0 0 auto; padding-top:.15rem}
+
+details{border:1px solid var(--rule); background:var(--surface); padding:0; margin:0 0 1.2rem}
+summary{padding:14px 18px; cursor:pointer; font-family:"Reem Kufi",sans-serif; font-weight:500; font-size:.98rem}
+details[open] summary{border-bottom:1px solid var(--rule-2)}
+.details-body{padding:16px 18px 4px}
+.details-body p:last-child{margin-bottom:1rem}
+
+footer{padding:30px 0 60px; font-size:.82rem; color:var(--ink-3); line-height:1.7}
+footer .note{border:1px solid var(--rule); border-inline-start:3px solid var(--fall);
+  padding:16px 18px; margin:0 0 20px; color:var(--ink-2); font-size:.87rem}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <p class="eyebrow">جامعة السلطان قابوس · كلية التربية · قسم التربية الفنية</p>
+  <h1>الطريق إلى يونيو 2028</h1>
+  <p class="sub">تدقيق ما تبقّى من خطة بكالوريوس التربية الفنية — 50 ساعة معتمدة، أربعة سيناريوهات، ومسار حرج واحد يحكمها جميعاً.</p>
+  <p class="meta">
+    <span><b>يوسف صالح عبدالله البلوشي</b></span>
+    <span>الرقم الجامعي <b>141386</b></span>
+    <span>الدفعة <b>2022</b></span>
+    <span>التراكمي <b>2.00–2.99</b></span>
+    <span>الانطلاق <b>خريف 2026/2027</b></span>
+  </p>
+
+  <div class="verdict">
+    <span class="kufi">الحكم</span>
+    <p>مقترح المرشد لا يمكن تنفيذه بدءاً من سبتمبر 2026: فصله الأول مقرراته <strong>ربيعية بالكامل</strong>، وفيه مخالفة متطلب سابق، والتدريب الميداني غائب عنه. وأبكر تخرج ممكن هو <strong>يونيو 2028</strong> — لكنه يستلزم <strong>استثناءً إدارياً واحداً لا مفرّ منه</strong>.</p>
+  </div>
+</header>
+
+<!-- ══ 1 ══ -->
+<section>
+  <div class="col">
+    <h2>ما الخلل في المقترح</h2>
+    <p class="lede">الاستمارة تقترح ثلاثة فصول بمجموع 43 ساعة. عند فحصها مقابل جدول مقررات خريف 2025/2026 وشجرة المتطلبات في الخطة، ظهرت ستة بنود.</p>
+  </div>
+
+  <div class="scroll">
+    <table>
+      <thead><tr><th>ما في المقترح</th><th>الحكم</th><th>التصحيح</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>الفصل الأول: منطر3027 · ترفن4111 · ترفن2130 · ترفن3140 · ترفن3210</td>
+          <td><span class="chip stamp">قاتل</span> خمستها ربيعية، ولا يُطرح أيٌّ منها خريفاً</td>
+          <td>ابدأ بالكتلة الخريفية أولاً</td>
+        </tr>
+        <tr>
+          <td>ترفن4260 المشروع الفني مع ترفن2110 وترفن3111 في الفصل نفسه</td>
+          <td><span class="chip stamp">مخالفة</span> كلاهما من متطلباته السبعة</td>
+          <td>2110 و3111 في خريف 2026، والمشروع في خريف 2027</td>
+        </tr>
+        <tr>
+          <td>منطر4600 التدريب الميداني — 7 ساعات</td>
+          <td><span class="chip stamp">غائب</span> لا ذكر له في الاستمارة</td>
+          <td>فصل رابع مخصص له</td>
+        </tr>
+        <tr>
+          <td>منطر4400 مشروع التخرج في فصل منفصل عن التدريب</td>
+          <td><span class="chip fall">تحفّظ</span> الخطة تنصّ أنه «مصاحب» للتدريب</td>
+          <td>ضمّهما في الفصل الأخير</td>
+        </tr>
+        <tr>
+          <td>مجموع المقترح 43 ساعة</td>
+          <td><span class="chip fall">نقص</span> المتبقي الفعلي 50 ساعة</td>
+          <td>الفارق 7 = التدريب الميداني</td>
+        </tr>
+        <tr>
+          <td>ترتيب ربيع ← خريف ← ربيع</td>
+          <td><span class="chip ok">سليم</span> صحيح موسمياً</td>
+          <td>المنطق صحيح، ونقطة البداية خاطئة</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col">
+    <p>المدقّق الآلي يرصد <strong>15 مخالفة</strong> في المقترح كما هو. وعند إعادة ترتيبه إلى بدايته المقصودة (ربيعية) تبقى <strong>3 مخالفات</strong> فقط: تزامن ترفن4260 مع متطلبيه، وغياب منطر4600. أي أن الخلل الجوهري ليس نقطة البداية وحدها — بل المشروع الفني والتدريب الميداني.</p>
+  </div>
+</section>
+
+<!-- ══ 2 ══ -->
+<section>
+  <div class="col">
+    <h2>المسار الحرج</h2>
+    <p class="lede">ثلاثة مقررات مترابطة، كل واحد منها مقفل على موسم مختلف، ولا فصل صيفي يختصر بينها. هذه السلسلة وحدها تفرض أربعة فصول، ولا شيء يكسرها.</p>
+  </div>
+
+  <figure>
+    <svg viewBox="0 0 900 330" role="img" aria-label="سلسلة من ثلاثة مقررات: منطر3027 في الربيع يؤدي إلى منطر4027 في الخريف، الذي يؤدي إلى التدريب الميداني في الربيع التالي. المسار المختصر عبر الفصل الصيفي غير موجود لأن القسم لا يطرح صيفاً.">
+      <!-- lanes -->
+      <rect x="40" y="52" width="820" height="76" class="s-lane-fall"/>
+      <rect x="40" y="212" width="820" height="76" class="s-lane-spring"/>
+      <text x="866" y="96" class="s-t-lbl s-fall" text-anchor="end" dy="4">خريف</text>
+      <text x="866" y="256" class="s-t-lbl s-spring" text-anchor="end" dy="4">ربيع</text>
+
+      <!-- timeline ticks: right to left -->
+      <line x1="40" y1="30" x2="860" y2="30" class="s-hair"/>
+      <text x="740" y="22" class="s-t-sm" text-anchor="middle">خريف 2026</text>
+      <text x="540" y="22" class="s-t-sm" text-anchor="middle">ربيع 2027</text>
+      <text x="340" y="22" class="s-t-sm" text-anchor="middle">خريف 2027</text>
+      <text x="150" y="22" class="s-t-sm" text-anchor="middle">ربيع 2028</text>
+      <line x1="740" y1="26" x2="740" y2="34" class="s-hair"/>
+      <line x1="540" y1="26" x2="540" y2="34" class="s-hair"/>
+      <line x1="340" y1="26" x2="340" y2="34" class="s-hair"/>
+      <line x1="150" y1="26" x2="150" y2="34" class="s-hair"/>
+
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,1 L9,5 L0,9 z" fill="currentColor"/>
+        </marker>
+      </defs>
+
+      <!-- node 1: spring 2027 -->
+      <rect x="452" y="228" width="176" height="44" class="s-node"/>
+      <text x="540" y="248" class="s-t" text-anchor="middle" font-weight="600">منطر3027</text>
+      <text x="540" y="264" class="s-t-sm" text-anchor="middle">طرق تدريس (1)</text>
+
+      <!-- node 2: fall 2027 -->
+      <rect x="252" y="68" width="176" height="44" class="s-node"/>
+      <text x="340" y="88" class="s-t" text-anchor="middle" font-weight="600">منطر4027</text>
+      <text x="340" y="104" class="s-t-sm" text-anchor="middle">طرق تدريس (2)</text>
+
+      <!-- node 3: spring 2028 -->
+      <rect x="62" y="228" width="176" height="44" class="s-node s-stamp-s" stroke-width="2"/>
+      <text x="150" y="248" class="s-t s-stamp" text-anchor="middle" font-weight="600">منطر4600</text>
+      <text x="150" y="264" class="s-t-sm" text-anchor="middle">التدريب الميداني</text>
+
+      <!-- arrows -->
+      <path d="M452,242 L400,242 L400,90 L432,90" class="s-line" marker-end="url(#ah)"/>
+      <text x="404" y="168" class="s-t-sm" text-anchor="middle">متطلب سابق</text>
+      <path d="M252,90 L200,90 L200,242 L242,242" class="s-line" marker-end="url(#ah)"/>
+      <text x="204" y="168" class="s-t-sm" text-anchor="middle">متطلب سابق</text>
+
+      <!-- non-existent summer shortcut -->
+      <path d="M452,296 C380,326 240,326 172,300" class="s-line s-dash s-stamp-s" marker-end="url(#ah)" opacity=".75"/>
+      <text x="312" y="322" class="s-t-sm s-stamp" text-anchor="middle">✕ اختصار عبر الفصل الصيفي — القسم لا يطرحه</text>
+
+      <text x="740" y="96" class="s-t-sm" text-anchor="middle">نقطة الانطلاق</text>
+      <line x1="700" y1="90" x2="640" y2="90" class="s-line s-hair" marker-end="url(#ah)"/>
+    </svg>
+    <figcaption><strong>لماذا أربعة فصول هي الأرضية:</strong> منطر3027 يُطرح ربيعاً حصراً، ومنطر4027 خريفاً حصراً، والتدريب الميداني يشترط اجتيازهما. كل حلقة تنتظر موسمها، فتستهلك السلسلة أربعة فصول كاملة من خريف 2026 حتى ربيع 2028. ولا يوجد فصل صيفي يختصر أياً منها.</figcaption>
+  </figure>
+</section>
+
+<!-- ══ 3 ══ -->
+<section>
+  <div class="col">
+    <h2>اختناق الربيع</h2>
+    <p class="lede">المقررات الربيعية المتبقية سبعة. وربيع 2028 محجوز للتدريب الميداني الذي يشترط إنهاء كل شيء قبله — فالسبعة كلها يجب أن تدخل ربيع 2027 وحده. مجموع ساعاتها 18، أي داخل سقف الساعات تماماً؛ لكن عددها يتجاوز سقف الـ6 مقررات بمقرر واحد.</p>
+  </div>
+
+  <figure>
+    <svg viewBox="0 0 900 268" role="img" aria-label="مقارنة بين ثلاث حالات لفصل ربيع 2027: بلا استثناء تتجاوز المقررات السبعة سقف الستة فيتعذّر الجدول؛ الاستثناء E1 ينقل ترفن3210 إلى الخريف فتبقى ستة؛ الاستثناء E2 يرفع السقف إلى سبعة.">
+      <defs>
+        <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,1 L9,5 L0,9 z" fill="currentColor"/>
+        </marker>
+      </defs>
+
+      <!-- ── panel 1 (rightmost): status quo ── -->
+      <text x="750" y="24" class="s-t-lbl" text-anchor="middle">بلا استثناء</text>
+      <g>
+        <rect x="614" y="104" width="34" height="30" class="s-node s-spring-s"/>
+        <rect x="652" y="104" width="34" height="30" class="s-node s-spring-s"/>
+        <rect x="690" y="104" width="34" height="30" class="s-node s-spring-s"/>
+        <rect x="728" y="104" width="34" height="30" class="s-node s-spring-s"/>
+        <rect x="766" y="104" width="34" height="30" class="s-node s-spring-s"/>
+        <rect x="804" y="104" width="34" height="30" class="s-node s-spring-s"/>
+        <rect x="576" y="104" width="34" height="30" class="s-node s-stamp-s" stroke-width="2"/>
+        <text x="593" y="124" class="s-t s-stamp" text-anchor="middle" font-size="15">7</text>
+      </g>
+      <path d="M648,148 L648,158 L838,158 L838,148" class="s-line s-spring-s" fill="none"/>
+      <text x="743" y="176" class="s-t-sm s-spring" text-anchor="middle">المسموح: 6 مقررات</text>
+      <text x="593" y="96" class="s-t-sm s-stamp" text-anchor="middle">الزائد</text>
+      <text x="750" y="208" class="s-t s-stamp" text-anchor="middle" font-weight="600">✕ يتعذّر — التخرج يناير 2029</text>
+
+      <line x1="540" y1="40" x2="540" y2="230" class="s-hair"/>
+
+      <!-- ── panel 2 (middle): E1 ── -->
+      <text x="390" y="24" class="s-t-lbl" text-anchor="middle">الاستثناء E1</text>
+      <rect x="322" y="46" width="136" height="26" class="s-lane-fall"/>
+      <rect x="372" y="49" width="34" height="20" class="s-node s-fall-s"/>
+      <text x="316" y="63" class="s-t-sm s-fall" text-anchor="end">خريف 2026</text>
+      <path d="M389,104 L389,78" class="s-line s-fall-s" marker-end="url(#ah2)"/>
+      <text x="452" y="92" class="s-t-sm s-fall" text-anchor="end">ترفن3210 يُسحب للخريف</text>
+      <g>
+        <rect x="290" y="104" width="34" height="30" class="s-node s-spring-s"/>
+        <rect x="328" y="104" width="34" height="30" class="s-node s-spring-s"/>
+        <rect x="404" y="104" width="34" height="30" class="s-node s-spring-s"/>
+        <rect x="442" y="104" width="34" height="30" class="s-node s-spring-s"/>
+        <rect x="480" y="104" width="34" height="30" class="s-node s-spring-s"/>
+        <rect x="366" y="104" width="34" height="30" class="s-node s-spring-s" stroke-dasharray="4 3" opacity=".4"/>
+      </g>
+      <path d="M290,148 L290,158 L514,158 L514,148" class="s-line s-spring-s" fill="none"/>
+      <text x="402" y="176" class="s-t-sm s-spring" text-anchor="middle">6 مقررات ضمن السقف</text>
+      <text x="390" y="208" class="s-t" text-anchor="middle" font-weight="600" fill="var(--ok)">✓ التخرج يونيو 2028</text>
+
+      <line x1="252" y1="40" x2="252" y2="230" class="s-hair"/>
+
+      <!-- ── panel 3 (leftmost): E2 ── -->
+      <text x="126" y="24" class="s-t-lbl" text-anchor="middle">الاستثناء E2</text>
+      <g>
+        <rect x="26" y="104" width="28" height="30" class="s-node s-spring-s"/>
+        <rect x="58" y="104" width="28" height="30" class="s-node s-spring-s"/>
+        <rect x="90" y="104" width="28" height="30" class="s-node s-spring-s"/>
+        <rect x="122" y="104" width="28" height="30" class="s-node s-spring-s"/>
+        <rect x="154" y="104" width="28" height="30" class="s-node s-spring-s"/>
+        <rect x="186" y="104" width="28" height="30" class="s-node s-spring-s"/>
+        <rect x="218" y="104" width="28" height="30" class="s-node s-spring-s"/>
+      </g>
+      <path d="M26,148 L26,158 L246,158 L246,148" class="s-line s-spring-s" fill="none"/>
+      <text x="136" y="176" class="s-t-sm s-spring" text-anchor="middle">السقف يُرفع إلى 7 — 18 ساعة</text>
+      <text x="126" y="208" class="s-t" text-anchor="middle" font-weight="600" fill="var(--ok)">✓ التخرج يونيو 2028</text>
+    </svg>
+    <figcaption><strong>الفرق بين الخيارين:</strong> <span class="mono">E1</span> يُخرج مقرراً واحداً من الربيع بطرح ترفن3210 خريفاً — وهو مقرر محاضرة نظرية بساعتين، بلا ورشة ولا استوديو ولا سعة معملية. و<span class="mono">E2</span> يُبقي السبعة ويرفع سقف العدد؛ وهو الأرخص نظامياً لأن سقف الساعات (18) مستوفى تماماً والمتجاوَز هو العدد فقط. أيّ الخيارين وافقوا عليه يكفي.</figcaption>
+  </figure>
+
+  <div class="col">
+    <p><strong>الاستراتيجية:</strong> اطلب الاستثناءين معاً في خطاب واحد. طلب اثنين يضاعف احتمال القبول بلا كلفة إضافية، وأيّهما مرّ ثبّت التخرج في يونيو 2028.</p>
+  </div>
+</section>
+
+<!-- ══ 4 ══ -->
+<section>
+  <div class="col">
+    <h2>السيناريوهات الأربعة</h2>
+    <p class="lede">كل سيناريو مفحوص آلياً مقابل سبع قواعد: التغطية، المتطلبات السابقة، الموسمية، سقفا العبء، بوابة التدريب الميداني، جدول الحد الأدنى للتقدّم، ومدة الدراسة.</p>
+  </div>
+
+  <div class="grid">
+    <div class="card pick">
+      <h3>ب — التوازن الأمثل</h3>
+      <p class="when">يونيو 2028</p>
+      <p class="loads">14 · 16 · 11 · 9</p>
+      <ul>
+        <li>الاستثناء المطلوب: <span class="mono">E1</span></li>
+        <li>أربعة فصول</li>
+        <li>لا فصل عند الحد الأدنى الحرج</li>
+        <li><strong>الموصى به</strong></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>أ — أقصى سرعة</h3>
+      <p class="when">يونيو 2028</p>
+      <p class="loads">14 · 18 · 9 · 9</p>
+      <ul>
+        <li>الاستثناءان: <span class="mono">E2 + E3</span></li>
+        <li>أربعة فصول</li>
+        <li>ربيع بسبعة مقررات</li>
+        <li>خريف 2027 عند 9 ساعات بالضبط</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>ج — أقل ضغط</h3>
+      <p class="when">يناير 2029</p>
+      <p class="loads">12 · 10 · 9 · 10 · 9</p>
+      <ul>
+        <li>بلا أي استثناء</li>
+        <li>خمسة فصول</li>
+        <li>أحمال 10–12 تحمي المعدل</li>
+        <li>تحذير جدول التقدّم (د-6)</li>
+      </ul>
+    </div>
+    <div class="card warn">
+      <h3>د — خطة الطوارئ</h3>
+      <p class="when">يونيو 2029</p>
+      <p class="loads">11 · 16 · 11 · 3 · 3 · 9</p>
+      <ul>
+        <li>يفترض الرسوب في منطر3027</li>
+        <li>ستة فصول</li>
+        <li>فصلان مُعطَّلان لا يوجد فيهما ما يُسجَّل</li>
+        <li>الفصل الرابع عشر — بلا هامش</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="col">
+    <p>السيناريو <strong>د</strong> ليس خياراً بل تحذير: الرسوب في منطر3027 لا يكلّف فصلاً واحداً. إنه يخلق فصلين لا يوجد فيهما أي مقرر آخر يُسجَّل قانوناً — لأن كل ما عداهما سيكون منتهياً — فيقع كلاهما تحت الحد الأدنى ويحتاج استثناءً أو تأجيلاً معتمداً. والهبوط يكون على الفصل الرابع عشر، آخر فصل تسمح به اللائحة.</p>
+  </div>
+</section>
+
+<!-- ══ 5 ══ -->
+<section>
+  <div class="col">
+    <h2>السيناريو الموصى به، فصلاً بفصل</h2>
+    <p class="lede">أربعة فصول · 50 ساعة · استثناء واحد. عمود «سبب التوقيت» يشرح لماذا لا يمكن نقل المقرر إلى فصل آخر.</p>
+  </div>
+
+  <div class="term fall">
+    <div class="term-hd"><span class="chip fall">خريف</span><p class="kufi">خريف 2026/2027</p><span class="load">14 ساعة · 5 مقررات</span></div>
+    <div class="scroll"><table>
+      <thead><tr><th>الرمز</th><th>المقرر</th><th>س.م</th><th>الفئة</th><th>المتطلب</th><th>سبب التوقيت</th></tr></thead>
+      <tbody>
+        <tr><td class="code">ترفن2110</td><td>النسيج بالألياف المختلفة</td><td class="num">3</td><td>م ت</td><td>✅ بلا متطلب</td><td>خريفي حصراً، ومتطلب سابق للمشروع الفني — تأخيره يؤخّر المشروع سنة</td></tr>
+        <tr><td class="code">ترفن3111</td><td>الفن المعاصر</td><td class="num">3</td><td>م ت</td><td>✅ 1210 · 2230</td><td>خريفي حصراً، ومتطلب سابق للمشروع الفني</td></tr>
+        <tr><td class="code">ترفن3250</td><td>تقنيات معاصرة في الفن — اختياري (ب)</td><td class="num">3</td><td>ا ت</td><td>✅ بلا متطلب</td><td>خريفي؛ لا يُطرح ربيعاً فلا مكان آخر له</td></tr>
+        <tr><td class="code">ترفن3210</td><td>تاريخ الفن الحديث والمعاصر</td><td class="num">2</td><td>م ت</td><td>✅ ترفن1230</td><td><span class="chip stamp">E1</span> سحبه للخريف يُفرغ الربيع لستة مقررات بدل سبعة</td></tr>
+        <tr><td class="code">اصتر3050</td><td>الإدارة والقيادة المدرسية</td><td class="num">3</td><td>م ت</td><td>✅ اصتر2020</td><td>مرن؛ محاضرة نظرية توازن ثلاث ورش عملية</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="term spring">
+    <div class="term-hd"><span class="chip spring">ربيع</span><p class="kufi">ربيع 2026/2027</p><span class="load">16 ساعة · 6 مقررات</span></div>
+    <div class="scroll"><table>
+      <thead><tr><th>الرمز</th><th>المقرر</th><th>س.م</th><th>الفئة</th><th>المتطلب</th><th>سبب التوقيت</th></tr></thead>
+      <tbody>
+        <tr><td class="code">منطر3027</td><td>طرق تدريس التربية الفنية (1)</td><td class="num">3</td><td>م ت</td><td>✅ تكنو3005 · منطر3407</td><td><strong>رأس المسار الحرج</strong> — ربيعي حصراً؛ أي تعثّر فيه يؤخّر التخرج سنة</td></tr>
+        <tr><td class="code">ترفن4111</td><td>تصميم جرافيكي 2</td><td class="num">2</td><td>م ت</td><td>✅ ترفن3260</td><td>ربيعي، ومتطلب سابق للمشروع الفني في الخريف التالي</td></tr>
+        <tr><td class="code">ترفن2130</td><td>تطبيقات التصميم</td><td class="num">3</td><td>م ت</td><td>✅ ترفن1220</td><td>ربيعي، ومتطلب سابق للمشروع الفني — آخر فرصة قبله</td></tr>
+        <tr><td class="code">ترفن3140</td><td>نحت (2) — اختياري (أ)</td><td class="num">3</td><td>ا ت</td><td>✅ بلا متطلب</td><td>ربيعي حصراً، وربيع 2028 محجوز للتدريب ⇒ لا فرصة أخرى</td></tr>
+        <tr><td class="code">ترفن3170</td><td>جماليات التشكيل بالخط العربي — اختياري (ج)</td><td class="num">3</td><td>ا ت</td><td>✅ بلا متطلب</td><td>ربيعي حصراً — نفس السبب</td></tr>
+        <tr><td class="code">ترفن4120</td><td>النقد والتذوق الفني</td><td class="num">2</td><td>م ت</td><td>✅ ترفن3210 خريفاً</td><td>ثمرة <span class="mono">E1</span>: لولاه لتزاحم مع متطلبه في الفصل نفسه</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="term fall">
+    <div class="term-hd"><span class="chip fall">خريف</span><p class="kufi">خريف 2027/2028</p><span class="load">11 ساعة · 5 مقررات</span></div>
+    <div class="scroll"><table>
+      <thead><tr><th>الرمز</th><th>المقرر</th><th>س.م</th><th>الفئة</th><th>المتطلب</th><th>سبب التوقيت</th></tr></thead>
+      <tbody>
+        <tr><td class="code">منطر4027</td><td>طرق تدريس التربية الفنية (2)</td><td class="num">3</td><td>م ت</td><td>✅ منطر3027</td><td>خريفي حصراً؛ البوابة الأخيرة قبل التدريب الميداني</td></tr>
+        <tr><td class="code">ترفن4260</td><td>المشروع الفني</td><td class="num">2</td><td>م ت</td><td>✅ السبعة منجزة</td><td>أول خريف تكتمل فيه متطلباته السبعة — هنا بالضبط أخطأ المقترح</td></tr>
+        <tr><td class="code">ترفن4140</td><td>التربية الفنية للفئات الخاصة — اختياري (د)</td><td class="num">2</td><td>ا ت</td><td>✅ بلا متطلب</td><td>مؤجَّل عمداً من خريف 2026 لرفع هذا الفصل فوق الحد الأدنى 9</td></tr>
+        <tr><td class="code">اجمع1005</td><td>عمان: الدولة والإنسان</td><td class="num">2</td><td>م ج</td><td>✅ بلا متطلب</td><td>متطلب جامعة مرن — وزن لموازنة الفصل</td></tr>
+        <tr><td class="code">علنف4500</td><td>المتعلمون ذوو الاحتياجات الخاصة</td><td class="num">2</td><td>م ت</td><td>✅ علنف3500</td><td>مرن، ولا بد من إنهائه قبل التدريب الميداني</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="term spring">
+    <div class="term-hd"><span class="chip spring">ربيع</span><p class="kufi">ربيع 2027/2028</p><span class="chip ok">فصل التخرج</span><span class="load">9 ساعات · مقرران</span></div>
+    <div class="scroll"><table>
+      <thead><tr><th>الرمز</th><th>المقرر</th><th>س.م</th><th>الفئة</th><th>المتطلب</th><th>سبب التوقيت</th></tr></thead>
+      <tbody>
+        <tr><td class="code">منطر4600</td><td>التدريب الميداني</td><td class="num">7</td><td>م ت</td><td>✅ البوابة مستوفاة</td><td>كل الخطة منجزة عداه وعدا مشروع التخرج؛ الفصل الأخير معفى من الحد الأدنى</td></tr>
+        <tr><td class="code">منطر4400</td><td>مشروع التخرج</td><td class="num">2</td><td>م ت</td><td>✅ منطر4027</td><td>«مصاحب» للتدريب الميداني بنص شروط الخطة</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ══ 6 ══ -->
+<section>
+  <div class="col">
+    <h2>المخاطر</h2>
+    <div class="risk hi"><span class="dot"></span><div>
+      <p class="t">منطر3027 — نقطة الانهيار الوحيدة</p>
+      <p>ربيعي حصراً، ورأس السلسلة كلها. الرسوب فيه أو الانسحاب منه أو عدم طرحه يؤخّر التخرج سنة كاملة ويخلق فصلين مُعطَّلين. لا تنسحب منه تحت أي ظرف.</p>
+    </div></div>
+    <div class="risk hi"><span class="dot"></span><div>
+      <p class="t">رفض الاستثناء</p>
+      <p>رفض <span class="mono">E1</span> و<span class="mono">E2</span> معاً يُسقطك إلى السيناريو ج: فصل إضافي وسبعة أشهر.</p>
+    </div></div>
+    <div class="risk mid"><span class="dot"></span><div>
+      <p class="t">سعة شعب ترفن4260</p>
+      <p>ثمان مقاعد للشعبة الواحدة في خريف 2025 (سبع شعب). سجّل في اليوم الأول من فترة التسجيل.</p>
+    </div></div>
+    <div class="risk mid"><span class="dot"></span><div>
+      <p class="t">المعدل التراكمي</p>
+      <p>شرط التدريب الميداني تراكمي ≥ 2.00 في نهاية الفصل السابق له. مع معدل في نطاق 2.00–2.99، فصل واحد ضعيف في خريف 2027 يُسقط الشرط.</p>
+    </div></div>
+    <div class="risk"><span class="dot"></span><div>
+      <p class="t">جدول الحد الأدنى للتقدّم (البند د-6)</p>
+      <p>في السيناريو ج يقترب التراكمي من خانة التحذير عند الفصلين 11 و12. الجدول جامعي عام وصفوفه الأخيرة تطلب 133 ساعة — أكثر من مجموع درجتك (125) — فهو غير قابل للتطبيق حرفياً عند الذيل. يجب تثبيت طريقة تطبيقه مع القبول والتسجيل.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- ══ 7 ══ -->
+<section>
+  <div class="col">
+    <h2>ما يجب تثبيته قبل التسجيل</h2>
+    <p class="lede">كل بند أدناه <strong>افتراض</strong> في هذا التحليل، لا حقيقة مثبتة. راجعه مع القسم أو عمادة القبول والتسجيل.</p>
+    <ol class="check">
+      <li><span>كشف الدرجات الرسمي — تأكيد أن المنجَز 75 ساعة وأن المتبقي هو الخمسون المذكورة بالضبط.</span></li>
+      <li><span>رقم فصلك الدراسي في خريف 2026 — هل هو التاسع؟ يحدّد موقعك من جدول د-6.</span></li>
+      <li><span>الموسمية الفعلية لـ منطر3027 · ترفن3210 · ترفن4120 · ترفن4111 · ترفن2130 · ترفن3140 · ترفن3170 — مستنتَجة من جدول خريف 2025/2026 وحده.</span></li>
+      <li><span>متطلب ترفن4120: بلا متطلب («القائمة و») أم ترفن3210 (الجدول الفصلي)؟ الخطة تتناقض مع نفسها هنا.</span></li>
+      <li><span>متطلب ترفن2110 — الخطة تحيله إلى نفسه، وهو خطأ مطبعي ظاهر.</span></li>
+      <li><span>هل منطر4400 مصاحب إلزامي لمنطر4600 أم يجوز تقديمه؟</span></li>
+      <li><span>هل يُطرح منطر4600 ربيعاً؟ (مؤكَّد خريفاً من الجدول المرفق.)</span></li>
+      <li><span>تأكيد عدم وجود فصل صيفي للقسم كتابةً.</span></li>
+      <li><span>سعة شعب ترفن4260 ومنطر4600 لفصولك المستهدفة.</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ══ 8 ══ -->
+<section>
+  <div class="col">
+    <h2>مسودة خطاب الاستثناء</h2>
+    <details>
+      <summary>إلى رئيس القسم / مساعد العميد للدراسات الجامعية الأولى — انقر للعرض</summary>
+      <div class="details-body">
+        <p><strong>الموضوع:</strong> طلب استثناء لتمكين استكمال الخطة الدراسية في أربعة فصول</p>
+        <p>تحية طيبة وبعد،</p>
+        <p>أنا الطالب يوسف صالح عبدالله البلوشي، الرقم الجامعي 141386، تخصص التربية الفنية، دفعة 2022. تبقّى لي <strong>50 ساعة معتمدة</strong> لاستكمال الخطة، وقد راجعتُ توزيعها على المواسم الدراسية فتبيّن ما يلي:</p>
+        <p>١. المقررات الربيعية المتبقية <strong>سبعة</strong> بمجموع <strong>18 ساعة معتمدة</strong>.<br>
+        ٢. لا يمكن تأجيل أيٍّ منها إلى ربيع 2028، لأن ذلك الفصل مخصص للتدريب الميداني الذي يشترط إنهاء جميع مقررات الخطة قبله.<br>
+        ٣. عليه، يجب تسجيل السبعة كلها في فصل ربيع 2027، وهو ما يستوفي سقف الساعات (18) تماماً لكنه يتجاوز سقف عدد المقررات (6) بمقرر واحد.</p>
+        <p>وعليه ألتمس من سعادتكم الموافقة على <strong>أحد</strong> الخيارين:</p>
+        <p><strong>الأول:</strong> طرح مقرر ترفن3210 تاريخ الفن الحديث والمعاصر (ساعتان) في فصل الخريف، أو السماح لي بتسجيله فيه — وهو مقرر محاضرة نظرية لا يتطلب ورشة أو استوديو أو سعة معملية.</p>
+        <p><strong>الثاني:</strong> الموافقة على تسجيلي في سبعة مقررات (18 ساعة معتمدة) في فصل ربيع 2027، علماً بأن سقف الساعات المنصوص عليه في البند (ب-3) مستوفى تماماً، وأن التجاوز منحصر في عدد المقررات.</p>
+        <p>وأودّ الإفادة بأن أياً من الخيارين يمكّنني من التخرج في <strong>ربيع 2028</strong> وفق الخطة المرفقة، بينما يؤدي تعذّرهما إلى تأخير التخرج فصلاً كاملاً إلى يناير 2029.</p>
+        <p>مرفق: خطة فصلية تفصيلية موضّح فيها المتطلبات السابقة والموسمية لكل مقرر.</p>
+        <p>شاكراً لكم حسن تعاونكم،<br>يوسف صالح عبدالله البلوشي — 141386</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <div class="col">
+    <p class="note"><strong>تنبيه:</strong> هذا التقرير أداة تخطيط وتفاوض، وليس قراراً أكاديمياً. الموسمية مستنتَجة من جدول فصل دراسي واحد، وحالة «المنجَز» مستنتَجة من إفادة الطالب لا من كشف درجات رسمي. لا شيء هنا نافذ قبل اعتماد المرشد الأكاديمي وعمادة القبول والتسجيل.</p>
+    <p>المصادر: الدرجة والخطة الدراسية لدفعة 2020–2023 · جداول مقررات خريف 2025/2026 لأقسام ARED · CUTM · EDUC · PSYC · TECH · ARAB+SOCY · استمارة تدقيق الخطة الدراسية · <a href="https://www.squ.edu.om/Portals/53/pdf/academic-ar-2019.pdf">النظام الأكاديمي للدراسات الجامعية الأولى — جامعة السلطان قابوس</a> (البنود ب-1-1 · ب-3 · ج-10 · د-2 · د-6).</p>
+    <p>التقرير الكامل والمدقّق الآلي وبيانات المقررات في المستودع تحت <span class="mono">docs/graduation-roadmap.md</span> · <span class="mono">scripts/validate_roadmap.py</span> · <span class="mono">docs/data/study-plan.json</span>.</p>
+  </div>
+</footer>
+
+</div>
