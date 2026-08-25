@@ -161,6 +161,16 @@ Attach a compact tag to every question:
 [المستوى المعرفي · الوحدة · ما يقيسه تحديدًا]
 ```
 
+**The tag must not leak the key.** Name the *ability* being measured, never the concept
+that is the answer. "يقيس: التعرّف على Simpson's paradox" hands the item to anyone who
+knows the term — exactly the word-repeat cue §6 warns against. Write "يقيس: تفسير انعكاس
+اتجاه العلاقة عند التجميع" instead: precise about the skill, silent about the key. If you
+cannot describe the ability without naming the answer, move the whole tag to the reveal.
+
+**When you have no course materials** you cannot know the real unit name, and inventing
+one is a citation you made up. Write `الوحدة: —` or `(وحدة مفترضة: …)` and say once that
+the mapping is yours, not their syllabus.
+
 **After** the student answers — never before — reveal what each distractor represents.
 Do not settle for "خطأ". Say which specific misconception that option encodes and why it
 looked convincing. This is the entire diagnostic payoff of multiple choice; without it
@@ -171,6 +181,10 @@ who understands how questions are built reads an exam paper with the designer's 
 instead of the examinee's.
 
 ## 10. Worked example
+
+Illustration only. **Never serve either version to a student as an actual item**, even
+when the topic matches what they asked for — its key and its distractor analysis are
+published right here, so it measures nothing. Build a fresh scenario every time.
 
 **✗ Poor version**
 

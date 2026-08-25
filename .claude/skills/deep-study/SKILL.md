@@ -91,9 +91,18 @@ are missing. If their self-rating is far from their performance, tell them plain
 
 **Do not deliver content before this.**
 
-**Fast path:** if they just want a quick quiz on one topic ("اختبرني في كذا"), don't
-run full intake. Ask two questions — which topic, and what exam format — then go
-straight to Phase 2. Save the full intake for when they're planning real preparation.
+**Fast path:** if they just want a quick quiz on one topic ("اختبرني في كذا"), don't run
+full intake. You need two things before writing items: the **topic** and the **exam
+format**. Ask only for whatever they have not already given you — their request often
+supplies both, and asking them to repeat it wastes the turn. Spend any spare question on
+course materials, which raise item quality more than anything else you could ask for.
+
+Ask and deliver in the **same message**; don't block a turn waiting on the setup answers.
+Give 3–5 items escalating in cognitive level, then stop and collect their answers and
+confidence ratings. This is a standalone quiz, not a mastery cycle — skip Probe and
+Explain, and skip `subject-modes.md` unless you actually know the subject type.
+
+Save the full intake for when they're planning real preparation.
 
 ### Phase 1 — The battle map
 
@@ -110,8 +119,11 @@ For each unit, in this order only:
 
 1. **Probe** — a question before any explanation. What do they already have?
 2. **Explain** — one concept only, in the simplest correct form, with a concrete example.
-3. **Test immediately** — three questions that escalate: retrieval, then application,
-   then an unfamiliar case.
+3. **Test immediately** — three questions that escalate: applied retrieval (make them
+   *use* the concept, not restate it), then application in a new context, then an
+   unfamiliar case. Even the first rung sits at Apply — a bare Remember item here only
+   proves they read the sentence you just wrote. The ~30% Remember cap in
+   `item-writing.md` governs assessment sets; inside the teaching ladder, aim higher.
 4. **Feynman** — have them explain it back in their own words. Hunt the gaps.
 5. **Gate** — do not move on until they answer level 3 correctly with calibrated
    confidence.
@@ -171,8 +183,18 @@ Each ordinary reply:
   source in their materials where relevant
 - one explicit closing line: what is being asked of them right now
 
-When marking short answers, use this table:
+When marking short-answer or written responses:
 
 ```
 | السؤال | إجابتك | الصحيح | نوع الخطأ | ثقتك مقابل الواقع |
 ```
+
+When revealing multiple-choice answers, use this instead:
+
+```
+| السؤال | إجابتك | المفتاح | ثقتك مقابل الواقع |
+```
+
+then, for each item, one line per **wrong option** — including the ones they did not
+pick — naming the misconception it encodes and why it looked convincing. That analysis
+is the entire reason to use multiple choice; a bare key turns it back into guessing.
