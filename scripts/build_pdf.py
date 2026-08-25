@@ -776,6 +776,7 @@ def pages_rest(doc, d):
     if tr:
         page_transcript_audit(doc, d, tr)
         page_whats_changed(doc, d, tr)
+        page_gpa_projection(doc, d, tr)
     doc.sheet("""
 <p class="lede">القسم الأول من هذه الوثيقة يحلّل الخطط. وهذا القسم يحوّلها إلى ورق عملي:
 <strong>استمارة تدقيق رسمية مملوءة</strong> لكل خطة جاهزة للتوقيع، ثم <strong>جدول أسبوعي
@@ -1138,6 +1139,71 @@ def page_whats_changed(doc, d, tr):
 يعلو عتبة التدريب الميداني (2.00) بهامش {tr['totals']['cgpa'] - 2:.2f} فقط. وخانة اختياري
 التخصص (أ) استُهلكت بانسحاب ثم بديل.</p></div>
 </div>""", title="ما تغيّر بعد كشف الدرجات", tag="شفافية")
+
+
+
+def page_gpa_projection(doc, d, tr):
+    """أين معدلك الآن، وإلى أين يمكن أن يصل — تحت قاعدة إحلال درجة الإعادة."""
+    t = tr["totals"]
+    base, att_f = t["points"], t["attempted"]
+    att_clean = att_f - 2                       # بعد رفع محاولة الرسوب
+    total, rem = 125, 125 - t["earned"]
+
+    repeat_rows = "".join(
+        f'<tr><td class="n">{lab}</td><td class="n">{(base + 2 * g) / att_f:.2f}</td>'
+        f'<td class="n" style="color:var(--ok)">+{(base + 2 * g) / att_f - t["cgpa"]:.2f}</td></tr>'
+        for lab, g in [("D", 1.0), ("C", 2.0), ("B", 3.0), ("A", 4.0)])
+
+    def band(cg):
+        return ("امتياز" if cg >= 3.30 else "جيد جداً" if cg >= 2.75 else
+                "جيد" if cg >= 2.30 else "مقبول" if cg >= 2.00 else "دون التخرج")
+    proj_rows = ""
+    for lab, g, mark in [("D+ · 1.30", 1.3, "stamp"), ("C- · 1.70", 1.7, ""),
+                         ("C · 2.00", 2.0, ""), (f"متوسطه التاريخي · {t['cgpa']}", t["cgpa"], "ok"),
+                         ("C+ · 2.30", 2.3, ""), ("B- · 2.70", 2.7, "ok"), ("B · 3.00", 3.0, "ok")]:
+        cg = (base + rem * g) / total
+        color = ("var(--stamp)" if mark == "stamp" else
+                 "var(--ok)" if mark == "ok" else "inherit")
+        proj_rows += (f'<tr style="color:{color}"><td>{lab}</td>'
+                      f'<td class="n"><strong>{cg:.2f}</strong></td><td>{band(cg)}</td></tr>')
+
+    need_grad = (2.00 * total - base) / rem
+    need_good = (2.30 * total - base) / rem
+    doc.sheet(f"""
+<p class="lede">قاعدة الإعادة المطبَّقة عليك: <strong>درجة الإعادة تحلّ محلّ الرسوب</strong> كفرصة
+جديدة، ولا تُعادَل الدرجتان. أثر ذلك حسابي مباشر — محاولة الرسوب تُرفع من المقام.</p>
+<div class="cols">
+ <div class="box"><span class="lbl">الآن</span>
+  <p class="sm">{base:.0f} نقطة ÷ {att_f} ساعة مُحاوَلة = <strong>{t["cgpa"]}</strong><br>
+  وبعد رفع محاولة الرسوب: {base:.0f} ÷ {att_clean} = <strong>{base / att_clean:.2f}</strong><br>
+  <span style="color:var(--ink-3)">أي أن مجرّد إعادة عربي1060 يرفع الأساس قبل أن تُسجَّل
+  الدرجة الجديدة أصلاً.</span></p></div>
+ <div class="box"><span class="lbl">أثر درجة الإعادة (2 ساعة)</span>
+  <table class="bx"><thead><tr><th class="n">التقدير</th><th class="n">المعدل</th>
+  <th class="n">الفرق</th></tr></thead><tbody>{repeat_rows}</tbody></table></div>
+</div>
+<h3>معدل التخرج — حسب متوسطك في الـ{rem} ساعة المتبقية</h3>
+<div class="scroll"><table class="bx"><thead><tr>
+<th>متوسط الـ{rem} ساعة</th><th class="n">معدل التخرج</th><th>التصنيف</th>
+</tr></thead><tbody>{proj_rows}</tbody></table></div>
+<div class="cols" style="margin-top:4mm">
+ <div class="box" style="border-top:2pt solid var(--stamp)"><span class="lbl">الحد الأدنى للتخرج</span>
+  <p class="sm">تحتاج متوسط <strong style="font-size:13pt">{need_grad:.2f}</strong> في الـ{rem} ساعة
+  لتبلغ 2.00 — أي بين D+ وC-. متوسطك التاريخي {t["cgpa"]}، فالهامش واسع.
+  لكن انتبه: متوسط D+ (1.30) <strong>لا يكفي للتخرج</strong>.</p></div>
+ <div class="box ok"><span class="lbl">لرفع التصنيف إلى «جيد»</span>
+  <p class="sm">تحتاج متوسط <strong style="font-size:13pt">{need_good:.2f}</strong> — أي أعلى قليلاً
+  من C+. الـ{rem} ساعة المتبقية <strong>{rem / total:.0%} من درجتك</strong>، فما زال بإمكانها
+  نقلك من «مقبول» إلى «جيد».</p></div>
+</div>
+<div class="box" style="border-top:2pt solid var(--fall);margin-top:3mm">
+ <span class="lbl">بوابة التدريب الميداني</span>
+ <p class="sm">الشرط معدل ≥ 2.00 في نهاية الفصل السابق للتدريب. في الخطة الموصى بها يُدرَس قبله
+ 30 ساعة، ويكفي فيها متوسط <strong>1.33</strong> للبقاء فوق العتبة — أي أن البوابة ليست
+ المخاطرة الحقيقية، بل تصنيف التخرج هو ما يستحق الجهد.</p></div>
+<p class="sm" style="color:var(--ink-3);margin-top:3mm">الحسابات على سلّم التقديرات المطبوع في
+كشف الدرجات (A=4.00 … D=1.00، F=0.00)، وتفترض إحلال درجة الإعادة محلّ الرسوب كما أفدتَ.</p>""",
+        title="المعدل التراكمي — أين أنت وإلى أين", tag="إسقاط")
 
 
 def page_form(doc, d, key):
