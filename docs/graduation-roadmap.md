@@ -181,7 +181,9 @@ python3 scripts/rebuild_plan.py        # اشتقاق حالة كل مقرر م�
 python3 scripts/extract_schedule.py    # مواعيد المحاضرات ← meetings.json
 python3 scripts/pick_electives.py      # اختيار الاختياريات بما يمنع التعارض
 python3 scripts/validate_roadmap.py    # تسع قواعد + اختباران سلبيان
-python3 scripts/build_pdf.py           # الوثيقة (36 صفحة A4)
+python3 scripts/build_pdf.py           # الوثيقة الكاملة (36 صفحة A4)
+python3 scripts/build_plans_pdf.py     # الخطط وحدها (4 صفحات)
+python3 scripts/check_overflow.py      # فحص تجاوز المحتوى لحدود الصفحة
 ```
 
 **المصادر:** كشف الدرجات الرسمي · الدرجة والخطة الدراسية لدفعة 2020–2023 · جداول المقررات لخريف وربيع 2025/2026 · [النظام الأكاديمي للدراسات الجامعية الأولى](https://www.squ.edu.om/Portals/53/pdf/academic-ar-2019.pdf).

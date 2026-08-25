@@ -164,6 +164,8 @@ td.c{ font-family:"IBM Plex Mono","IBM Plex Sans Arabic",monospace; font-size:7.
   white-space:nowrap; color:var(--ink-2) }
 td.n{ white-space:nowrap; text-align:center }
 table.bx{ border:.8pt solid var(--rule) }
+table.toc{ font-size:7.5pt }
+table.toc th,table.toc td{ padding:.9mm 2mm }
 
 .term{ border:.8pt solid var(--rule); border-top:2pt solid var(--rule); margin-bottom:5mm }
 .term.fall{ border-top-color:var(--fall) } .term.spring{ border-top-color:var(--spring) }
@@ -396,10 +398,12 @@ def fig_gantt(d):
 # ══════════════════════════════════════════════════════════════
 class Doc:
     def __init__(self, meta):
-        self.pages, self.meta = [], meta
+        self.pages, self.meta, self.toc = [], meta, []
 
-    def sheet(self, inner, title=None, tag=""):
+    def sheet(self, inner, title=None, tag="", toc=None):
         n = len(self.pages) + 1
+        if title or toc:
+            self.toc.append((n, toc or title))
         head = (f'<div class="hd"><h2>{title}</h2><span class="tag">{tag}</span></div>'
                 if title else "")
         self.pages.append(
@@ -408,11 +412,35 @@ class Doc:
             f'<span>خارطة طريق التخرج — التربية الفنية · جامعة السلطان قابوس</span>'
             f'<span class="mono">{n}</span></div></div>')
 
+    def toc_html(self, cols=3):
+        """فهرس محسوب من الصفحات الفعلية — يدمج الصفحات المتتالية بنفس العنوان."""
+        merged = []
+        for n, t in self.toc:
+            if merged and merged[-1][2] == t:
+                merged[-1][1] = n
+            else:
+                merged.append([n, n, t])
+        per = -(-len(merged) // cols)
+        chunks = [merged[i * per:(i + 1) * per] for i in range(cols)]
+        rng = lambda a, b: str(a) if a == b else f"{a}\u2013{b}"
+        rows = ""
+        for r in range(per):
+            cells = ""
+            for ch in chunks:
+                if r < len(ch):
+                    a, b, t = ch[r]
+                    cells += f'<td class="n mono">{rng(a, b)}</td><td>{t}</td>'
+                else:
+                    cells += "<td></td><td></td>"
+            rows += f"<tr>{cells}</tr>"
+        return f'<table class="bx toc"><tbody>{rows}</tbody></table>'
+
     def html(self, css):
+        body = "".join(self.pages).replace("@@TOC@@", self.toc_html())
         return ("<!doctype html><html lang=\"ar\" dir=\"rtl\"><head><meta charset=\"utf-8\">"
                 "<title>خارطة طريق التخرج</title>"
                 f"<style>{css}</style><style>{CSS}</style></head><body>"
-                + "".join(self.pages) + "</body></html>")
+                + body + "</body></html>")
 
 
 def term_block(d, scen_key, term, done):
@@ -476,31 +504,36 @@ def build(d):
     C = d["courses"]
 
     # ── 1 · الغلاف ────────────────────────────────────────────
+    tr = load_transcript()
     doc.sheet(f"""
 <div style="height:100%;display:flex;flex-direction:column;justify-content:center">
  <p style="font-size:8.5pt;color:var(--ink-3);margin-bottom:6mm">
    {m["university"]} · {m["college"]} · {m["department"]}</p>
  <h1 class="kufi" style="font-size:31pt;line-height:1.25;margin:0 0 4mm">خارطة طريق التخرج</h1>
  <p style="font-size:13pt;color:var(--ink-2);margin-bottom:10mm;max-width:150mm">
-   تدقيق ما تبقّى من خطة بكالوريوس التربية الفنية — 50 ساعة معتمدة، أربعة سيناريوهات،
-   ومسار حرج واحد يحكمها جميعاً.</p>
+   تدقيق ما تبقّى من خطة بكالوريوس التربية الفنية — <strong>39 ساعة معتمدة</strong>،
+   أربعة سيناريوهات، ومسار حرج واحد يحكمها جميعاً.</p>
  <table class="bx" style="max-width:150mm;margin-bottom:9mm">
    <tbody>
      <tr><th style="width:38mm">الطالب</th><td>{m["student"]}</td></tr>
      <tr><th>الرقم الجامعي</th><td class="mono">{m["student_id"]}</td></tr>
      <tr><th>التخصص · الدفعة</th><td>التربية الفنية · {m["cohort"]}</td></tr>
      <tr><th>المرشد الأكاديمي</th><td>{m["advisor"]}</td></tr>
-     <tr><th>المعدل التراكمي</th><td>{m["cgpa_band"]}</td></tr>
-     <tr><th>نقطة الانطلاق</th><td>{m["start_term"]}</td></tr>
+     <tr><th>المنجَز · المتبقي</th><td><strong>{m["credits_earned"]}</strong> من {m["total_credits"]} ساعة
+         · يتبقّى <strong>{m["credits_remaining"]}</strong></td></tr>
+     <tr><th>المعدل التراكمي</th><td class="mono">{m["cgpa"]}</td></tr>
+     <tr><th>نقطة الانطلاق</th><td>{m["start_term"]} — الفصل رقم {m["start_term_index"]}</td></tr>
    </tbody>
  </table>
- <div class="box stamp" style="max-width:150mm"><span class="lbl">الحكم</span>
-  <p>مقترح المرشد لا يمكن تنفيذه بدءاً من سبتمبر 2026: فصله الأول مقرراته <strong>ربيعية بالكامل</strong>،
-  وفيه مخالفة متطلب سابق، والتدريب الميداني غائب عنه. وأبكر تخرج ممكن هو <strong>يونيو 2028</strong> —
-  لكنه يستلزم <strong>استثناءً إدارياً واحداً لا مفرّ منه</strong>.</p></div>
+ <div class="box ok" style="max-width:150mm"><span class="lbl">الحكم</span>
+  <p>كشف الدرجات الرسمي يُغلِق على <strong>86 ساعة مكتسبة</strong>، فالمتبقي <strong>39 ساعة</strong>
+  في أربعة عشر مقرراً. والاختناق الذي كان يفرض استثناءً إدارياً <strong>زال</strong>:
+  أبكر تخرج ممكن <strong>يونيو 2028 بصفر استثناءات</strong>، ويمكن اختصاره إلى
+  <strong>يناير 2028 باستثناء واحد</strong>. أمّا مقترح المرشد فقد تجاوزه الزمن — خمسة من مقرراته
+  أُنجزت فعلاً، والتدريب الميداني غائب عنه، ولا يذكر إعادة <span class="code">عربي1060</span> الإلزامية.</p></div>
  <p class="sm" style="color:var(--ink-3);margin-top:8mm">
-   حُرّر في 24 أغسطس 2026 · موسمية المقررات مثبتة من جدولَي الخريف والربيع 2025/2026 الرسميين ·
-   وثيقة تخطيط وتفاوض لا قرار أكاديمي</p>
+   مصدر الحقيقة: <strong>كشف الدرجات الرسمي — 25 أغسطس 2026</strong> · موسمية المقررات مثبتة من
+   جدولَي الخريف والربيع 2025/2026 الرسميين · وثيقة تخطيط وتفاوض لا قرار أكاديمي</p>
 </div>""")
 
     # ── 2 · الخلاصة ───────────────────────────────────────────
@@ -511,88 +544,111 @@ def build(d):
         f'{" + ".join(d["scenarios"][k]["requires_exceptions"]) or "بلا استثناء"} · '
         f'{len(d["scenarios"][k]["terms"])} فصول</span></div>'
         for k in ["A", "B", "C", "D"])
-    # فهرس محسوب من نفس دالة التوزيع التي تبني الصفحات
-    left = [(3, "الحالة الأكاديمية — المتبقي مصنَّفاً بالموسم"),
-            (4, "دليل الموسمية — الدوران المنفصل بين الفصلين"),
-            (5, "تدقيق مقترح المرشد"),
-            (6, "المسار الحرج"),
-            (7, "اختناق الربيع وسلّم الاستثناءات"),
-            (8, "مقارنة الخطط الأربع على محور زمني")]
-    right, n = [], 8
-    for k, ar in [("A", "أ"), ("B", "ب"), ("C", "ج"), ("D", "د")]:
-        cnt = len(pack_terms(d["scenarios"][k]["terms"]))
-        rng = f"{n + 1}" if cnt == 1 else f"{n + 1}–{n + cnt}"
-        right.append((rng, f"السيناريو {ar} · جداول فصلية كاملة"))
-        n += cnt
-    right.append((str(n + 1), "المخاطر وقائمة التحقق"))
-    right.append((str(n + 2), "مسودة خطاب الاستثناء"))
-    toc = "".join(
-        f'<tr><td class="n mono">{lp}</td><td>{lt}</td>'
-        f'<td class="n mono">{right[i][0]}</td><td>{right[i][1]}</td></tr>'
-        for i, (lp, lt) in enumerate(left))
 
     doc.sheet(f"""
 <div class="cols3" style="margin-bottom:6mm">
-  <div class="stat"><span class="v">75</span><span class="k">ساعة منجَزة</span></div>
-  <div class="stat"><span class="v">50</span><span class="k">ساعة متبقية</span></div>
-  <div class="stat"><span class="v">125</span><span class="k">مجموع الخطة</span></div>
+  <div class="stat"><span class="v">{m["credits_earned"]}</span><span class="k">ساعة منجَزة</span></div>
+  <div class="stat"><span class="v">{m["credits_remaining"]}</span><span class="k">ساعة متبقية</span></div>
+  <div class="stat"><span class="v">{m["total_credits"]}</span><span class="k">مجموع الخطة</span></div>
 </div>
 <h3>الخلاصة في ثلاث نقاط</h3>
-<p><strong>١ · مقترح المرشد ينكسر من أول فصل.</strong> الاستمارة تقترح البدء بخمسة مقررات
-ربيعية كلها — لا يُطرح أيٌّ منها خريفاً. وفيها مخالفة متطلب سابق (ترفن4260 مع ترفن2110 وترفن3111)،
-والتدريب الميداني (7 ساعات) غائب تماماً، فمجموعها 43 ساعة لا 50.</p>
-<p><strong>٢ · المسار الحرج يضع أرضية صلبة.</strong> منطر3027 (ربيعي حصراً) ← منطر4027 (خريفي حصراً)
-← التدريب الميداني. ثلاث حلقات كلٌّ في موسم، ولا فصل صيفي يختصر. <strong>لا تخرج قبل يونيو 2028
-بأي حال.</strong></p>
-<p><strong>٣ · الاستثناء ليس اختياراً.</strong> المقررات الربيعية المتبقية سبعة، وربيع 2028 محجوز
-للتدريب الميداني الذي يشترط إنهاء كل شيء قبله ⇒ السبعة كلها في ربيع 2027 وحده. مجموعها 18 ساعة
-(داخل سقف الساعات تماماً) لكن عددها يتجاوز سقف الـ6 مقررات. <strong>السؤال ليس «هل نحتاج استثناءً»
-بل «أيّها نطلب».</strong></p>
-<h3 style="margin-top:6mm">السيناريوهات الأربعة</h3>
+<p><strong>١ · القاعدة تغيّرت: 86 ساعة لا 75.</strong> كشف الدرجات يصحّح التقدير السابق بفارق
+<strong>11 ساعة</strong>: خمسة مقررات كانت محسوبة «متبقية» أُنجزت في ربيع 2026، ومقرر كان
+محسوباً «منجَزاً» هو في الحقيقة <strong>رسوب</strong> — <span class="code">عربي1060</span>
+(F، خريف 2023) وإعادته إلزامية.</p>
+<p><strong>٢ · المسار الحرج انتقل بالكامل.</strong> السلسلة القديمة
+<span class="code">منطر3027 ← منطر4027</span> انكسرت لأن أولها صار منجَزاً. محلّها سلسلة أضيق:
+<strong>المشروع الفني <span class="code">ترفن4260</span> ومتطلباه</strong> — ثلاثتها خريفية حصراً،
+فتفرض خريفين متتاليين. <strong>لا تخرج قبل يناير 2028 بأي حال.</strong></p>
+<p><strong>٣ · الاستثناء صار اختياراً لا ضرورة.</strong> لم يبقَ ربيعياً سوى مقررين (5 ساعات)،
+فاختناق الربيع الذي كان يفرض طلباً إدارياً زال. <strong>«ب» تُنجز في أربعة فصول بصفر
+استثناءات</strong> وتخرّج يونيو 2028؛ و<strong>«أ» تختصر فصلاً إلى يناير 2028</strong> باستثناء
+واحد يُجيز تزامن المشروع الفني مع متطلبيه. السؤال لم يعد «أيّ استثناء نطلب» بل
+<strong>«هل نطلب أصلاً»</strong>.</p>
+<div class="box stamp" style="margin:5mm 0"><span class="lbl">قيدان يحكمان كل الخطط</span>
+<p class="sm"><strong>عزل التدريب الميداني:</strong> يُسجَّل <span class="code">منطر4600</span> وحده،
+ولا يُصاحبه إلا متطلب جامعة واحد على الأكثر — فنُقل مشروع التخرج
+<span class="code">منطر4400</span> إلى الفصل السابق له في كل السيناريوهات.
+<strong>وإعادة الرسوب:</strong> درجة الإعادة تحلّ محلّ الـF كفرصة جديدة ولا تُعادَل الدرجتان،
+فترتفع القاعدة من 2.18 إلى 2.23 قبل تسجيل الدرجة الجديدة.</p></div>
+<h3>السيناريوهات الأربعة</h3>
 <div class="cols" style="grid-template-columns:repeat(4,1fr);margin-bottom:5mm">{cards}</div>
 <div class="box ok"><span class="lbl">التوصية</span>
 <p>{m["recommendation_rationale"]}</p></div>
 <h3>محتويات الوثيقة</h3>
-<table class="bx"><tbody>{toc}</tbody></table>""", title="الخلاصة التنفيذية", tag="صفحة 2")
+@@TOC@@""", title="الخلاصة التنفيذية", tag="صفحة 2")
 
     # ── 3 · الحالة الأكاديمية ─────────────────────────────────
-    groups = [("ربيعي حصراً", "spring", ["CUTM3027","ARED4111","ARED2130","ARED3140","ARED3210","ARED3170","ARED4120"]),
-              ("خريفي حصراً", "fall", ["ARED2110","ARED3111","ARED3250","ARED4140","CUTM4027","ARED4260"]),
-              ("يُطرح في الفصلين", "", ["PSYC4500","EDUC3050"]),
-              ("خريفي (تحوّطاً)", "fall", ["SOCY1005"]),
-              ("ختامي", "", ["CUTM4600","CUTM4400"])]
+    FINAL_CODES = ["CUTM4600", "CUTM4400"]
+    rem = [c for c, v in C.items() if v["status"] == "remaining"]
+    buckets = [("خريفي حصراً", "fall",
+                [c for c in rem if C[c]["season"] == "fall" and c not in FINAL_CODES]),
+               ("ربيعي حصراً", "spring",
+                [c for c in rem if C[c]["season"] == "spring" and c not in FINAL_CODES]),
+               ("يُطرح في الفصلين", "",
+                [c for c in rem if C[c]["season"] == "both" and c not in FINAL_CODES]),
+               ("ختامي", "", FINAL_CODES)]
     rows = []
-    for label, cls, codes in groups:
+    for label, cls, codes in buckets:
         chip = f'<span class="chip {cls}">{label}</span>' if cls else f'<span class="chip">{label}</span>'
-        rows.append(f'<tr><td>{chip}</td><td>{" · ".join(C[c]["ar"] + " " + C[c]["name"].split("—")[0].strip() for c in codes)}</td>'
+        names = " · ".join(C[c]["ar"] + " " + C[c]["name"].split("—")[0].strip() for c in codes)
+        rows.append(f'<tr><td>{chip}</td><td>{names}</td>'
                     f'<td class="n">{credits(d, codes)}</td></tr>')
-    elective_rows = "".join(
-        f'<tr><td>{lst}</td><td class="c">{C[sel]["ar"]}</td><td>{C[sel]["name"].split("—")[0].strip()}</td>'
-        f'<td class="sm">{" · ".join(C[sel].get("alternatives", []))}</td></tr>'
-        for lst, sel in [("ز1 — اختياري (أ)", "ARED3140"), ("ز2 — اختياري (ب)", "ARED3250"),
-                         ("ز3 — اختياري (ج)", "ARED3170"), ("ز4 — اختياري (د)", "ARED4130")])
+    check = sum(credits(d, codes) for _, _, codes in buckets)
+
+    uni = [c for c, v in C.items() if v["cat"] == "م ج"]
+    uni_rows = ""
+    for c in sorted(uni, key=lambda x: C[x]["status"] != "completed"):
+        v = C[c]
+        if v["status"] == "completed":
+            st = f'<span class="chip ok">منجَز</span> <span class="mono sm">{v.get("grade","")}</span>'
+        elif v.get("repeat_of_failure"):
+            st = '<span class="chip stamp">إعادة إلزامية — رسوب F</span>'
+        else:
+            st = '<span class="chip stamp">متبقٍ</span>'
+        uni_rows += (f'<tr><td class="c">{v["ar"]}</td><td>{v["name"].split("—")[0].strip()}</td>'
+                     f'<td class="n">{v["cr"]}</td><td>{st}</td></tr>')
+
+    slots = d["elective_slots"]
+    el_rows = ""
+    for sk in ["ELEC_A", "ELEC_B", "ELEC_C", "ELEC_D"]:
+        s = slots[sk]
+        sel = s.get("satisfied_by") or next(
+            (o for o in s["options"] if C[o]["status"] == "remaining"), s["options"][0])
+        alt = " · ".join(C[o]["ar"] for o in s["options"] if o != sel)
+        mark = ('<span class="chip ok">منجَز</span>' if C[sel]["status"] == "completed"
+                else '<span class="chip stamp">متبقٍ</span>')
+        el_rows += (f'<tr><td>{s["label"]}</td><td class="c">{C[sel]["ar"]}</td>'
+                    f'<td>{C[sel]["name"].split("—")[0].strip()}</td><td>{mark}</td>'
+                    f'<td class="sm">{alt}</td></tr>')
+
     doc.sheet(f"""
-<p class="lede">المنجَز <strong>75 ساعة</strong> · المتبقي <strong>50 ساعة</strong> · المجموع 125 ✓</p>
-<div class="box stamp" style="border-top-width:1pt"><span class="lbl">فرضية معلَنة</span>
-<p class="sm">بُني «المنجَز» على إفادة الطالب أنه أنهى كل الخطة عدا ما ورد في استمارة التدقيق.
-الحساب يُغلِق تماماً (75 + 50 = 125)، وهو مؤشر قوي على صحته — لكنه يبقى استنتاجاً يحتاج
-تثبيتاً من كشف الدرجات الرسمي.</p></div>
-<h3>المتبقي مصنَّفاً بالموسم</h3>
-<table class="bx" style="margin-bottom:6mm"><thead><tr><th style="width:30mm">الموسم</th>
-<th>المقررات</th><th class="n">الساعات</th></tr></thead><tbody>{"".join(rows)}</tbody></table>
-<h3>متطلبات الجامعة — 3 مقررات × 2 ساعة</h3>
-<table class="bx" style="margin-bottom:6mm"><tbody>
-<tr><td class="c">عربي1060</td><td>اللغة العربية</td><td class="n">2</td><td><span class="chip ok">منجَز</span></td></tr>
-<tr><td class="c">اجمع1005</td><td>عمان: الدولة والإنسان</td><td class="n">2</td><td><span class="chip stamp">متبقٍ</span></td></tr>
-<tr><td class="c">تاريخ1010 / اسلم1010</td><td>عمان والحضارة الإسلامية <em>أو</em> الثقافة الإسلامية — يُختار أحدهما</td>
-    <td class="n">2</td><td><span class="chip ok">منجَز</span></td></tr>
-</tbody></table>
-<p class="sm">واختياري الجامعة (6 ساعات) مُنجَز بالكامل.</p>
-<h3 style="margin-top:5mm">اختياري التخصص — المُختار وبدائله</h3>
-<table class="bx"><thead><tr><th>القائمة</th><th>الرمز</th><th>المُختار</th><th>البدائل من نفس القائمة</th></tr></thead>
-<tbody>{elective_rows}</tbody></table>
-<p class="sm" style="margin-top:3mm">البدائل لها نفس الساعات ونفس الموسم، فاستبدال أيٍّ منها
-لا يغيّر شيئاً في الجداول.</p>""", title="الحالة الأكاديمية", tag="صفحة 3")
+<p class="lede">المنجَز <strong>{m["credits_earned"]} ساعة</strong> ·
+المتبقي <strong>{m["credits_remaining"]} ساعة</strong> · المجموع {m["total_credits"]} ✓</p>
+<div class="box ok" style="border-top-width:1pt"><span class="lbl">مصدر الحقيقة</span>
+<p class="sm">حالة كل مقرر في هذه الوثيقة مشتقّة آلياً من <strong>كشف الدرجات الرسمي</strong>
+(25 أغسطس 2026)، لا من تقدير. والمجموع المحسوب يطابق سطر
+<span class="mono">TOTAL CREDITS EARNED 86.00</span> في الكشف حرفياً — والبرهان الكامل
+في صفحة «تدقيق كشف الدرجات».</p></div>
+<h3>المتبقي مصنَّفاً بالموسم — أربعة عشر مقرراً</h3>
+<table class="bx" style="margin-bottom:2mm"><thead><tr><th style="width:34mm">الموسم</th>
+<th>المقررات</th><th class="n">الساعات</th></tr></thead><tbody>{"".join(rows)}
+<tr><th>المجموع</th><th></th><th class="n">{check}</th></tr></tbody></table>
+<p class="sm" style="margin-bottom:5mm">جُمعت المقررات المتبقية واحداً واحداً فبلغت
+<strong>{check}</strong> ساعة — وهو نفس ناتج {m["total_credits"]} ناقص {m["credits_earned"]}.
+طريقتان مستقلتان تصلان إلى الرقم ذاته.</p>
+<h3>متطلبات الجامعة</h3>
+<table class="bx" style="margin-bottom:2mm"><tbody>{uni_rows}</tbody></table>
+<p class="sm" style="margin-bottom:5mm">واختياري الجامعة (6 ساعات) مُنجَز بالكامل:
+اسلم1020 · حاسب1003 · حاسب1007.</p>
+<h3>اختياري التخصص — الخانات الأربع</h3>
+<table class="bx"><thead><tr><th>الخانة</th><th>الرمز</th><th>المُختار</th><th>الحالة</th>
+<th>بدائل من نفس القائمة</th></tr></thead><tbody>{el_rows}</tbody></table>
+<p class="sm" style="margin-top:3mm">الاختيار في الخانات المتبقية <strong>محسوب لا مفترَض</strong>:
+اختير <span class="code">ترفن4130</span> في الخانة (د) بدل <span class="code">ترفن4140</span>
+لأن الأخير يقع صباح الأحد المزدحم، وبدونه يتعذّر جدول خريف 2026 في السيناريو أ.</p>""",
+        title="الحالة الأكاديمية", tag="صفحة 3")
+
     pages_rest(doc, d)
     return doc
 
@@ -1236,7 +1292,8 @@ def page_form(doc, d, key):
   <p class="ffoot">بتوقيع الطالب على هذه الاستمارة فإنه يؤكد قيامه بمراجعة الخطة مع مرشده الأكاديمي
   ويعزم على الالتزام بما جاء بها حتى يتخرج في الوقت المحدد<br>
   مكتب مساعد العميد للدراسات الجامعية — كلية التربية</p>
-</div>""")
+</div>""",
+        toc=f"استمارة تدقيق الخطة · السيناريو {AR_KEY[key]}")
 
 
 DAY_START, DAY_END, MM_PER_MIN = 8 * 60, 18 * 60 + 30, 0.155
