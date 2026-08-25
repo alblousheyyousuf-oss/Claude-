@@ -121,11 +121,15 @@
       ]
     },
     "field_training_isolation": {
-      "source": "قرار حديث أفاد به الطالب — أحدث من وثيقة الخطة",
-      "rule": "يُسجَّل التدريب الميداني وحده، ولا يُسمح معه بأي مقرر آخر إلا متطلب جامعة واحد اختيارياً",
+      "source": "إفادة الطالب المتكررة + وثيقة الخطة الرسمية — والاثنتان متفقتان",
+      "rule": "الفصل الأخير في الجامعة = التدريب الميداني ومشروع التخرج معاً، ولا يُؤخذ معهما أي مقرر آخر. والحد الأقصى المسموح به نظاماً متطلب جامعة واحد فقط — وهو غير مُستعمَل في أي من الخطط الأربع.",
       "max_companions": 1,
       "companion_category": "م ج",
-      "conflict_note": "وثيقة الخطة تنصّ أن مشروع التخرج «يتم دراسته كمقرر مصاحب مع التدريب الميداني»، والقرار الجديد يمنع المصاحبة. الجدولة تضع المشروع في الفصل السابق لأنه يُرضي القراءتين. إن أصرّ القسم على المصاحبة الإلزامية فيعود المشروع لفصل التخرج ويسقط متطلب الجامعة منه."
+      "mandatory_companion": "CUTM4400",
+      "must_be_final_term": true,
+      "max_university_companions": 1,
+      "companions_used": 0,
+      "schedule_evidence": "منطر4400 يُطرح مساءً حصراً (14:15–19:05) في الموسمين، ومنطر4600 صباحاً 08:00–13:50 — 156 زوجاً بلا تعارض خريفاً و1424 ربيعاً"
     },
     "repeat_policy": {
       "source": "إفادة الطالب — الممارسة المطبَّقة عليه",
@@ -991,13 +995,20 @@
       "label": "تسجيل ترفن4260 المشروع الفني متزامناً مع متطلبيه ترفن2110 وترفن3111",
       "cost": "متوسط — يمسّ متطلباً سابقاً نصاً، لكنه يختصر فصلاً كاملاً ويمنح هامش تعافٍ",
       "authority": "رئيس القسم + مساعد العميد + القبول والتسجيل"
+    },
+    "E2": {
+      "label": "زيادة العبء إلى 16 ساعة في خريف 2026 مع معدل تراكمي دون 3.00",
+      "cost": "متوسط — النظام يجعل 15 ساعة العبء المعتاد، وتجاوزها يشترط معدلاً ≥ 3.00 (البند ب-3)",
+      "authority": "مساعد العميد للدراسات الجامعية + القبول والتسجيل",
+      "note": "مفروضة لا اختيارية في السيناريو أ: المقررات الخريفية المتبقية 16 ساعة يجب أن تجتمع في الخريف الوحيد قبل فصل التخرج، وكل بدائل الاختياري (ب) و(د) خريفية أيضاً"
     }
   },
   "scenarios": {
     "A": {
       "title": "المسار الأسرع — ثلاثة فصول",
       "requires_exceptions": [
-        "E1"
+        "E1",
+        "E2"
       ],
       "recommended": false,
       "graduation": "نهاية خريف 2027/2028 (يناير 2028)",
@@ -1026,7 +1037,8 @@
               "ARED3111"
             ]
           ],
-          "waive_prereq_exception": "E1"
+          "waive_prereq_exception": "E1",
+          "overload_exception": "E2"
         },
         {
           "name": "ربيع 2026/2027",
@@ -1038,7 +1050,7 @@
             "PSYC4500",
             "EDUC3050",
             "ARAB1060",
-            "CUTM4400"
+            "SOCY1005"
           ]
         },
         {
@@ -1047,7 +1059,7 @@
           "season": "fall",
           "courses": [
             "CUTM4600",
-            "SOCY1005"
+            "CUTM4400"
           ],
           "final": true
         }
@@ -1067,7 +1079,7 @@
             "ARED2110",
             "ARED3111",
             "CUTM4027",
-            "ARED4130"
+            "SOCY1005"
           ]
         },
         {
@@ -1078,7 +1090,7 @@
             "ARED4120",
             "ARED3170",
             "ARAB1060",
-            "CUTM4400"
+            "PSYC4500"
           ]
         },
         {
@@ -1088,7 +1100,7 @@
           "courses": [
             "ARED4260",
             "ARED3250",
-            "PSYC4500",
+            "ARED4130",
             "EDUC3050"
           ]
         },
@@ -1098,7 +1110,7 @@
           "season": "spring",
           "courses": [
             "CUTM4600",
-            "SOCY1005"
+            "CUTM4400"
           ],
           "final": true
         }
@@ -1130,7 +1142,7 @@
             "ARED4120",
             "ARED3170",
             "PSYC4500",
-            "CUTM4400"
+            "EDUC3050"
           ]
         },
         {
@@ -1141,7 +1153,7 @@
             "ARED4260",
             "ARED3250",
             "ARED4130",
-            "EDUC3050"
+            "SOCY1005"
           ]
         },
         {
@@ -1150,7 +1162,7 @@
           "season": "spring",
           "courses": [
             "CUTM4600",
-            "SOCY1005"
+            "CUTM4400"
           ],
           "final": true
         }
@@ -1171,7 +1183,7 @@
             "ARED2110",
             "ARED3111",
             "CUTM4027",
-            "ARED4130"
+            "SOCY1005"
           ]
         },
         {
@@ -1182,7 +1194,7 @@
             "ARED4120",
             "ARED3170",
             "ARAB1060",
-            "CUTM4400"
+            "PSYC4500"
           ]
         },
         {
@@ -1192,7 +1204,7 @@
           "courses": [
             "ARED4260",
             "ARED3250",
-            "PSYC4500",
+            "ARED4130",
             "EDUC3050"
           ],
           "failed": [
@@ -1204,7 +1216,8 @@
           "index": 12,
           "season": "spring",
           "courses": [],
-          "note": "لا يتبقى مقرر ربيعي واحد — فصل معطَّل يفرض تأجيلاً معتمداً"
+          "note": "لا يتبقى مقرر ربيعي واحد — فصل معطَّل يفرض تأجيلاً معتمداً",
+          "under_min_ack": "لا يتبقى مقرر ربيعي واحد"
         },
         {
           "name": "خريف 2028/2029",
@@ -1213,7 +1226,8 @@
           "courses": [
             "ARED4260"
           ],
-          "under_min_ack": "إعادة ترفن4260 وحده — خريفي حصراً ولا يتبقى ما يُسجَّل معه"
+          "note": "إعادة المشروع الفني وحده — ساعتان دون الحد الأدنى، فيلزم إذن عبء مخفَّض",
+          "under_min_ack": "إعادة المشروع الفني وحدها — لا يتبقى ما يُملأ به الفصل"
         },
         {
           "name": "ربيع 2028/2029",
@@ -1221,7 +1235,7 @@
           "season": "spring",
           "courses": [
             "CUTM4600",
-            "SOCY1005"
+            "CUTM4400"
           ],
           "final": true
         }
@@ -1272,6 +1286,273 @@
           ]
         }
       ]
+    },
+    "NEG_PROJECT_BEFORE": {
+      "title": "اختبار سلبي — مشروع التخرج في فصل سابق للتدريب",
+      "requires_exceptions": [],
+      "recommended": false,
+      "graduation": "—  اختبار سلبي",
+      "terms": [
+        {
+          "name": "خريف 2026/2027",
+          "index": 9,
+          "season": "fall",
+          "courses": [
+            "ARED2110",
+            "ARED3111",
+            "CUTM4027",
+            "SOCY1005"
+          ]
+        },
+        {
+          "name": "ربيع 2026/2027",
+          "index": 10,
+          "season": "spring",
+          "courses": [
+            "ARED4120",
+            "ARED3170",
+            "ARAB1060",
+            "CUTM4400"
+          ]
+        },
+        {
+          "name": "خريف 2027/2028",
+          "index": 11,
+          "season": "fall",
+          "courses": [
+            "ARED4260",
+            "ARED3250",
+            "ARED4130",
+            "EDUC3050",
+            "PSYC4500"
+          ]
+        },
+        {
+          "name": "ربيع 2027/2028",
+          "index": 12,
+          "season": "spring",
+          "courses": [
+            "CUTM4600"
+          ],
+          "final": true
+        }
+      ],
+      "expect_fail": true,
+      "negative_test": "هذا هو الخطأ الذي وقع فعلاً في النسخة السابقة؛ يجب أن يرفضه فحص coreq"
+    },
+    "NEG_MAJOR_WITH_TRAINING": {
+      "title": "اختبار سلبي — مقرر تخصص مع التدريب والمشروع",
+      "requires_exceptions": [],
+      "recommended": false,
+      "graduation": "—  اختبار سلبي",
+      "terms": [
+        {
+          "name": "خريف 2026/2027",
+          "index": 9,
+          "season": "fall",
+          "courses": [
+            "ARED2110",
+            "ARED3111",
+            "CUTM4027",
+            "SOCY1005"
+          ]
+        },
+        {
+          "name": "ربيع 2026/2027",
+          "index": 10,
+          "season": "spring",
+          "courses": [
+            "ARED4120",
+            "ARED3170",
+            "ARAB1060",
+            "PSYC4500"
+          ]
+        },
+        {
+          "name": "خريف 2027/2028",
+          "index": 11,
+          "season": "fall",
+          "courses": [
+            "ARED4260",
+            "ARED3250",
+            "ARED4130",
+            "PSYC4500"
+          ]
+        },
+        {
+          "name": "ربيع 2027/2028",
+          "index": 12,
+          "season": "spring",
+          "courses": [
+            "CUTM4600",
+            "CUTM4400",
+            "EDUC3050"
+          ],
+          "final": true
+        }
+      ],
+      "expect_fail": true,
+      "negative_test": "لا يُسمح مع التدريب والمشروع إلا متطلب جامعة واحد"
+    },
+    "NEG_TWO_UNIV": {
+      "title": "اختبار سلبي — متطلبا جامعة مع التدريب والمشروع",
+      "requires_exceptions": [],
+      "recommended": false,
+      "graduation": "—  اختبار سلبي",
+      "terms": [
+        {
+          "name": "خريف 2026/2027",
+          "index": 9,
+          "season": "fall",
+          "courses": [
+            "ARED2110",
+            "ARED3111",
+            "CUTM4027",
+            "EDUC3050"
+          ]
+        },
+        {
+          "name": "ربيع 2026/2027",
+          "index": 10,
+          "season": "spring",
+          "courses": [
+            "ARED4120",
+            "ARED3170",
+            "PSYC4500",
+            "ARED4130"
+          ]
+        },
+        {
+          "name": "خريف 2027/2028",
+          "index": 11,
+          "season": "fall",
+          "courses": [
+            "ARED4260",
+            "ARED3250"
+          ]
+        },
+        {
+          "name": "ربيع 2027/2028",
+          "index": 12,
+          "season": "spring",
+          "courses": [
+            "CUTM4600",
+            "CUTM4400",
+            "ARAB1060",
+            "SOCY1005"
+          ],
+          "final": true
+        }
+      ],
+      "expect_fail": true,
+      "negative_test": "الحد الأقصى متطلب جامعة واحد"
+    },
+    "NEG_TRAINING_NOT_FINAL": {
+      "title": "اختبار سلبي — التدريب في غير الفصل الأخير",
+      "requires_exceptions": [],
+      "recommended": false,
+      "graduation": "—  اختبار سلبي",
+      "terms": [
+        {
+          "name": "خريف 2026/2027",
+          "index": 9,
+          "season": "fall",
+          "courses": [
+            "ARED2110",
+            "ARED3111",
+            "CUTM4027",
+            "SOCY1005"
+          ]
+        },
+        {
+          "name": "ربيع 2026/2027",
+          "index": 10,
+          "season": "spring",
+          "courses": [
+            "ARED4120",
+            "ARED3170",
+            "ARAB1060",
+            "PSYC4500"
+          ]
+        },
+        {
+          "name": "خريف 2027/2028",
+          "index": 11,
+          "season": "fall",
+          "courses": [
+            "CUTM4600",
+            "CUTM4400"
+          ]
+        },
+        {
+          "name": "ربيع 2027/2028",
+          "index": 12,
+          "season": "fall",
+          "courses": [
+            "ARED4260",
+            "ARED3250",
+            "ARED4130",
+            "EDUC3050"
+          ],
+          "final": true
+        }
+      ],
+      "expect_fail": true,
+      "negative_test": "التدريب والمشروع يكونان في الفصل الأخير"
+    },
+    "NEG_OVERLOAD": {
+      "title": "اختبار سلبي — 16 ساعة بلا استثناء معلن",
+      "requires_exceptions": [],
+      "recommended": false,
+      "graduation": "—  اختبار سلبي",
+      "terms": [
+        {
+          "name": "خريف 2026/2027",
+          "index": 9,
+          "season": "fall",
+          "courses": [
+            "ARED2110",
+            "ARED3111",
+            "CUTM4027",
+            "ARED3250",
+            "ARED4130",
+            "EDUC3050"
+          ]
+        },
+        {
+          "name": "ربيع 2026/2027",
+          "index": 10,
+          "season": "spring",
+          "courses": [
+            "ARED4120",
+            "ARED3170",
+            "ARAB1060",
+            "PSYC4500"
+          ]
+        },
+        {
+          "name": "خريف 2027/2028",
+          "index": 11,
+          "season": "fall",
+          "courses": [
+            "ARED4260",
+            "SOCY1005",
+            "PSYC4500"
+          ]
+        },
+        {
+          "name": "ربيع 2027/2028",
+          "index": 12,
+          "season": "spring",
+          "courses": [
+            "CUTM4600",
+            "CUTM4400"
+          ],
+          "final": true
+        }
+      ],
+      "expect_fail": true,
+      "negative_test": "زيادة العبء فوق 15 تشترط معدلاً ≥ 3.00"
     }
   },
   "reasons": {

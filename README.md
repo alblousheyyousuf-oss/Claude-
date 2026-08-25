@@ -9,10 +9,12 @@
 | [`docs/graduation-roadmap.md`](docs/graduation-roadmap.md) | **خارطة طريق التخرج — التربية الفنية / جامعة السلطان قابوس**: تدقيق مقترح المرشد، المسار الحرج، وأربعة سيناريوهات فصلية مفحوصة آلياً مقابل النظام الأكاديمي |
 | [`docs/خارطة-طريق-التخرج.pdf`](docs/خارطة-طريق-التخرج.pdf) | **الوثيقة المطبوعة (36 صفحة A4)** — التحليل الكامل، ثم **استمارة تدقيق رسمية مملوءة لكل خطة** جاهزة للتوقيع، ثم **جدول أسبوعي لكل فصل** في كل خطة مع إسناد شعب خالٍ من التعارض |
 | [`docs/الخطط-الدراسية-جداول-الفصول.pdf`](docs/الخطط-الدراسية-جداول-الفصول.pdf) | **الخطط وحدها (4 صفحات)** — استمارة تدقيق مملوءة لكل تشكيلة: مقررات كل فصل وساعاتها ومجموعها، مرتَّبة من الأسرع تخرّجاً إلى الأبطأ. لا تحليل ولا جداول أسبوعية |
+| [`scripts/build_plans_pdf.py`](scripts/build_plans_pdf.py) | **مولِّد وثيقة الخطط وحدها** — صفحة استمارة لكل تشكيلة، مرتَّبة من الأسرع إلى الأبطأ |
 | [`scripts/build_pdf.py`](scripts/build_pdf.py) | **مولِّد الوثيقة**: يبني الـ PDF من نفس البيانات التي يفحصها المدقّق، ويحلّ تعارض المواعيد بالبحث بالتراجع |
+| [`scripts/check_overflow.py`](scripts/check_overflow.py) | **فاحص التجاوز** — يقرأ الـ PDF الناتج ويقيس حدود كل كتلة نصية، لأن Chromium يقصّ المحتوى الزائد بصمت |
 | [`scripts/parse_transcript.py`](scripts/parse_transcript.py) | **محلّل كشف الدرجات** — مصدر الحقيقة لحالة كل مقرر، بتحقق ذاتي يقارن مجموعه بسطر `TOTAL CREDITS EARNED` ويُخفق عند أي اختلاف |
 | [`scripts/rebuild_plan.py`](scripts/rebuild_plan.py) · [`scripts/pick_electives.py`](scripts/pick_electives.py) | اشتقاق حالة المقررات من الكشف، ثم اختيار مقررات خانات الاختياري بما يمنع تعارض المواعيد |
-| [`scripts/extract_schedule.py`](scripts/extract_schedule.py) | **مستخرج المواعيد**: يقرأ جداول المقررات الرسمية بالإحداثيات ويُخرج [`docs/data/meetings.json`](docs/data/meetings.json) — 1803 لقاء بتغطية 98% |
+| [`scripts/extract_schedule.py`](scripts/extract_schedule.py) | **مستخرج المواعيد**: يقرأ جداول المقررات الرسمية بالإحداثيات ويُخرج [`docs/data/meetings.json`](docs/data/meetings.json) — 1839 لقاء بتغطية 100%، مع إسقاط النسخ المكرَّرة وفحص ذاتي يرفض تسرّب موسم إلى آخر |
 | [`docs/graduation-roadmap.html`](docs/graduation-roadmap.html) | **النسخة المرئية** من خارطة الطريق — صفحة عربية قابلة للمشاركة مع المرشد، فيها مخططا المسار الحرج واختناق الربيع |
 | [`scripts/validate_roadmap.py`](scripts/validate_roadmap.py) | **مدقّق خارطة الطريق**: يفحص كل سيناريو مقابل المتطلبات السابقة والموسمية وسقوف العبء وبوابة التدريب الميداني وجدول التقدّم. البيانات في [`docs/data/study-plan.json`](docs/data/study-plan.json) |
 

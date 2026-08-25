@@ -17,6 +17,8 @@ import re
 import sys
 from collections import defaultdict
 
+import hashlib
+
 import pymupdf
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -27,9 +29,36 @@ DAY = re.compile(r"\b(SUN|MON|TUE|WED|THU)\b")
 PREFIX = re.compile(r"^([A-Z]{4})(\d{1,3})$")   # الرمز ينكسر بأشكال شتى: ARAB10+19 · HIST101+0
 TIME = re.compile(r"\b(\d{2}):(\d{2}):00\b")
 HEADER_Y = 125
+IDENTICAL_MAX = 5   # سقف التطابق العرضي بين الموسمين قبل اعتباره خطأ تصنيف
 
-# الملفات التي تخصّ فصل الخريف؛ ما عداها للربيع
-FALL_FILES = ("ac40e66e", "6376605a", "84751b70", "28820a3e", "521d7dca", "8508b608")
+# مجلد الرفع يحوي كل ملف جدول مرتين ببادئتين مختلفتين. التصنيف السابق كان
+# بقائمة بادئات مكتوبة يدوياً، فكانت النسخة الثانية من كل ملف خريفي تسقط خارج
+# القائمة وتُصنَّف ربيعاً — فتُحقن بيانات الخريف في مفاتيح الربيع (160 مقرراً).
+# البديل: إسقاط التكرار ببصمة المحتوى، ثم التصنيف بلاحقة التقرير التي تميّز
+# المجموعتين: الخريف تقريره من ست صفحات (rdlc … rdlc_5) والربيع من أربع
+# (rdlc_6 … rdlc_9).
+FALL_SUFFIXES = ("", "_1", "_2", "_3", "_4", "_5")
+SUFFIX = re.compile(r"rdlc(_\d+)?\.pdf$")
+
+
+def season_of(path):
+    m = SUFFIX.search(path.name)
+    if not m:
+        sys.exit(f"✘ لا يمكن تحديد موسم الملف: {path.name}")
+    return "fall" if (m.group(1) or "") in FALL_SUFFIXES else "spring"
+
+
+def dedupe(files):
+    """يُبقي نسخة واحدة من كل ملف بحسب بصمة محتواه."""
+    seen, out, dropped = {}, [], 0
+    for f in sorted(files):
+        h = hashlib.md5(f.read_bytes()).hexdigest()
+        if h in seen:
+            dropped += 1
+            continue
+        seen[h] = f
+        out.append(f)
+    return out, dropped
 
 DAY_AR = {"SUN": "الأحد", "MON": "الاثنين", "TUE": "الثلاثاء",
           "WED": "الأربعاء", "THU": "الخميس"}
@@ -110,9 +139,12 @@ def main():
     if not files:
         sys.exit(f"✘ لا ملفات جداول في {src}")
 
+    files, dropped = dedupe(files)
+    print(f"  ملفات فريدة: {len(files)} · نُسخ مكرَّرة مُسقَطة: {dropped}")
+
     rows, pairs, matched = [], 0, 0
     for f in files:
-        term = "fall" if f.name.startswith(FALL_FILES) else "spring"
+        term = season_of(f)
         got, p, m = parse(f, term)
         rows += got
         pairs += p
@@ -131,6 +163,46 @@ def main():
                 "start": r["start"], "end": r["end"], "room": r["room"]}
         if slot not in data[key][r["section"]]:
             data[key][r["section"]].append(slot)
+
+    # ── فحوص ذاتية على سلامة التصنيف الموسمي ──
+    # ① التطابق الحرفي بين موسمَي مقرر: وارد لمقرر يُطرح في الفصلين بنفس الشعبة
+    #    والقاعة، لكن تكراره على نطاق واسع بصمةُ خطأ تصنيف (أصاب 160 مقرراً سابقاً).
+    codes = {k.split(":", 1)[1] for k in data}
+    identical = [c for c in sorted(codes)
+                 if f"fall:{c}" in data and f"spring:{c}" in data
+                 and json.dumps(data[f"fall:{c}"], sort_keys=True)
+                 == json.dumps(data[f"spring:{c}"], sort_keys=True)]
+    if len(identical) > IDENTICAL_MAX:
+        sys.exit(f"✘ {len(identical)} مقرراً بياناتهما متطابقة بين الموسمين "
+                 f"(الحد {IDENTICAL_MAX}) — مؤشر تكرار في التصنيف: "
+                 + "، ".join(identical[:8]))
+    print(f"  ✓ متطابقو الموسمين: {len(identical)} فقط من {len(codes)}"
+          + (f" ({'، '.join(identical)})" if identical else ""))
+
+    # ② الفحص الحاسم: مقرر تشهد ملفات الخطة أنه خريفي حصراً يجب ألّا تكون له
+    #    شعب ربيعية — وهذه بالضبط هي الأعراض التي أحدثها الخطأ السابق.
+    plan = ROOT / "docs" / "data" / "study-plan.json"
+    if plan.exists():
+        ev = json.loads(plan.read_text(encoding="utf-8"))["seasonality_evidence"]
+        fall_only = set(ev.get("ared_offered_fall_2025", [])) | set(
+            ev.get("cutm_offered_fall_2025", []))
+        spring_only = set(ev.get("ared_offered_spring_2026", [])) | set(
+            ev.get("cutm_offered_spring_2026", []))
+        # التسرّب المَرَضي هو أن يظهر مقرر مقفل على موسم في الموسم الآخر
+        # **بنفس البيانات حرفياً** — أي منسوخاً لا مطروحاً. أما ظهوره ببيانات
+        # مختلفة فيعني أنه يُطرح في الفصلين فعلاً وأن قائمة الشهادة أقدم.
+        def copied(c, a, b):
+            return (f"{a}:{c}" in data and f"{b}:{c}" in data
+                    and json.dumps(data[f"{a}:{c}"], sort_keys=True)
+                    == json.dumps(data[f"{b}:{c}"], sort_keys=True))
+
+        leaked = sorted(c for c in (fall_only - spring_only) if copied(c, "fall", "spring"))
+        leaked += sorted(c for c in (spring_only - fall_only) if copied(c, "spring", "fall"))
+        if leaked:
+            sys.exit("✘ تسرّب موسمي: مقررات مقفلة على موسم ونُسخت حرفياً إلى الآخر → "
+                     + "، ".join(leaked))
+        print(f"  ✓ صفر تسرّب موسمي — {len(fall_only | spring_only)} مقرراً مقفلاً "
+              "على موسمه، لا نسخة منها في الموسم المقابل")
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(

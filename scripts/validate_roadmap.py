@@ -140,6 +140,21 @@ def validate(name, scen, data):
                         f"{label}: العبء {credits} ساعة دون الحد الأدنى {rt['min_credits']}"
                         " (وليس الفصل الأخير)"
                     )
+            ov = data["regulations"].get("overload", {})
+            cgpa = data["meta"].get("cgpa")
+            if (credits > rt["normal_credits"] and cgpa is not None
+                    and cgpa < ov.get("requires_gpa", 3.0)):
+                ovx = term.get("overload_exception") or term.get("exception")
+                if ovx:
+                    notes.append(
+                        f"{label}: العبء {credits} ساعة يتجاوز المعتاد "
+                        f"{rt['normal_credits']} والمعدل {cgpa} دون "
+                        f"{ov.get('requires_gpa', 3.0)} — باستثناء معلن {ovx}")
+                else:
+                    violations.append(
+                        f"{label}: العبء {credits} ساعة يتجاوز المعتاد {rt['normal_credits']} "
+                        f"والمعدل {cgpa} دون {ov.get('requires_gpa', 3.0)} — "
+                        "زيادة العبء تحتاج استثناءً معلناً (ب-3)")
             if len(tcourses) > rt["max_courses"]:
                 if term.get("exception"):
                     notes.append(
@@ -189,26 +204,49 @@ def validate(name, scen, data):
                         f"{courses[p]['ar']} {where}"
                     )
 
+            # --- 4-ب. المقرر المصاحب (coreq) ---
+            # هذا الحقل كان مسجَّلاً في البيانات ولا يفحصه أحد، فوقع خطأ فصل التخرج.
+            for q in info.get("coreq", []):
+                if q not in tcourses:
+                    where = ("مُجدوَل في فصل آخر" if q in scheduled
+                             else "غير مُجدوَل إطلاقاً")
+                    violations.append(
+                        f"{label}: {info['ar']} {info['name']} — المقرر المصاحب "
+                        f"{courses[q]['ar']} ليس في نفس الفصل ({where})")
+
             # --- 5. بوابة التدريب الميداني ---
             # عزل التدريب الميداني — قرار أحدث من وثيقة الخطة
             if c == "CUTM4600":
                 iso = reg.get("field_training_isolation")
                 if iso:
-                    others = [x for x in tcourses if x != "CUTM4600"]
-                    non_univ = [x for x in others if courses[x]["cat"] != iso["companion_category"]]
-                    if non_univ:
+                    mand = iso.get("mandatory_companion")
+                    if mand and mand not in tcourses:
                         violations.append(
-                            f"{label}: عزل التدريب الميداني — لا يُسمح معه إلا متطلب جامعة، "
-                            "ووُجد: " + "، ".join(courses[x]["ar"] for x in non_univ))
-                    elif len(others) > iso["max_companions"]:
+                            f"{label}: فصل التخرج — {courses[mand]['ar']} "
+                            f"{courses[mand]['name']} يجب أن يُؤخذ مع التدريب الميداني "
+                            "في نفس الفصل، لا قبله ولا بعده")
+                    if iso.get("must_be_final_term") and not term.get("final"):
                         violations.append(
-                            f"{label}: عزل التدريب الميداني — متطلب جامعة واحد كحد أقصى، "
-                            f"ووُجد {len(others)}")
-                    elif others:
-                        notes.append(f"{label}: التدريب الميداني مع متطلب جامعة واحد "
-                                     f"({courses[others[0]]['ar']}) — ضمن المسموح")
+                            f"{label}: التدريب الميداني يجب أن يكون في الفصل الأخير")
+                    extra = [x for x in tcourses if x not in ("CUTM4600", mand)]
+                    bad = [x for x in extra
+                           if courses[x]["cat"] != iso["companion_category"]]
+                    if bad:
+                        violations.append(
+                            f"{label}: لا يُؤخذ مع التدريب والمشروع أي مقرر آخر إلا متطلب "
+                            "جامعة واحد، ووُجد: "
+                            + "، ".join(courses[x]["ar"] for x in bad))
+                    elif len(extra) > iso.get("max_university_companions", 1):
+                        violations.append(
+                            f"{label}: متطلب جامعة واحد كحد أقصى مع التدريب والمشروع، "
+                            f"ووُجد {len(extra)}")
+                    elif extra:
+                        notes.append(
+                            f"{label}: التدريب + المشروع + متطلب جامعة واحد "
+                            f"({courses[extra[0]]['ar']}) — ضمن المسموح")
                     else:
-                        notes.append(f"{label}: التدريب الميداني منفرداً — ضمن المسموح")
+                        notes.append(
+                            f"{label}: التدريب + المشروع وحدهما — مطابق للقاعدة")
 
             if info.get("gate") == "all_except_CUTM4400":
                 outstanding = (remaining - done - set(tcourses)) - {"CUTM4400"}
