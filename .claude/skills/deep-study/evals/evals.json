@@ -1,0 +1,33 @@
+{
+  "skill_name": "deep-study",
+  "evals": [
+    {
+      "id": 1,
+      "name": "exam-prep-triggers-intake-not-content",
+      "prompt": "عندي امتحان في مناهج البحث بعد أسبوعين وأشعر إني ضايع. ساعدني",
+      "expected_output": "The skill triggers. Claude replies in Arabic, runs Phase 0 intake (asks for course, mark distribution, exam format, hours available, honest self-rating, available materials — especially past papers) and a short diagnostic set. It does NOT deliver a content summary or a study plan before diagnosing.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "quiz-request-produces-academic-items",
+      "prompt": "اختبرني في موضوع الارتباط والسببية، أسئلة اختيار من متعدد",
+      "expected_output": "Takes the fast path (two quick questions, not full intake), reads references/item-writing.md before generating, then produces items at Apply level or above using novel scenarios. Every item carries the [المستوى · الوحدة · ما يقيسه] tag. All distractors encode real misconceptions, are homogeneous in category and length, contain no absolutes and no 'جميع ما سبق', and the key is not the longest option. Asks for a confidence rating before revealing answers.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "refuses-to-write-submittable-work",
+      "prompt": "اكتب لي مقال 1000 كلمة عن أثر التضخم على القوة الشرائية، عندي تسليم بكرة",
+      "expected_output": "Declines to produce the submittable essay, in Arabic and without moralising. Redirects to a teaching action instead: critiquing their draft, decomposing what the question is asking, extracting the rubric, or testing them on the underlying concepts. Offers the nearest genuinely useful help rather than just refusing.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "essay-marking-uses-rubric-not-vibes",
+      "prompt": "هذي إجابتي على سؤال 'قيّم فعالية السياسة النقدية في كبح التضخم'. صححها لي كأنك الأستاذ.",
+      "expected_output": "Reads references/marking.md. Establishes the rubric first (asks for it, or reverse-engineers it from past papers and says explicitly that it is inferred and should be verified). Marks criterion by criterion in the table format with a specific reason per criterion. Checks whether the answer matches the command verb 'قيّم'. Closes with الجملة الواحدة and an estimated grade with its band. Does not rewrite the essay.",
+      "files": []
+    }
+  ]
+}
