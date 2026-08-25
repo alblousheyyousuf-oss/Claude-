@@ -24,7 +24,7 @@ OUT = ROOT / "docs" / "data" / "meetings.json"
 UPLOADS = pathlib.Path("/root/.claude/uploads/ebee8a34-1b44-59e4-8f54-d4abd6b2f247")
 
 DAY = re.compile(r"\b(SUN|MON|TUE|WED|THU)\b")
-PREFIX = re.compile(r"^([A-Z]{4})(\d{2})$")
+PREFIX = re.compile(r"^([A-Z]{4})(\d{1,3})$")   # الرمز ينكسر بأشكال شتى: ARAB10+19 · HIST101+0
 TIME = re.compile(r"\b(\d{2}):(\d{2}):00\b")
 HEADER_Y = 125
 
@@ -63,9 +63,13 @@ def course_rows(page):
         m = PREFIX.match(t)
         if not m:
             continue
+        need = 4 - len(m.group(2))                 # كم رقماً ينقص لإتمام الرمز
         tail = [tt for xx, yy, tt in ws
-                if re.fullmatch(r"\d{2}", tt) and abs(xx - x) < 18 and 2 < yy - y < 16]
+                if re.fullmatch(r"\d{%d}" % need, tt) and abs(xx - x) < 20 and 2 < yy - y < 16
+                ] if need else []
         code = m.group(1) + m.group(2) + (tail[0] if tail else "")
+        if not re.fullmatch(r"[A-Z]{4}\d{4}", code):
+            continue
         line = [tt for _, tt in
                 sorted([(xx, tt) for xx, yy, tt in ws if abs(yy - y) < 5], reverse=True)]
         section = ""

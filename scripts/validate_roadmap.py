@@ -32,6 +32,61 @@ def season_ok(course_season, term_season):
     return course_season in ("both", "?") or course_season == term_season
 
 
+
+BUCKETS = {"م ج": ("متطلبات الجامعة", 6), "ا ج": ("اختياري الجامعة", 6),
+           "م ت": ("متطلبات التخصص", 102), "ا ت": ("اختياري التخصص", 11)}
+
+
+def audit_plan(data):
+    """فحوص تسبق السيناريوهات: الأوعية الأربعة · المطابقة مع الكشف · عدم التفويت."""
+    C, problems, notes = data["courses"], [], []
+
+    # ① الأوعية الأربعة
+    total = 0
+    for cat, (label, need) in BUCKETS.items():
+        got = sum(v["cr"] for v in C.values()
+                  if v["cat"] == cat and v["status"] != "alternative")
+        total += got
+        if got != need:
+            problems.append(f"وعاء «{label}»: الخطة تحوي {got} ساعة والمطلوب {need}")
+        done = sum(v["cr"] for v in C.values()
+                   if v["cat"] == cat and v["status"] == "completed")
+        notes.append(f"{label}: منجَز {done} من {need}")
+    if total != data["meta"]["total_credits"]:
+        problems.append(f"مجموع الأوعية {total} ≠ {data['meta']['total_credits']}")
+
+    # ② المطابقة مع كشف الدرجات
+    earned = sum(v["cr"] for v in C.values() if v["status"] == "completed")
+    tpath = pathlib.Path(__file__).resolve().parent.parent / "docs" / "data" / "transcript.json"
+    if tpath.exists():
+        stated = json.loads(tpath.read_text(encoding="utf-8"))["totals"]["earned"]
+        if earned != stated:
+            problems.append(f"المنجَز المحسوب {earned} ≠ كشف الدرجات {stated}")
+        else:
+            notes.append(f"المنجَز {earned} ساعة — مطابق لكشف الدرجات ✓")
+
+    # ③ المتبقي بمسارين مستقلين يجب أن يتطابقا
+    remaining_a = data["meta"]["total_credits"] - earned
+    remaining_b = sum(v["cr"] for v in C.values() if v["status"] == "remaining")
+    if remaining_a != remaining_b:
+        problems.append(f"المتبقي: 125−المنجَز = {remaining_a} لكن جمع غير المنجَز = {remaining_b}")
+    else:
+        notes.append(f"المتبقي {remaining_a} ساعة — تطابق مساران مستقلان ✓")
+
+    # ④ عدم التفويت: كل مقرر متبقٍ مجدوَل في كل سيناريو
+    for key, scen in data["scenarios"].items():
+        if scen.get("expect_fail"):
+            continue
+        sched = {c for t in scen["terms"] for c in t["courses"]}
+        missed = [C[c]["ar"] for c, v in C.items()
+                  if v["status"] == "remaining" and c not in sched]
+        if missed:
+            problems.append(f"السيناريو {key} يُفوّت: " + "، ".join(missed))
+    if not any("يُفوّت" in p for p in problems):
+        notes.append("لا مقرر متبقٍ مفقود من أي سيناريو ✓")
+    return problems, notes
+
+
 def validate(name, scen, data):
     """يعيد (قائمة المخالفات، قائمة الملاحظات) لسيناريو واحد."""
     courses = data["courses"]
@@ -135,6 +190,26 @@ def validate(name, scen, data):
                     )
 
             # --- 5. بوابة التدريب الميداني ---
+            # عزل التدريب الميداني — قرار أحدث من وثيقة الخطة
+            if c == "CUTM4600":
+                iso = reg.get("field_training_isolation")
+                if iso:
+                    others = [x for x in tcourses if x != "CUTM4600"]
+                    non_univ = [x for x in others if courses[x]["cat"] != iso["companion_category"]]
+                    if non_univ:
+                        violations.append(
+                            f"{label}: عزل التدريب الميداني — لا يُسمح معه إلا متطلب جامعة، "
+                            "ووُجد: " + "، ".join(courses[x]["ar"] for x in non_univ))
+                    elif len(others) > iso["max_companions"]:
+                        violations.append(
+                            f"{label}: عزل التدريب الميداني — متطلب جامعة واحد كحد أقصى، "
+                            f"ووُجد {len(others)}")
+                    elif others:
+                        notes.append(f"{label}: التدريب الميداني مع متطلب جامعة واحد "
+                                     f"({courses[others[0]]['ar']}) — ضمن المسموح")
+                    else:
+                        notes.append(f"{label}: التدريب الميداني منفرداً — ضمن المسموح")
+
             if info.get("gate") == "all_except_CUTM4400":
                 outstanding = (remaining - done - set(tcourses)) - {"CUTM4400"}
                 if outstanding:
@@ -142,12 +217,8 @@ def validate(name, scen, data):
                         f"{label}: بوابة التدريب الميداني — مقررات لم تُنجَز بعد → "
                         + "، ".join(sorted(outstanding))
                     )
-                blocking = [c for c in tcourses if c not in ("CUTM4600", "CUTM4400")]
-                if blocking:
-                    violations.append(
-                        f"{label}: بوابة التدريب الميداني — مقررات مُجدوَلة معه → "
-                        + "، ".join(sorted(blocking))
-                    )
+                # منْع المرافقة يتولّاه فحص «عزل التدريب الميداني» أعلاه، وهو مبني على
+                # قرار أحدث من نصّ البوابة ويسمح صراحةً بمتطلب جامعة واحد.
 
         passed = [c for c in tcourses if c not in failed]
         done |= set(passed)
@@ -197,7 +268,14 @@ def main():
     print(f"نقطة الانطلاق: {meta['start_term']} — الفصل رقم {meta['start_term_index']}")
     print("=" * 78)
 
-    exit_code = 0
+    problems, notes = audit_plan(data)
+    print("\n[تدقيق الخطة] الأوعية · المطابقة مع كشف الدرجات · عدم التفويت")
+    for n in notes:
+        print(f"    ✓ {n}")
+    for p_ in problems:
+        print(f"    ✘ {p_}")
+    exit_code = 1 if problems else 0
+
     for name, scen in data["scenarios"].items():
         violations, notes, earned = validate(name, scen, data)
         expect_fail = scen.get("expect_fail", False)

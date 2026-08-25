@@ -1,0 +1,455 @@
+{
+  "source": "كشف الدرجات الرسمي — عمادة القبول والتسجيل، 25 أغسطس 2026",
+  "student": {
+    "id": "141386",
+    "name": "Yousuf Saleh 'Abdullah Al Balushi",
+    "major": "Art Education",
+    "advisor": "SALMAN AMUR SALIM AL-HAJRI"
+  },
+  "totals": {
+    "earned": 86,
+    "attempted": 88,
+    "points": 192.0,
+    "cgpa": 2.18,
+    "terms_registered": 8,
+    "next_term_index": 9
+  },
+  "withdrawals": [
+    "ARED1210",
+    "ARED3130"
+  ],
+  "failures": [
+    "ARAB1060"
+  ],
+  "records": [
+    {
+      "term": "خريف 2022",
+      "year": 2022,
+      "season": "FALL",
+      "code": "FPCS0102",
+      "title": "Basic Computing Skills (Arabic)",
+      "credits": 0,
+      "grade": "TC",
+      "passed": false,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2022",
+      "year": 2022,
+      "season": "FALL",
+      "code": "FPEL1026",
+      "title": "English for Humanities (2)",
+      "credits": 0,
+      "grade": "TC",
+      "passed": false,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2022",
+      "year": 2022,
+      "season": "FALL",
+      "code": "FPMT0106",
+      "title": "Mathematics for Humanities (in Arabic)",
+      "credits": 0,
+      "grade": "B",
+      "passed": false,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2022",
+      "year": 2022,
+      "season": "FALL",
+      "code": "FPSL1000",
+      "title": "Study and Life Skills",
+      "credits": 0,
+      "grade": "A-",
+      "passed": false,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2022",
+      "year": 2022,
+      "season": "FALL",
+      "code": "HIST1010",
+      "title": "Oman and Islamic Civilization",
+      "credits": 2,
+      "grade": "D",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2022",
+      "year": 2022,
+      "season": "FALL",
+      "code": "ISLM1020",
+      "title": "Human Rights in Islam (UE)",
+      "credits": 2,
+      "grade": "B",
+      "passed": true,
+      "university_elective": true
+    },
+    {
+      "term": "ربيع 2023",
+      "year": 2023,
+      "season": "SPRING",
+      "code": "ARED1120",
+      "title": "Introduction to Art Education and Theories",
+      "credits": 3,
+      "grade": "C",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "ربيع 2023",
+      "year": 2023,
+      "season": "SPRING",
+      "code": "ARED1210",
+      "title": "Painting (1)",
+      "credits": 3,
+      "grade": "W",
+      "passed": false,
+      "university_elective": false
+    },
+    {
+      "term": "ربيع 2023",
+      "year": 2023,
+      "season": "SPRING",
+      "code": "ARED2210",
+      "title": "Textile Prinitng",
+      "credits": 3,
+      "grade": "C+",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "ربيع 2023",
+      "year": 2023,
+      "season": "SPRING",
+      "code": "PSYC1500",
+      "title": "Learners' Devlopment and Counseling",
+      "credits": 3,
+      "grade": "B-",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2023",
+      "year": 2023,
+      "season": "FALL",
+      "code": "ARAB1060",
+      "title": "Arabic",
+      "credits": 2,
+      "grade": "F",
+      "passed": false,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2023",
+      "year": 2023,
+      "season": "FALL",
+      "code": "ARED1110",
+      "title": "Drawing (1)",
+      "credits": 3,
+      "grade": "C",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2023",
+      "year": 2023,
+      "season": "FALL",
+      "code": "ARED1130",
+      "title": "Ceramics (1)",
+      "credits": 3,
+      "grade": "C",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2023",
+      "year": 2023,
+      "season": "FALL",
+      "code": "ARED2240",
+      "title": "Child's Art",
+      "credits": 3,
+      "grade": "B-",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2023",
+      "year": 2023,
+      "season": "FALL",
+      "code": "COMP1003",
+      "title": "Python Programming for Everyone (U.E)",
+      "credits": 2,
+      "grade": "B-",
+      "passed": true,
+      "university_elective": true
+    },
+    {
+      "term": "ربيع 2024",
+      "year": 2024,
+      "season": "SPRING",
+      "code": "ARED1210",
+      "title": "Painting (1)",
+      "credits": 3,
+      "grade": "C+",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "ربيع 2024",
+      "year": 2024,
+      "season": "SPRING",
+      "code": "ARED1230",
+      "title": "History of Ancient Arts and Civilizations",
+      "credits": 2,
+      "grade": "C-",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "ربيع 2024",
+      "year": 2024,
+      "season": "SPRING",
+      "code": "COMP1007",
+      "title": "Amazing Applications of AI (U.E.)",
+      "credits": 2,
+      "grade": "A-",
+      "passed": true,
+      "university_elective": true
+    },
+    {
+      "term": "ربيع 2024",
+      "year": 2024,
+      "season": "SPRING",
+      "code": "LANC1006",
+      "title": "English for Education",
+      "credits": 3,
+      "grade": "C-",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2024",
+      "year": 2024,
+      "season": "FALL",
+      "code": "ARED1220",
+      "title": "Principles of Design",
+      "credits": 3,
+      "grade": "C-",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2024",
+      "year": 2024,
+      "season": "FALL",
+      "code": "ARED2120",
+      "title": "Drawing (2)",
+      "credits": 3,
+      "grade": "C+",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2024",
+      "year": 2024,
+      "season": "FALL",
+      "code": "ARED2220",
+      "title": "Sculpture (1)",
+      "credits": 3,
+      "grade": "D",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2024",
+      "year": 2024,
+      "season": "FALL",
+      "code": "ARED2250",
+      "title": "History of Islamic  Art",
+      "credits": 2,
+      "grade": "D",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2024",
+      "year": 2024,
+      "season": "FALL",
+      "code": "EDUC2020",
+      "title": "Introduction to Education",
+      "credits": 3,
+      "grade": "C",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "ربيع 2025",
+      "year": 2025,
+      "season": "SPRING",
+      "code": "ARED2230",
+      "title": "Painting (2)",
+      "credits": 3,
+      "grade": "B-",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "ربيع 2025",
+      "year": 2025,
+      "season": "SPRING",
+      "code": "ARED3130",
+      "title": "3D Modelling",
+      "credits": 3,
+      "grade": "W",
+      "passed": false,
+      "university_elective": false
+    },
+    {
+      "term": "ربيع 2025",
+      "year": 2025,
+      "season": "SPRING",
+      "code": "ARED3220",
+      "title": "Ceramics (2)",
+      "credits": 3,
+      "grade": "B",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "ربيع 2025",
+      "year": 2025,
+      "season": "SPRING",
+      "code": "PSYC2500",
+      "title": "Educational Psychology",
+      "credits": 3,
+      "grade": "C+",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2025",
+      "year": 2025,
+      "season": "FALL",
+      "code": "ARED3120",
+      "title": "Hand Crafts",
+      "credits": 3,
+      "grade": "B",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2025",
+      "year": 2025,
+      "season": "FALL",
+      "code": "ARED3260",
+      "title": "Graphic Design (1)",
+      "credits": 2,
+      "grade": "C+",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2025",
+      "year": 2025,
+      "season": "FALL",
+      "code": "CUTM3407",
+      "title": "Art's Curriculum",
+      "credits": 3,
+      "grade": "B-",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2025",
+      "year": 2025,
+      "season": "FALL",
+      "code": "EDUC3010",
+      "title": "Education System in Oman and Contemporary Trends",
+      "credits": 2,
+      "grade": "C+",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2025",
+      "year": 2025,
+      "season": "FALL",
+      "code": "PSYC3500",
+      "title": "Classroom Measurement and Evaluation",
+      "credits": 3,
+      "grade": "C+",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "خريف 2025",
+      "year": 2025,
+      "season": "FALL",
+      "code": "TECH3005",
+      "title": "Technology for Learning",
+      "credits": 3,
+      "grade": "C",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "ربيع 2026",
+      "year": 2026,
+      "season": "SPRING",
+      "code": "ARED2130",
+      "title": "Design Applications",
+      "credits": 3,
+      "grade": "B-",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "ربيع 2026",
+      "year": 2026,
+      "season": "SPRING",
+      "code": "ARED3140",
+      "title": "Sculpture (2)",
+      "credits": 3,
+      "grade": "C+",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "ربيع 2026",
+      "year": 2026,
+      "season": "SPRING",
+      "code": "ARED3210",
+      "title": "History of Modern and Contemporary Arts",
+      "credits": 2,
+      "grade": "D",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "ربيع 2026",
+      "year": 2026,
+      "season": "SPRING",
+      "code": "ARED4111",
+      "title": "Graphic Design (2)",
+      "credits": 2,
+      "grade": "C+",
+      "passed": true,
+      "university_elective": false
+    },
+    {
+      "term": "ربيع 2026",
+      "year": 2026,
+      "season": "SPRING",
+      "code": "CUTM3027",
+      "title": "Methods of Teaching Art Education (1)",
+      "credits": 3,
+      "grade": "C+",
+      "passed": true,
+      "university_elective": false
+    }
+  ]
+}

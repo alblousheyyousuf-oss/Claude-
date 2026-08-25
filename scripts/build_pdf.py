@@ -279,72 +279,73 @@ ARROW_DEFS = """<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5"
 
 
 def fig_critical_path():
-    return f"""<svg viewBox="0 0 900 344" role="img" aria-label="سلسلة من ثلاثة مقررات: منطر3027 ربيعي يؤدي إلى منطر4027 خريفي الذي يؤدي إلى التدريب الميداني في الربيع التالي، ولا اختصار عبر الصيف.">
+    return f"""<svg viewBox="0 0 900 330" role="img" aria-label="ترفن2110 وترفن3111 خريفيان يؤديان إلى ترفن4260 المشروع الفني الخريفي، الذي يؤدي إلى التدريب الميداني. المشروع خريفي حصراً فيفرض خريفين متتاليين.">
 {ARROW_DEFS}
-<rect x="40" y="52" width="800" height="74" class="s-lane-f"/>
-<rect x="40" y="206" width="800" height="74" class="s-lane-s"/>
-<text x="812" y="46" class="s-lbl s-fall" text-anchor="middle">خريف</text>
-<text x="812" y="200" class="s-lbl s-spring" text-anchor="middle">ربيع</text>
-<line x1="40" y1="30" x2="860" y2="30" class="s-hair"/>
-<text x="740" y="22" class="s-s" text-anchor="middle">خريف 2026</text>
-<text x="540" y="22" class="s-s" text-anchor="middle">ربيع 2027</text>
-<text x="340" y="22" class="s-s" text-anchor="middle">خريف 2027</text>
-<text x="150" y="22" class="s-s" text-anchor="middle">ربيع 2028</text>
-<line x1="740" y1="26" x2="740" y2="34" class="s-hair"/><line x1="540" y1="26" x2="540" y2="34" class="s-hair"/>
-<line x1="340" y1="26" x2="340" y2="34" class="s-hair"/><line x1="150" y1="26" x2="150" y2="34" class="s-hair"/>
-<rect x="452" y="222" width="176" height="44" class="s-node s-spring-s"/>
-<text x="540" y="242" class="s-t" text-anchor="middle" font-weight="600">منطر3027</text>
-<text x="540" y="258" class="s-s" text-anchor="middle">طرق تدريس (1) · 3 شعب</text>
-<rect x="252" y="68" width="176" height="44" class="s-node s-fall-s"/>
-<text x="340" y="88" class="s-t" text-anchor="middle" font-weight="600">منطر4027</text>
-<text x="340" y="104" class="s-s" text-anchor="middle">طرق تدريس (2) · 3 شعب</text>
-<rect x="62" y="222" width="176" height="44" class="s-node s-stamp-s" stroke-width="2"/>
+<rect x="40" y="56" width="800" height="88" class="s-lane-f"/>
+<rect x="40" y="214" width="800" height="66" class="s-lane-s"/>
+<text x="812" y="48" class="s-lbl s-fall" text-anchor="middle">خريف</text>
+<text x="812" y="206" class="s-lbl s-spring" text-anchor="middle">ربيع</text>
+<line x1="40" y1="32" x2="860" y2="32" class="s-hair"/>
+<text x="740" y="24" class="s-s" text-anchor="middle">خريف 2026</text>
+<text x="540" y="24" class="s-s" text-anchor="middle">ربيع 2027</text>
+<text x="340" y="24" class="s-s" text-anchor="middle">خريف 2027</text>
+<text x="150" y="24" class="s-s" text-anchor="middle">ربيع 2028</text>
+<line x1="740" y1="28" x2="740" y2="36" class="s-hair"/><line x1="540" y1="28" x2="540" y2="36" class="s-hair"/>
+<line x1="340" y1="28" x2="340" y2="36" class="s-hair"/><line x1="150" y1="28" x2="150" y2="36" class="s-hair"/>
+
+<rect x="652" y="62" width="176" height="34" class="s-node s-fall-s"/>
+<text x="740" y="83" class="s-t" text-anchor="middle" font-weight="600">ترفن2110 النسيج</text>
+<rect x="652" y="104" width="176" height="34" class="s-node s-fall-s"/>
+<text x="740" y="125" class="s-t" text-anchor="middle" font-weight="600">ترفن3111 الفن المعاصر</text>
+
+<rect x="252" y="76" width="176" height="48" class="s-node s-fall-s" stroke-width="2"/>
+<text x="340" y="96" class="s-t" text-anchor="middle" font-weight="600">ترفن4260</text>
+<text x="340" y="112" class="s-s" text-anchor="middle">المشروع الفني · خريفي حصراً</text>
+
+<rect x="62" y="222" width="176" height="48" class="s-node s-stamp-s" stroke-width="2"/>
 <text x="150" y="242" class="s-t s-stamp" text-anchor="middle" font-weight="600">منطر4600</text>
 <text x="150" y="258" class="s-s" text-anchor="middle">التدريب الميداني · 7 س</text>
-<path d="M452,236 L400,236 L400,90 L432,90" class="s-line" marker-end="url(#ah)"/>
-<text x="404" y="165" class="s-s" text-anchor="middle">متطلب سابق</text>
-<path d="M252,90 L200,90 L200,236 L242,236" class="s-line" marker-end="url(#ah)"/>
-<text x="204" y="165" class="s-s" text-anchor="middle">متطلب سابق</text>
-<path d="M452,288 C384,308 240,308 172,292" class="s-line s-dash s-stamp-s" marker-end="url(#ah)" opacity=".7"/>
-<text x="312" y="334" class="s-s s-stamp" text-anchor="middle">✕ لا اختصار عبر الفصل الصيفي — القسم لا يطرحه</text>
-<text x="740" y="94" class="s-s" text-anchor="middle">نقطة الانطلاق</text>
-<line x1="700" y1="88" x2="640" y2="88" class="s-line s-hair" marker-end="url(#ah)"/>
+
+<path d="M652,100 L470,100 L432,100" class="s-line" marker-end="url(#ah)"/>
+<text x="545" y="92" class="s-s" text-anchor="middle">متطلبان سابقان</text>
+<path d="M252,100 L200,100 L200,246 L242,246" class="s-line" marker-end="url(#ah)"/>
+<text x="204" y="176" class="s-s" text-anchor="middle">البوابة</text>
+
+<text x="545" y="122" class="s-s s-stamp" text-anchor="middle">لا يُطرح ربيعاً ⇒ الانتظار سنة</text>
+<path d="M640,140 C580,168 460,168 420,146" class="s-line s-dash s-stamp-s" opacity=".55"/>
+<text x="530" y="300" class="s-s s-stamp" text-anchor="middle">✕ لا فصل صيفي — القسم لا يطرحه</text>
 </svg>"""
 
 
 def fig_bottleneck():
-    def chips(x0, w, gap, n, cls, y=104, h=30):
-        return "".join(
-            f'<rect x="{x0 + i * (w + gap)}" y="{y}" width="{w}" height="{h}" class="s-node {cls}"/>'
-            for i in range(n))
-    return f"""<svg viewBox="0 0 900 258" role="img" aria-label="مقارنة بين ثلاث حالات لربيع 2027: بلا استثناء تتجاوز المقررات السبعة سقف الستة؛ الاستثناء E1 ينقل ترفن3210 إلى الخريف؛ الاستثناء E2 يرفع السقف إلى سبعة.">
+    """ما الذي يشتريه الاستثناء E1: خريفان متتاليان أم خريف واحد."""
+    def box(x, y, w, h, cls, label, sub=""):
+        t = f'<rect x="{x}" y="{y}" width="{w}" height="{h}" class="s-node {cls}"/>'
+        t += f'<text x="{x + w / 2}" y="{y + (18 if sub else h / 2 + 4)}" class="s-t" text-anchor="middle">{label}</text>'
+        if sub:
+            t += f'<text x="{x + w / 2}" y="{y + 32}" class="s-s" text-anchor="middle">{sub}</text>'
+        return t
+    return f"""<svg viewBox="0 0 900 250" role="img" aria-label="بلا استثناء يحتاج المشروع الفني خريفاً ثانياً فتصير الخطة أربعة فصول؛ وباستثناء تزامنه مع متطلبيه تُختصر إلى ثلاثة فصول.">
 {ARROW_DEFS}
-<text x="750" y="24" class="s-lbl" text-anchor="middle">بلا استثناء</text>
-{chips(614, 34, 4, 6, "s-spring-s")}
-<rect x="576" y="104" width="34" height="30" class="s-node s-stamp-s" stroke-width="2"/>
-<text x="593" y="124" class="s-t s-stamp" text-anchor="middle" font-size="15">7</text>
-<text x="593" y="96" class="s-s s-stamp" text-anchor="middle">الزائد</text>
-<path d="M648,148 L648,158 L838,158 L838,148" class="s-line s-spring-s"/>
-<text x="743" y="176" class="s-s s-spring" text-anchor="middle">المسموح: 6 مقررات</text>
-<text x="750" y="206" class="s-t s-stamp" text-anchor="middle" font-weight="600">✕ يتعذّر — التخرج يناير 2029</text>
-<line x1="540" y1="40" x2="540" y2="228" class="s-hair"/>
-<text x="390" y="24" class="s-lbl" text-anchor="middle">الاستثناء E1</text>
-<rect x="330" y="46" width="120" height="26" class="s-lane-f"/>
-<rect x="372" y="49" width="34" height="20" class="s-node s-fall-s"/>
-<text x="290" y="63" class="s-s s-fall" text-anchor="middle">خريف 2026</text>
-<path d="M389,104 L389,78" class="s-line s-fall-s" marker-end="url(#ah)"/>
-<text x="389" y="92" class="s-s s-fall" text-anchor="middle">ترفن3210 يُسحب للخريف</text>
-{chips(290, 34, 4, 2, "s-spring-s")}{chips(404, 34, 4, 3, "s-spring-s")}
-<rect x="366" y="104" width="34" height="30" class="s-node s-spring-s s-dash" opacity=".4"/>
-<path d="M290,148 L290,158 L514,158 L514,148" class="s-line s-spring-s"/>
-<text x="402" y="176" class="s-s s-spring" text-anchor="middle">6 مقررات ضمن السقف</text>
-<text x="390" y="206" class="s-t" text-anchor="middle" font-weight="600" fill="var(--ok)">✓ التخرج يونيو 2028</text>
-<line x1="252" y1="40" x2="252" y2="228" class="s-hair"/>
-<text x="126" y="24" class="s-lbl" text-anchor="middle">الاستثناء E2</text>
-{chips(26, 28, 4, 7, "s-spring-s")}
-<path d="M26,148 L26,158 L246,158 L246,148" class="s-line s-spring-s"/>
-<text x="136" y="176" class="s-s s-spring" text-anchor="middle">السقف يُرفع إلى 7 — 18 ساعة</text>
-<text x="126" y="206" class="s-t" text-anchor="middle" font-weight="600" fill="var(--ok)">✓ التخرج يونيو 2028</text>
+<text x="700" y="22" class="s-lbl" text-anchor="middle">بلا استثناء — أربعة فصول</text>
+{box(600, 40, 190, 44, "s-fall-s", "خريف 2026", "ترفن2110 · ترفن3111")}
+{box(600, 100, 190, 44, "s-fall-s", "خريف 2027", "ترفن4260 المشروع")}
+{box(600, 160, 190, 40, "s-stamp-s", "ربيع 2028 — التدريب")}
+<path d="M695,84 L695,96" class="s-line" marker-end="url(#ah)"/>
+<path d="M695,144 L695,156" class="s-line" marker-end="url(#ah)"/>
+<text x="700" y="222" class="s-t" text-anchor="middle" font-weight="600">التخرج يونيو 2028</text>
+
+<line x1="470" y1="34" x2="470" y2="232" class="s-hair"/>
+
+<text x="240" y="22" class="s-lbl" text-anchor="middle">بالاستثناء E1 — ثلاثة فصول</text>
+{box(140, 40, 190, 64, "s-fall-s", "خريف 2026", "ترفن2110 · ترفن3111 · ترفن4260 معاً")}
+{box(140, 120, 190, 40, "s-spring-s", "ربيع 2027")}
+{box(140, 176, 190, 40, "s-stamp-s", "خريف 2027 — التدريب")}
+<path d="M235,104 L235,116" class="s-line" marker-end="url(#ah)"/>
+<path d="M235,160 L235,172" class="s-line" marker-end="url(#ah)"/>
+<text x="240" y="238" class="s-t" text-anchor="middle" font-weight="600" fill="var(--ok)">التخرج يناير 2028</text>
+<text x="405" y="128" class="s-s s-stamp" text-anchor="middle">يوفّر</text>
+<text x="405" y="144" class="s-s s-stamp" text-anchor="middle">فصلاً</text>
 </svg>"""
 
 
@@ -569,7 +570,7 @@ def build(d):
         f'<tr><td>{lst}</td><td class="c">{C[sel]["ar"]}</td><td>{C[sel]["name"].split("—")[0].strip()}</td>'
         f'<td class="sm">{" · ".join(C[sel].get("alternatives", []))}</td></tr>'
         for lst, sel in [("ز1 — اختياري (أ)", "ARED3140"), ("ز2 — اختياري (ب)", "ARED3250"),
-                         ("ز3 — اختياري (ج)", "ARED3170"), ("ز4 — اختياري (د)", "ARED4140")])
+                         ("ز3 — اختياري (ج)", "ARED3170"), ("ز4 — اختياري (د)", "ARED4130")])
     doc.sheet(f"""
 <p class="lede">المنجَز <strong>75 ساعة</strong> · المتبقي <strong>50 ساعة</strong> · المجموع 125 ✓</p>
 <div class="box stamp" style="border-top-width:1pt"><span class="lbl">فرضية معلَنة</span>
@@ -644,50 +645,51 @@ def pages_rest(doc, d):
 
     # ── 5 · تدقيق مقترح المرشد ────────────────────────────────
     audit = [("الفصل الأول: منطر3027 · ترفن4111 · ترفن2130 · ترفن3140 · ترفن3210",
-              "قاتل", "stamp", "خمستها ربيعية — لا يُطرح أيٌّ منها خريفاً", "ابدأ بالكتلة الخريفية أولاً"),
+              "لاغٍ", "ok", "الخمسة **مُنجَزة فعلاً** في ربيع 2026 حسب كشف الدرجات",
+              "سبقه الطالب — لم تعد هذه الكتلة قائمة"),
              ("ترفن4260 المشروع الفني مع ترفن2110 وترفن3111 في الفصل نفسه",
-              "مخالفة", "stamp", "كلاهما من متطلباته السبعة", "2110 و3111 خريف 2026، والمشروع خريف 2027"),
+              "مخالفة", "stamp", "كلاهما من متطلباته السبعة",
+              "هذا بالضبط ما يطلبه الاستثناء E1 صراحةً بدل ضمناً"),
              ("منطر4600 التدريب الميداني — 7 ساعات",
-              "غائب", "stamp", "لا ذكر له في الاستمارة", "فصل رابع مخصص له"),
-             ("منطر4400 مشروع التخرج في فصل منفصل عن التدريب",
-              "تحفّظ", "fall", "الخطة تنصّ أنه «مصاحب» للتدريب", "ضمّهما في الفصل الأخير"),
-             ("مجموع المقترح 43 ساعة",
-              "نقص", "fall", "المتبقي الفعلي 50 ساعة", "الفارق 7 = التدريب الميداني"),
+              "غائب", "stamp", "لا ذكر له في الاستمارة", "فصل مستقل مخصص له"),
+             ("عربي1060 اللغة العربية",
+              "غائب", "stamp", "راسب فيه (F) والاستمارة لا تذكره",
+              "إعادة إلزامية — متطلب جامعة"),
+             ("منطر4400 مشروع التخرج مصاحباً للتدريب",
+              "لاغٍ", "fall", "القرار الجديد يمنع مصاحبة أي مقرر للتدريب",
+              "يُقدَّم إلى الفصل السابق"),
              ("ترتيب ربيع ← خريف ← ربيع",
-              "سليم", "ok", "صحيح موسمياً", "المنطق صحيح، ونقطة البداية خاطئة")]
+              "سليم", "ok", "صحيح موسمياً", "المنطق صحيح، لكن قاعدته تجاوزها الزمن")]
     arows = "".join(
         f'<tr><td>{a}</td><td><span class="chip {cls}">{v}</span> {why}</td><td>{fix}</td></tr>'
         for a, v, cls, why, fix in audit)
     doc.sheet(f"""
-<p class="lede">الاستمارة تقترح ثلاثة فصول بمجموع 43 ساعة. عند فحصها مقابل جدولَي المقررات
-وشجرة المتطلبات ظهرت ستة بنود.</p>
+<p class="lede">الاستمارة كُتبت <strong>قبل</strong> فصل ربيع 2026، فبعض ما تقترحه صار مُنجَزاً
+فعلاً. وما بقي منها فيه ثلاث مخالفات حقيقية. تُعرض هنا لأنها ما زالت الوثيقة المتداولة مع القسم.</p>
 <table class="bx" style="margin-bottom:6mm"><thead><tr><th style="width:58mm">ما في المقترح</th>
 <th>الحكم</th><th style="width:52mm">التصحيح</th></tr></thead><tbody>{arows}</tbody></table>
 <h3>حصيلة المدقّق الآلي</h3>
 <div class="cols">
  <div class="box" style="border-top:2pt solid var(--stamp)">
-  <span class="lbl">المقترح كما هو (بداية خريفية)</span>
-  <p><strong style="font-size:15pt;color:var(--stamp)">15</strong> مخالفة — أغلبها موسمية:
-  مقررات مُجدوَلة في فصول لا تُطرح فيها.</p></div>
- <div class="box" style="border-top:2pt solid var(--fall)">
-  <span class="lbl">المقترح بترتيبه المقصود (بداية ربيعية)</span>
-  <p><strong style="font-size:15pt;color:var(--fall)">3</strong> مخالفات فقط: تزامن ترفن4260
-  مع متطلبيه، وغياب منطر4600.</p></div>
+  <span class="lbl">المقترح مقابل كشف الدرجات</span>
+  <p><strong style="font-size:15pt;color:var(--stamp)">15</strong> مخالفة — أغلبها لأن المقترح
+  يجدول مقررات <strong>سبق أن نجح فيها الطالب</strong>، ويُفوّت عربي1060 والتدريب الميداني.</p></div>
+ <div class="box" style="border-top:2pt solid var(--ok)">
+  <span class="lbl">ما بقي صالحاً منه</span>
+  <p>حدْسه الموسمي كان سليماً. والخلل الجوهري الوحيد الباقي هو <strong>تزامن المشروع الفني
+  مع متطلبيه</strong> — وهو ما تحوّل الآن إلى استثناء يُطلب صراحةً لا خطأ يُرتكب ضمناً.</p></div>
 </div>
-<p style="margin-top:4mm">أي أن <strong>الخلل الجوهري في المقترح ليس نقطة البداية وحدها</strong> —
-بل المشروع الفني والتدريب الميداني. وهذا يفسّر بدقة لماذا لم يُعطَ ضمان بقبوله: الاستمارة رسم
-تقريبي بحسن نية، لا خطة مدقَّقة.</p>
 <p class="sm" style="color:var(--ink-3)">الاختباران السلبيان مضمَّنان في
 <span class="mono">scripts/validate_roadmap.py</span> ويفشلان عمداً — وهو ما يثبت أن المدقّق
 يكشف الأخطاء فعلاً بدل الادعاء.</p>""", title="تدقيق مقترح المرشد", tag="صفحة 5")
 
     # ── 6 · المسار الحرج ──────────────────────────────────────
     doc.sheet(f"""
-<p class="lede">ثلاثة مقررات مترابطة، كل واحد مقفل على موسم مختلف، ولا فصل صيفي يختصر بينها.</p>
+<p class="lede">بعد كشف الدرجات انتقل المسار الحرج بالكامل. سلسلة `منطر3027 ← منطر4027` انكسرت لأن أولهما مُنجَز. وحلّت محلها سلسلة أضيق: <strong>المشروع الفني ومتطلباه — ثلاثتها خريفية</strong>.</p>
 <figure>{fig_critical_path()}
-<figcaption><strong>لماذا أربعة فصول هي الأرضية:</strong> منطر3027 يُطرح ربيعاً حصراً، ومنطر4027
-خريفاً حصراً، والتدريب الميداني يشترط اجتيازهما معاً. كل حلقة تنتظر موسمها، فتستهلك السلسلة أربعة
-فصول كاملة من خريف 2026 حتى ربيع 2028.</figcaption></figure>
+<figcaption><strong>لماذا يفرض المشروع الفني خريفين:</strong> `ترفن4260` لا يُطرح إلا خريفاً،
+ومتطلباه `ترفن2110` و`ترفن3111` خريفيان أيضاً. فإن أُخذا في خريف 2026 لم يَحِن دور المشروع
+إلا خريف 2027 — سنة كاملة انتظاراً. وهذا وحده هو ما يجعل الخطة أربعة فصول بدل ثلاثة.</figcaption></figure>
 <h3>شرط تسجيل التدريب الميداني — نصّ الخطة</h3>
 <div class="box">
 <p class="sm">١ · «إكمال جميع المقررات في الخطة الدراسية المعتمدة بنجاح عدا مقرر مشروع التخرج
@@ -697,10 +699,12 @@ def pages_rest(doc, d):
 <p>الشرط الأول هو ما يجعل الفصل الأخير <strong>مقفلاً</strong>: أي مقرر متأخر لا يؤخّر نفسه فحسب،
 بل يعطّل التدريب الميداني ومعه التخرج كله. والشرط الثاني يجعل معدلك — وهو في نطاق 2.00–2.99 —
 عاملاً حرجاً في نهاية الفصل السابق للتدريب.</p>
-<div class="box ok"><span class="lbl">ما ثبت من جدول الربيع</span>
-<p>منطر4600 التدريب الميداني <strong>يُطرح في الفصلين</strong> (خريفاً وربيعاً) — وهذا ما يجعل
-التخرج في ربيع 2028 ممكناً فعلاً لا نظرياً. ومنطر3027 له <strong>ثلاث شعب</strong> بسعة 64 مقعداً
-ومسجَّل فيها 42، أي أن رأس المسار الحرج ليس مزدحماً.</p></div>""",
+<div class="box stamp"><span class="lbl">قرار جديد: عزل التدريب الميداني</span>
+<p>أفاد الطالب بقرار أحدث من وثيقة الخطة: <strong>يُسجَّل التدريب الميداني وحده، ولا يُسمح معه
+إلا متطلب جامعة واحد اختيارياً.</strong> وعليه نُقل `منطر4400` مشروع التخرج إلى الفصل السابق —
+وهو ترتيب يُرضي القراءتين: القرار الجديد لا يُنتهك، وبوابة التدريب تُستوفى من باب أولى.
+والتدريب يشغل <strong>الأيام الخمسة 08:00–13:50</strong>، فالمرافق يجب أن يكون شعبة مسائية —
+وقد ثبت وجود <strong>ثلاث شعب مسائية</strong> لـ`اجمع1005`، وهي المثبتة في الجدول الأسبوعي.</p></div>""",
         title="المسار الحرج", tag="صفحة 6")
 
     # ── 7 · اختناق الربيع ─────────────────────────────────────
@@ -708,20 +712,22 @@ def pages_rest(doc, d):
         f'<tr><td class="mono">{k}</td><td>{v["label"]}</td><td>{v["cost"]}</td><td class="sm">{v["authority"]}</td></tr>'
         for k, v in d["exceptions"].items())
     doc.sheet(f"""
-<p class="lede">المقررات الربيعية المتبقية سبعة. وربيع 2028 محجوز للتدريب الميداني الذي يشترط
-إنهاء كل شيء قبله — فالسبعة كلها يجب أن تدخل ربيع 2027 وحده.</p>
+<p class="lede">لم يعد ثمّة اختناق يفرض استثناءً. السؤال صار اختيارياً بالكامل:
+<strong>هل تطلب استثناءً يختصر فصلاً، أم تمضي بلا أي طلب إداري؟</strong></p>
 <figure>{fig_bottleneck()}
-<figcaption><strong>الفرق بين الخيارين:</strong> <span class="mono">E1</span> يُخرج مقرراً من الربيع
-بطرح ترفن3210 خريفاً. و<span class="mono">E2</span> يُبقي السبعة ويرفع سقف العدد — وهو الأرخص نظامياً
-لأن سقف الساعات (18) مستوفى تماماً والمتجاوَز هو العدد فقط.</figcaption></figure>
+<figcaption><strong>ما يشتريه الاستثناء:</strong> تزامن `ترفن4260` مع متطلبيه يجمع الخريفين
+في واحد فيختصر فصلاً كاملاً. ويشتري معه <strong>هامش تعافٍ</strong>: لو رسبتَ في المشروع الفني
+وهو في خريف 2026، تُعيده خريف 2027 ويبقى التخرج يونيو 2028. أما لو كان في خريف 2027 (بلا استثناء)
+فالإعادة تنتظر خريف 2028 والتخرج ينزلق إلى يونيو 2029.</figcaption></figure>
 <h3>سلّم الاستثناءات</h3>
 <table class="bx" style="margin-bottom:4mm"><thead><tr><th>الرمز</th><th>الاستثناء</th>
 <th>الكلفة</th><th>الجهة</th></tr></thead><tbody>{exc_rows}</tbody></table>
-<div class="box ok"><span class="lbl">الاستراتيجية</span>
-<p>اطلب <span class="mono">E2</span> و<span class="mono">E1</span> معاً في خطاب واحد. طلب اثنين
-يضاعف احتمال القبول بلا كلفة إضافية، وأيّهما مرّ ثبّت التخرج في يونيو 2028. وبعد ثبوت الدوران
-المنفصل في القسم، <span class="mono">E2</span> هو الأقرب للقبول.</p></div>""",
-        title="اختناق الربيع", tag="صفحة 7")
+<div class="box ok"><span class="lbl">المقايضة صراحةً</span>
+<p><strong>مع الاستثناء:</strong> فصل أقصر وهامش تعافٍ — لكنك تدرس مقرر المشروع قبل أن تدرس
+النسيج والفن المعاصر، وهما مادته الخام، فيرتفع احتمال التعثّر فيه.<br>
+<strong>بلا الاستثناء:</strong> تدرس المشروع بعد أن تُتقن متطلبيه، بأحمال مريحة وبلا أي طلب
+إداري — مقابل فصل إضافي. <strong>القرار لك، والخطتان معروضتان كاملتين.</strong></p></div>""",
+        title="الاستثناء: ما يشتريه وما يكلّفه", tag="صفحة 7")
 
     # ── 8 · مقارنة الخطط ──────────────────────────────────────
     def cmp_row(k):
@@ -766,6 +772,10 @@ def pages_rest(doc, d):
 
     # القسم الثاني: استمارة رسمية لكل خطة، ثم جداولها الأسبوعية
     meetings = load_meetings()
+    tr = load_transcript()
+    if tr:
+        page_transcript_audit(doc, d, tr)
+        page_whats_changed(doc, d, tr)
     doc.sheet("""
 <p class="lede">القسم الأول من هذه الوثيقة يحلّل الخطط. وهذا القسم يحوّلها إلى ورق عملي:
 <strong>استمارة تدقيق رسمية مملوءة</strong> لكل خطة جاهزة للتوقيع، ثم <strong>جدول أسبوعي
@@ -825,56 +835,54 @@ def pages_tail(doc, d):
     rrows = "".join(f'<div class="risk {c}"><span class="d"></span><div>'
                     f'<p class="t">{t}</p><p>{b}</p></div></div>' for c, t, b in risks)
     checks = [
-      "كشف الدرجات الرسمي — تأكيد أن المنجَز 75 ساعة وأن المتبقي هو الخمسون المذكورة بالضبط.",
-      "رقم فصلك الدراسي في خريف 2026 — هل هو التاسع؟ يحدّد موقعك من جدول د-6.",
-      "متطلب ترفن4120: بلا متطلب («القائمة و») أم ترفن3210 (الجدول الفصلي)؟ الخطة تتناقض مع نفسها هنا، "
-      "والفرق بينهما فصل دراسي كامل.",
+      "هل يقبل القسم تقديم منطر4400 مشروع التخرج على فصل التدريب الميداني؟ "
+      "الخطة تصفه بأنه «مصاحب»، والقرار الجديد يمنع المصاحبة — والترتيب المعتمد هنا "
+      "(المشروع قبل التدريب) يُرضي القراءتين، لكن يلزم تثبيته كتابةً.",
+      "هل يُقبل متطلب جامعة واحد مع التدريب الميداني فعلاً، وبأي شعبة؟ "
+      "المثبت هنا اجمع1005 بشعبة مسائية (الأربعاء 14:15–16:05).",
+      "هل توجد درجة دنيا للمتطلب السابق؟ ترفن3210 مُنجَز بتقدير D وهو متطلب ترفن4120.",
+      "متطلب ترفن4120: بلا متطلب («القائمة و») أم ترفن3210 (الجدول الفصلي)؟ "
+      "لم يعد مؤثراً لأن ترفن3210 منجَز — لكن التوثيق يبقى متناقضاً.",
       "متطلب ترفن2110 — الخطة تحيله إلى نفسه، وهو خطأ مطبعي ظاهر.",
-      "هل يُطرح اجمع1005 ربيعاً؟ (مؤكَّد خريفاً؛ وُضع في الخريف في السيناريوهات الأربعة تحوّطاً.)",
-      "هل منطر4400 مصاحب إلزامي لمنطر4600 أم يجوز تقديمه على فصل سابق؟",
-      "ثبات الموسمية عبر السنوات — الدوران مؤكَّد لعام 2025/2026، ويُفترض تكراره في 2026/2027.",
-      "سعة شعب ترفن4260 · ترفن3170 · ترفن4111 لفصولك المستهدفة تحديداً.",
+      "هل تُحتسب إعادة عربي1060 بديلاً عن الرسوب في المعدل التراكمي أم يُجمع التقديران؟ "
+      "يؤثر مباشرة في هامش الـ2.00 المطلوب للتدريب الميداني.",
+      "ثبات الدوران الموسمي في 2026/2027 — مؤكَّد لعام 2025/2026 ويُفترض تكراره.",
+      "سعة شعب ترفن4260 (8 لكل شعبة) وترفن3250 وترفن4130 لفصولك المستهدفة.",
     ]
     doc.sheet(f"""
 <h3>المخاطر مرتَّبة بالخطورة</h3>
 <div style="margin-bottom:6mm">{rrows}</div>
 <h3>ما يجب تثبيته قبل التسجيل</h3>
-<p class="sm lede">كل بند أدناه <strong>افتراض</strong> في هذا التحليل، لا حقيقة مثبتة.
-البنود التي كانت هنا وحُسمت بجدول الربيع — موسمية منطر3027 وترفن3210 وترفن4120 وطرح
-التدريب الميداني ربيعاً — رُفعت من القائمة.</p>
+<p class="sm lede">حالة المقررات لم تعد افتراضاً — كشف الدرجات حسمها. وما بقي هنا أسئلة
+إجرائية للقسم، أهمّها الأولان لأنهما يمسّان بنية فصل التخرج.</p>
 <ol class="ck">{"".join(f"<li><span>{c}</span></li>" for c in checks)}</ol>""",
         title="المخاطر وقائمة التحقق", tag="صفحة المخاطر")
 
     doc.sheet(f"""
-<p class="lede">جاهزة للطباعة والتقديم. عدّل ما تراه ووقّع.</p>
+<p class="lede">هذا الخطاب لازم <strong>فقط</strong> إن اخترتَ المسار الأسرع (يناير 2028). الخطة الموصى بها لا تحتاج أي طلب إداري.</p>
 <div class="letter">
 <p><strong>إلى:</strong> رئيس قسم التربية الفنية / مساعد عميد كلية التربية للدراسات الجامعية الأولى<br>
-<strong>الموضوع:</strong> طلب استثناء لتمكين استكمال الخطة الدراسية في أربعة فصول</p>
+<strong>الموضوع:</strong> طلب استثناء لتسجيل مقرر المشروع الفني متزامناً مع متطلبيه</p>
 <p>تحية طيبة وبعد،</p>
 <p>أنا الطالب <strong>{d["meta"]["student"]}</strong>، الرقم الجامعي
 <span class="mono">{d["meta"]["student_id"]}</span>، تخصص التربية الفنية، دفعة {d["meta"]["cohort"]}.
-تبقّى لي <strong>50 ساعة معتمدة</strong> لاستكمال الخطة، وقد راجعتُ توزيعها على المواسم الدراسية
-استناداً إلى جدولَي المقررات لخريف وربيع 2025/2026، فتبيّن ما يلي:</p>
-<p>١ · المقررات الربيعية المتبقية <strong>سبعة</strong> بمجموع <strong>18 ساعة معتمدة</strong>.<br>
-٢ · لا يمكن تأجيل أيٍّ منها إلى ربيع 2028، لأن ذلك الفصل مخصص للتدريب الميداني الذي يشترط
-إنهاء جميع مقررات الخطة قبله.<br>
-٣ · عليه، يجب تسجيل السبعة كلها في فصل ربيع 2027، وهو ما يستوفي سقف الساعات (18) تماماً
-لكنه يتجاوز سقف عدد المقررات (6) بمقرر واحد.</p>
-<p>٤ · وقد راجعتُ مواعيد المحاضرات الفعلية للمقررات السبعة، فتبيّن أنها
-<strong>تتوزّع على أربعة أيام دون أي تعارض زمني، ويبقى يوم الخميس فارغاً</strong> —
-والجدول الأسبوعي مرفق.</p>
-<p>وعليه ألتمس من سعادتكم الموافقة على <strong>أحد</strong> الخيارين:</p>
-<p><strong>الأول:</strong> الموافقة على تسجيلي في <strong>سبعة مقررات (18 ساعة معتمدة)</strong>
-في فصل ربيع 2027، علماً بأن سقف الساعات المنصوص عليه في البند (ب-3) من النظام الأكاديمي
-مستوفى تماماً، وأن التجاوز منحصر في عدد المقررات.</p>
-<p><strong>الثاني:</strong> طرح مقرر <strong>ترفن3210 تاريخ الفن الحديث والمعاصر</strong> (ساعتان)
-في فصل الخريف، أو السماح لي بتسجيله فيه — وهو مقرر محاضرة نظرية لا يتطلب ورشة أو استوديو
-أو سعة معملية.</p>
-<p>وأودّ الإفادة بأن أياً من الخيارين يمكّنني من التخرج في <strong>ربيع 2028</strong> وفق الخطة
-المرفقة، بينما يؤدي تعذّرهما إلى تأخير التخرج فصلاً كاملاً إلى يناير 2029.</p>
-<p><strong>المرفقات:</strong> خطة فصلية تفصيلية موضّح فيها المتطلبات السابقة والموسمية
-لكل مقرر · استمارة تدقيق الخطة الدراسية مملوءة · جدول أسبوعي لكل فصل يثبت خلوّه من
-التعارض الزمني.</p>
+أنهيتُ <strong>{d["meta"]["credits_earned"]} ساعة معتمدة</strong> من أصل 125 وفق كشف الدرجات
+الرسمي، وتبقّى لي <strong>{d["meta"]["credits_remaining"]} ساعة</strong>.</p>
+<p>وقد راجعتُ توزيع المتبقي على المواسم فتبيّن ما يلي:</p>
+<p>١ · مقرر <strong>ترفن4260 المشروع الفني</strong> لا يُطرح إلا في فصل الخريف.<br>
+٢ · متطلباه السابقان <strong>ترفن2110</strong> و<strong>ترفن3111</strong> خريفيان أيضاً.<br>
+٣ · وعليه، إن درستُ المتطلبين في خريف 2026 لم يَحِن دور المشروع إلا في خريف 2027، فيمتدّ
+برنامجي إلى أربعة فصول وأتخرّج في يونيو 2028.</p>
+<p>وألتمس من سعادتكم الموافقة على <strong>تسجيل ترفن4260 متزامناً مع ترفن2110 وترفن3111 في
+فصل خريف 2026</strong>، وهو ما يمكّنني من التخرج في <strong>يناير 2028</strong> — أي أبكر بفصل
+دراسي كامل.</p>
+<p>وأودّ الإفادة بأن مواعيد المقررات الستة المقترحة لذلك الفصل <strong>لا تتعارض زمنياً</strong>،
+والجدول الأسبوعي مرفق. كما أن تقديم المشروع يمنحني هامشاً لإعادته في خريف 2027 لو تعثّرتُ فيه،
+بينما تأخيره يجعل أي تعثّر يكلّفني سنة كاملة.</p>
+<p><strong>المرفقات:</strong> كشف الدرجات الرسمي · خطة فصلية تفصيلية بالمتطلبات السابقة والموسمية ·
+استمارة تدقيق الخطة الدراسية مملوءة · جدول أسبوعي لكل فصل يثبت خلوّه من التعارض.</p>
+<p>وفي حال تعذّر الاستثناء، فإني ماضٍ في الخطة البديلة (أربعة فصول، تخرّج يونيو 2028) وهي
+<strong>لا تتطلب أي استثناء</strong>.</p>
 <p>شاكراً لكم حسن تعاونكم،</p>
 <div class="sig"><div>توقيع الطالب</div><div>التاريخ</div></div>
 </div>
@@ -915,6 +923,15 @@ MEETINGS_PATH = ROOT / "docs" / "data" / "meetings.json"
 DAYS = ["SUN", "MON", "TUE", "WED", "THU"]
 DAY_AR = {"SUN": "الأحد", "MON": "الاثنين", "TUE": "الثلاثاء",
           "WED": "الأربعاء", "THU": "الخميس"}
+
+
+TRANSCRIPT_PATH = ROOT / "docs" / "data" / "transcript.json"
+
+
+def load_transcript():
+    if not TRANSCRIPT_PATH.exists():
+        return None
+    return json.loads(TRANSCRIPT_PATH.read_text(encoding="utf-8"))
 
 
 def load_meetings():
@@ -1010,6 +1027,117 @@ def form_cell(d, term):
             f'<div class="fsub"><span>رمز المقرر واسمه</span><span>عدد الساعات</span></div>'
             f'{rows}<div class="ftot"><span>مجموع الساعات</span>'
             f'<span>{credits(d, term["courses"])}</span></div></div>')
+
+
+
+BUCKET_LABELS = {"م ج": ("متطلبات الجامعة", 6), "ا ج": ("اختياري الجامعة", 6),
+                 "م ت": ("متطلبات التخصص", 102), "ا ت": ("اختياري التخصص", 11)}
+
+
+def page_transcript_audit(doc, d, tr):
+    """البرهان: الأوعية الأربعة ومطابقتها لكشف الدرجات."""
+    C = d["courses"]
+    rows = ""
+    for cat, (label, need) in BUCKET_LABELS.items():
+        done = sum(v["cr"] for v in C.values()
+                   if v["cat"] == cat and v["status"] == "completed")
+        rows += (f'<tr><td>{label}</td><td class="n">{need}</td>'
+                 f'<td class="n"><strong>{done}</strong></td>'
+                 f'<td class="n">{need - done}</td></tr>')
+    t = tr["totals"]
+    fails = "، ".join(tr["failures"]) or "لا شيء"
+    wd = "، ".join(tr["withdrawals"]) or "لا شيء"
+
+    by_term = {}
+    for r in tr["records"]:
+        by_term.setdefault(r["term"], []).append(r)
+    order = sorted(by_term, key=lambda x: (int(x.split()[-1]), 0 if "ربيع" in x else 1))
+    terms_html = ""
+    for term in order:
+        recs = by_term[term]
+        cells = "".join(
+            f'<tr><td class="c">{r["code"]}</td><td>{r["title"][:26]}</td>'
+            f'<td class="n">{r["credits"]}</td>'
+            f'<td class="n" style="color:{"var(--stamp)" if not r["passed"] and r["credits"] else "inherit"}">'
+            f'{r["grade"]}</td></tr>' for r in recs)
+        got = sum(r["credits"] for r in recs if r["passed"])
+        terms_html += (f'<div style="break-inside:avoid"><p class="sm" style="font-weight:600;'
+                       f'margin:0 0 1mm">{term} — {got} ساعة مكتسبة</p>'
+                       f'<table class="bx" style="margin-bottom:3mm">{cells}</table></div>')
+
+    doc.sheet(f"""
+<p class="lede">هذه الصفحة هي <strong>البرهان</strong>: كل ساعة في الخطة محسوبة من كشف الدرجات
+الرسمي، لا من أي فرضية. والمجموع يُغلق على رقم الكشف نفسه.</p>
+<div class="cols">
+<table class="bx"><thead><tr><th>الوعاء</th><th class="n">المطلوب</th>
+<th class="n">المنجَز</th><th class="n">المتبقي</th></tr></thead>
+<tbody>{rows}
+<tr style="background:var(--wash);font-weight:600"><td>المجموع</td>
+<td class="n">125</td><td class="n">{t["earned"]}</td><td class="n">{125 - t["earned"]}</td></tr>
+</tbody></table>
+<div class="box ok"><span class="lbl">المطابقة</span>
+<p class="sm">المحسوب من الخطة: <strong>{t["earned"]} ساعة</strong><br>
+المطبوع في الكشف: <strong>TOTAL CREDITS EARNED {t["earned"]}.00</strong><br>
+الساعات المُحاوَلة: {t["attempted"]} · نقاط التقدير: {t["points"]} ·
+المعدل التراكمي <strong>{t["cgpa"]}</strong><br>
+✓ الرقمان متطابقان — والمدقّق الآلي يُخفق تلقائياً لو اختلفا.</p></div>
+</div>
+<div class="cols" style="margin-bottom:4mm">
+<div class="box" style="border-top:2pt solid var(--stamp)"><span class="lbl">رسوب</span>
+<p class="sm"><span class="mono">{fails}</span> — إعادة إلزامية، وهو متطلب جامعة.</p></div>
+<div class="box" style="border-top:2pt solid var(--fall)"><span class="lbl">انسحابات</span>
+<p class="sm"><span class="mono">{wd}</span> — استُهلك {len(tr["withdrawals"])} من 4 مسموحة.</p></div>
+</div>
+<p class="sm" style="color:var(--ink-3)">سجل المقررات كاملاً — {len(tr["records"])} تسجيلاً
+في {t["terms_registered"]} فصلاً — في الصفحة التالية.</p>""",
+        title="تدقيق كشف الدرجات", tag="البرهان")
+
+    doc.sheet(f"""
+<p class="lede">كل تسجيل في السجل الأكاديمي، فصلاً بفصل. التقديرات الحمراء لم تُحتسب ضمن
+الساعات المكتسبة: <span class="mono">W</span> انسحاب · <span class="mono">F</span> رسوب ·
+<span class="mono">TC</span> ساعات محوَّلة بصفر ساعة (البرنامج التأسيسي).</p>
+<div style="column-count:3;column-gap:5mm;font-size:7.2pt">{terms_html}</div>""",
+        title="السجل الأكاديمي الكامل", tag=f"{len(tr['records'])} تسجيلاً")
+
+
+def page_whats_changed(doc, d, tr):
+    changes = [
+      ("المنجَز والمتبقي", "75 منجَزة · 50 متبقية",
+       f"<strong>{tr['totals']['earned']} منجَزة · {125 - tr['totals']['earned']} متبقية</strong>"),
+      ("منطر3027 طرق تدريس (1)", "متبقٍ — وكان رأس المسار الحرج",
+       "<strong>مُنجَز</strong> ربيع 2026 · C+ ⇒ المسار الحرج القديم زال"),
+      ("عربي1060 اللغة العربية", "محسوب منجَزاً",
+       "<strong>راسب فيه (F)</strong> خريف 2023 ⇒ إعادة إلزامية"),
+      ("ترفن2130 · 3140 · 3210 · 4111", "أربعة مقررات متبقية",
+       "<strong>الأربعة مُنجَزة</strong> ربيع 2026"),
+      ("اختناق الربيع", "7 مقررات ربيعية في فصل واحد ⇒ استثناء لا مفرّ منه",
+       "<strong>زال</strong> — لم يبقَ ربيعياً سوى مقررين (5 ساعات)"),
+      ("متطلب ترفن4120", "نزاع قد يكلّف فصلاً كاملاً",
+       "<strong>زال</strong> — متطلبه ترفن3210 مُنجَز (D)"),
+    ]
+    rows = "".join(f'<tr><td>{a}</td><td style="color:var(--ink-3)">{b}</td><td>{c}</td></tr>'
+                   for a, b, c in changes)
+    doc.sheet(f"""
+<p class="lede">النسخة السابقة من هذه الوثيقة بُنيت على إفادة شفهية: «أنهيتُ كل الخطة عدا ما ورد
+في استمارة التدقيق». الإفادة أغلقت الحساب رياضياً فبدت صحيحة — لكنها كانت
+<strong>مخطئة بإحدى عشرة ساعة</strong>. كشف الدرجات الرسمي صحّحها.</p>
+<div class="box stamp"><span class="lbl">لماذا تُذكر هذه الصفحة أصلاً</span>
+<p>إن كنتَ قد عرضتَ النسخة السابقة على مرشدك أو رئيس القسم، فهذه الصفحة تبيّن ما تغيّر
+ولماذا. إخفاء التصحيح أسوأ من إعلانه.</p></div>
+<h3>التصحيحات الستة</h3>
+<table class="bx" style="margin-bottom:5mm"><thead><tr>
+<th style="width:42mm">البند</th><th style="width:58mm">ما كان مفترضاً</th>
+<th>الحقيقة من كشف الدرجات</th></tr></thead><tbody>{rows}</tbody></table>
+<div class="cols">
+<div class="box ok"><span class="lbl">النتيجة الصافية — لصالحك</span>
+<p class="sm">وضعك <strong>أفضل</strong> مما كان مقدَّراً: 11 ساعة إضافية منجَزة، والمسار الحرج
+القديم زال، والاختناق الذي كان يفرض استثناءً لا مفرّ منه اختفى.
+<strong>خطة يونيو 2028 صارت ممكنة بصفر استثناءات.</strong></p></div>
+<div class="box" style="border-top:2pt solid var(--stamp)"><span class="lbl">وما ليس لصالحك</span>
+<p class="sm">`عربي1060` راسب ويجب إعادته، والمعدل التراكمي <strong>{tr['totals']['cgpa']}</strong>
+يعلو عتبة التدريب الميداني (2.00) بهامش {tr['totals']['cgpa'] - 2:.2f} فقط. وخانة اختياري
+التخصص (أ) استُهلكت بانسحاب ثم بديل.</p></div>
+</div>""", title="ما تغيّر بعد كشف الدرجات", tag="شفافية")
 
 
 def page_form(doc, d, key):
