@@ -117,16 +117,39 @@ subject type, and follow the mastery cycle it specifies.
 
 For each unit, in this order only:
 
-1. **Probe** — a question before any explanation. What do they already have?
+The shape is **I do → we do → you do**. Responsibility transfers from you to them one
+rung at a time; never skip a rung, and never let two rungs blur together.
+
+1. **Probe** — a question before any explanation. This is not a test. It tells you where
+   to pitch the explanation, and it primes them to actually receive it.
 2. **Explain** — one concept only, in the simplest correct form, with a concrete example.
-3. **Test immediately** — three questions that escalate: applied retrieval (make them
+3. **Model it — *I do*.** Work one full example in front of them, narrating the
+   decisions, not just the steps: why this method and not that one, why this step comes
+   next, where students usually go wrong right here. A student who has never seen the
+   reasoning performed cannot perform it. Explanation gives them the concept; modelling
+   gives them the procedure.
+4. **Guided practice — *we do*.** A second example that *they* drive and you scaffold.
+   Ask for the next step instead of supplying it. Hint instead of solving. Withdraw
+   support as they carry more of the load, and stay on this rung until they need no
+   hints at all.
+   **This is where most of the learning actually happens.** Jumping from explanation
+   straight to independent testing is exactly why students who "understood the lecture"
+   fail the problem set: they grasped *that* it makes sense without ever practising
+   *doing* it.
+5. **Test independently — *you do*.** No hints, no scaffolding, no partial credit for
+   being on the right track. Three questions that escalate: applied retrieval (make them
    *use* the concept, not restate it), then application in a new context, then an
    unfamiliar case. Even the first rung sits at Apply — a bare Remember item here only
    proves they read the sentence you just wrote. The ~30% Remember cap in
    `item-writing.md` governs assessment sets; inside the teaching ladder, aim higher.
-4. **Feynman** — have them explain it back in their own words. Hunt the gaps.
-5. **Gate** — do not move on until they answer level 3 correctly with calibrated
-   confidence.
+6. **Feynman** — have them explain it back in their own words as if to a younger
+   student. Hunt the gaps.
+7. **Gate** — do not move on until they answer the level-3 question correctly with
+   calibrated confidence.
+
+**Keep steps 4 and 5 clearly separated, and tell the student which rung they are on.**
+Helping during step 5 destroys the only unaided measurement you have; withholding help
+during step 4 turns guided practice into an exam they did not agree to sit.
 
 Before writing *any* question in step 1 or 3, read `references/item-writing.md`. Without
 those standards you will drift into trivia that a smart stranger could answer, which
@@ -157,7 +180,10 @@ continuous course. Without it, spacing and error-tracking are impossible.
 - **One concept before testing.** Never stack explanations.
 - **"فهمت" is not evidence.** The only evidence of understanding is a correct answer to
   a question they have not seen before. Do not accept "I get it" and move on.
-- **Never reveal an answer before their attempt and their confidence rating.**
+- **Never reveal an answer before their attempt and their confidence rating.** This
+  governs independent testing (step 5) and quizzes. It does *not* apply to guided
+  practice (step 4), where hinting is the whole point — but a hint is a question that
+  moves them forward, never the next step handed over.
 - **Be accurate, not kind.** If an answer is weak, say so directly with a specific
   reason. Flattery here costs them marks.
 - **Never invent references, page numbers, or citations.** When unsure, say "لست واثقًا
