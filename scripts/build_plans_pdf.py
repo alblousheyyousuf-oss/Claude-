@@ -9,6 +9,7 @@
 """
 import json
 import pathlib
+import re
 import subprocess
 import sys
 
@@ -20,15 +21,27 @@ DATA = ROOT / "docs" / "data" / "study-plan.json"
 HTML_OUT = ROOT / "docs" / "plans-only-print.html"
 PDF_OUT = ROOT / "docs" / "الخطط-الدراسية-جداول-الفصول.pdf"
 
-# من الأسرع تخرّجاً إلى الأبطأ
-ORDER = ["A", "B", "C", "D"]
+# الموصى بها أولاً، ثم الأسرع، ثم البقية — كترتيب جدول المقارنة في بقية الوثائق.
+# وأثره العملي أن أول ما يُرى عند فتح الملف خطةٌ لا تطلب أي استثناء.
+ORDER = ["B", "A", "C", "D"]
 
-BADGE = {
-    "A": ("الأسرع", "ثلاثة فصول · التخرج يناير 2028 · يتطلب استثناء E1"),
-    "B": ("الموصى بها", "أربعة فصول · التخرج يونيو 2028 · بلا أي استثناء"),
-    "C": ("حماية المعدل", "أربعة فصول · التخرج يونيو 2028 · بلا أي استثناء"),
-    "D": ("الطوارئ", "ستة فصول · التخرج يونيو 2029 · تُفعَّل فقط لو رسبتَ في ترفن4260"),
-}
+# الوصف الثاني يُبنى من البيانات لا يُكتب يدوياً، فلا يتقادم عند تغيّر الاستثناءات.
+LABEL = {"A": "الأسرع", "B": "الموصى بها", "C": "حماية المعدل", "D": "الطوارئ"}
+NOTE = {"D": "تُفعَّل فقط لو رسبتَ في ترفن4260"}
+WORDS = {3: "ثلاثة", 4: "أربعة", 5: "خمسة", 6: "ستة"}
+
+
+def badge(d, key):
+    s = d["scenarios"][key]
+    n = len(s["terms"])
+    m = re.search(r"\(([^)]*)\)", s["graduation"])
+    grad = m.group(1).strip() if m else s["graduation"].split("—")[0].strip()
+    exc = s["requires_exceptions"]
+    tail = (NOTE[key] if key in NOTE else
+            "بلا أي استثناء" if not exc else
+            "يتطلب استثناء " + exc[0] if len(exc) == 1 else
+            "يتطلب استثناءَي " + " و".join(exc))
+    return LABEL[key], f"{WORDS.get(n, n)} فصول · التخرج {grad} · {tail}"
 
 EXTRA_CSS = """
 .pbadge{ display:flex; align-items:baseline; gap:4.5mm; justify-content:center;
@@ -55,7 +68,7 @@ def plan_page(doc, d, key):
     """صفحة واحدة: استمارة تدقيق مملوءة بمقررات كل فصل في هذه التشكيلة."""
     s, m = d["scenarios"][key], d["meta"]
     ar = B.AR_KEY[key]
-    label, sub = BADGE[key]
+    label, sub = badge(d, key)
     terms = s["terms"]
     total = sum(B.credits(d, t["courses"]) for t in terms)
     active = [t for t in terms if t["courses"]]
