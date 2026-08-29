@@ -29,6 +29,8 @@ ORDER = ["B", "A", "C", "D"]
 LABEL = {"A": "الأسرع", "B": "الموصى بها", "C": "حماية المعدل", "D": "الطوارئ"}
 NOTE = {"D": "تُفعَّل فقط لو رسبتَ في ترفن4260"}
 WORDS = {3: "ثلاثة", 4: "أربعة", 5: "خمسة", 6: "ستة"}
+APPROVALS = {1: "موافقة إدارية واحدة", 2: "موافقتين إداريتين",
+             3: "ثلاث موافقات إدارية"}
 
 
 def badge(d, key):
@@ -37,10 +39,10 @@ def badge(d, key):
     m = re.search(r"\(([^)]*)\)", s["graduation"])
     grad = m.group(1).strip() if m else s["graduation"].split("—")[0].strip()
     exc = s["requires_exceptions"]
+    # سطر العنوان ضيّق، فيكتفي بالعدد؛ والنصّ الكامل في حقل الاستمارة أدناه
     tail = (NOTE[key] if key in NOTE else
             "بلا أي استثناء" if not exc else
-            "يتطلب استثناء " + exc[0] if len(exc) == 1 else
-            "يتطلب استثناءَي " + " و".join(exc))
+            "يتطلب " + APPROVALS.get(len(exc), f"{len(exc)} موافقات إدارية"))
     return LABEL[key], f"{WORDS.get(n, n)} فصول · التخرج {grad} · {tail}"
 
 EXTRA_CSS = """
@@ -88,7 +90,13 @@ def plan_page(doc, d, key):
     extra = ("" if total == base else
              f'<p class="pfoot">{total} ساعة = {base} ساعة متبقية + '
              f'{total - base} ساعة إعادة لمقرر مرسوب فيه ضمن هذه الخطة.</p>')
-    exc = " و".join(s["requires_exceptions"]) or "لا يوجد"
+    # يُكتب الاستثناء بعبارته لا برمزه: الملف يُرسَل وحده إلى قارئ لم يرَ
+    # الوثيقة الكاملة، فالرمز المجرَّد إحالة إلى مستند غير مرفَق.
+    E = d["exceptions"]
+    exc = ("لا يوجد" if not s["requires_exceptions"] else
+           "<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".join(
+               f"{i}) {E[c]['label']}"
+               for i, c in enumerate(s["requires_exceptions"], 1)))
 
     doc.sheet(f"""
 <div class="form">
