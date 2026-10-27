@@ -27,10 +27,12 @@ ROOF = 25.0               # both roof slopes of the base (deg)
 PROUD = 1.2               # upper block front face stands proud of base front face
 # upper block front face (x, z) on plane y = -(D0/2 + PROUD):  P6, P1, P4, P5
 UPPER_FRONT = [(-6.1, 12.2), (-5.1, 27.4), (5.8, 23.3), (3.9, 10.2)]
-UPPER_V = (2.9, 9.0, -0.9)    # extrusion (depth) vector of the upper block
+UPPER_SKEW = 18.0             # chest depth runs back and this many degrees to the right
+UPPER_DROP = 5.4              # chest top falls this many degrees toward the back
 NECK_OD, NECK_ID = 5.8, 4.5   # neck outer / inner diameter
 WALL, FLOOR = 0.8, 1.0        # slab thickness, base floor thickness
 SHRINK = 0.12                 # total clay shrinkage (wet -> fired)
+VENT_D = 4.0                  # hole in chest bottom joining chest and base cavities
 
 # camera recovered from the photo (orthographic): used only for the fit check
 CAM = dict(E=12.7, PHI=-32.2, K=18.975, U0=443.5, V0=878.3)
@@ -44,7 +46,10 @@ xL = -(W0 / 2 + tw * EAVE_L)          # left eave x
 xR = W0 / 2 + tw * EAVE_R             # right eave x
 x_ridge = (EAVE_R - EAVE_L + sr * (xR + xL)) / (2 * sr)
 z_ridge = EAVE_L + sr * (x_ridge - xL)
-V = np.array(UPPER_V, float)
+# chest depth: its back wall rests on the inner face of the base back wall (assembly stop)
+_vy = (D0 / 2 - WALL) - yf
+_vxy = _vy / math.cos(math.radians(UPPER_SKEW))
+V = np.array([_vy * math.tan(math.radians(UPPER_SKEW)), _vy, -_vxy * math.tan(math.radians(UPPER_DROP))])
 P6, P1, P4, P5 = [np.array([x, yf, z]) for x, z in UPPER_FRONT]
 P2, P3 = P1 + V, P4 + V
 NECK_C = (P1 + P4) / 2 + V / 2        # centre of upper top face
@@ -323,7 +328,12 @@ class SVG:
                 f'viewBox="0 0 {self.w} {self.h}" font-family="Noto Naskh Arabic, Amiri, Tahoma, Arial, sans-serif">\n'
                 f'<rect width="{self.w}" height="{self.h}" fill="#fff"/>\n'
                 '<defs><marker id="ar" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" '
-                'orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" fill="#c0392b"/></marker></defs>\n')
+                'orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" fill="#c0392b"/></marker>'
+                '<marker id="ab" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="4" markerHeight="4" '
+                'orient="auto"><path d="M0,1 L10,5 L0,9 z" fill="#1f6fb2"/></marker>'
+                '<pattern id="hatch" width="2" height="2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'
+                '<rect width="2" height="2" fill="#fff3d6"/><line x1="0" y1="0" x2="0" y2="2" stroke="#d68910" stroke-width="0.6"/>'
+                '</pattern></defs>\n')
         with open(path, "w", encoding="utf-8") as f:
             f.write(head + "\n".join(self.items) + "\n</svg>\n")
 
@@ -470,7 +480,7 @@ def drawings(S, path):
         ("القاعدة: منشور منفرج الجانبين 14° بسقف جمالوني 25°", 3.1, "normal"),
         ("الواجهة الأمامية والخلفية رأسيتان تماماً", 3.1, "normal"),
         ("الكتلة العلوية: منشور مائل، واجهته بارزة 12 مم", 3.1, "normal"),
-        ("وعمقه 95 مم منحرف 18° يميناً للخلف", 3.1, "normal"),
+        (f"وعمقه {np.linalg.norm(V[:2]) * 10:.0f} مم منحرف {UPPER_SKEW:.0f}° يميناً للخلف", 3.1, "normal"),
         ("العنق: أسطوانة رأسية Ø58/45 فوق مركز السطح", 3.1, "normal"),
         ("", 3, "normal"),
         ("خطوط منقطة رمادية = حواف مخفية", 3.1, "normal"),
@@ -500,10 +510,10 @@ class MaxRects:
     def __init__(self, w, h):
         self.free = [(0.0, 0.0, w, h)]
 
-    def insert(self, w, h):
+    def insert(self, w, h, rotate=True):
         best = None
         for fx, fy, fw, fh in self.free:
-            for rot, (ww, hh) in enumerate([(w, h), (h, w)]):
+            for rot, (ww, hh) in enumerate([(w, h), (h, w)] if rotate else [(w, h)]):
                 if ww <= fw and hh <= fh:
                     score = (min(fw - ww, fh - hh), max(fw - ww, fh - hh))
                     if best is None or score < best[0]: best = (score, fx, fy, ww, hh, rot)
@@ -523,95 +533,322 @@ class MaxRects:
         return x, y, rot
 
 
-def templates(path_fmt):
-    k = 10.0 / (1 - SHRINK)             # cm(fired) -> mm(wet)
-    items = []
+# three modules built separately, then joined once (score + slip)
+MODULES = [
+    ("1-base", "القاعدة", ["B1", "B2", "B3", "B4", "B5", "B6", "B7"],
+     "الخط الأسود = خط القص · الأحمر المظلل = فتحة تُقصّ ويدخل منها الصدر (هشّر حوافها وقصّها مائلة باتجاه دخوله) · الأرقام بالمليمتر"),
+    ("2-chest", "الصدر", ["U1", "U2", "U3", "U4", "U5", "U6"],
+     "كل وجه يُقصّ كاملاً · الأحمر المنقط = خط التقاء القاعدة · المخطط البرتقالي = شريط التهشير · الرمادي = جزء يختفي داخل القاعدة"),
+    ("3-neck", "الرأس (العنق والفوهة)", ["N1", "N2"],
+     "N1 للبناء بالشريحة · N2 مقطع للرمي على الدولاب · المخطط البرتقالي = حافة التهشير على سطح الصدر"),
+]
+
+
+def vent_center():
+    f = [x for x in faces() if x.code == "U6"][0]
+    full, cut, kept = f.shapes()
+    core = cut.buffer(-(VENT_D / 2 + WALL + 0.3))
+    c = (core if not core.is_empty else cut).centroid
+    return f, np.array([c.x, c.y])
+
+
+def neck_heights():
+    th = np.linspace(0, 2 * np.pi, 721)
+    zb = top_plane_z(NECK_C[0] + R_OUT * np.cos(th), NECK_C[1] + R_OUT * np.sin(th))
+    return H_TOTAL - zb.max(), H_TOTAL - zb.min(), th[np.argmax(zb)]
+
+
+def _poly(svg, g, T, **kw):
+    for p in getattr(g, "geoms", [g]):
+        if p.geom_type == "Polygon" and p.area > 1e-5:
+            svg.poly([T(q) for q in p.exterior.coords], **kw)
+            for h in p.interiors:
+                svg.poly([T(q) for q in h.coords], **dict(kw, fill="#fff"))
+
+
+def _lines(svg, g, T, **kw):
+    for p in getattr(g, "geoms", [g]):
+        if p.geom_type == "LineString" and p.length > 1e-3:
+            svg.poly([T(q) for q in p.coords], closed=False, **kw)
+
+
+def _edge_lengths(svg, g, T, k):
+    for p in getattr(g, "geoms", [g]):
+        if p.geom_type != "Polygon": continue
+        cs = list(p.exterior.coords)[:-1]
+        c = np.array(T(np.array(p.representative_point().coords[0])))
+        for i in range(len(cs)):
+            a, b = np.array(cs[i]), np.array(cs[(i + 1) % len(cs)])
+            L = np.linalg.norm(b - a) * k
+            if L < 12: continue
+            A, B = np.array(T(a)), np.array(T(b))
+            mid = (A + B) / 2; t = nrm(B - A); nn = np.array([t[1], -t[0]])
+            if nn @ (c - mid) > 0: nn = -nn
+            ang = math.degrees(math.atan2(t[1], t[0]))
+            if ang > 90: ang -= 180
+            if ang < -90: ang += 180
+            svg.text(mid - nn * 2.6 + np.array([0, 1.0]), f"{L:.0f}", size=2.6, fill="#1f6fb2", rot=ang)
+
+
+def template_jobs():
+    """(code, kind, face, outline-geometry, extras) for every slab of every module."""
+    jobs = {}
+    vf, vc = vent_center()
     for f in faces():
         full, cut, kept = f.shapes()
-        items.append((f, full, cut, kept))
+        jobs[f.code] = dict(kind="base" if f.code[0] == "B" else "chest", f=f, geom=full, cut=cut, kept=kept)
+    jobs["U6"]["vent"] = vc
     s, zb = neck_strip()
-    neck_poly = Polygon(list(zip(s, zb)) + [(s[-1], H_TOTAL), (s[0], H_TOTAL)])
-    W, Hh, M, G = 420, 297, 10, 8
-    jobs = [("face", f, kept if f.code.startswith("U") else full, None if f.code.startswith("U") else cut, kept)
-            for f, full, cut, kept in items]
-    jobs.append(("neck", None, neck_poly, None, neck_poly))
-    size = lambda b: ((b[2] - b[0]) * k + G, (b[3] - b[1]) * k + G)
-    jobs.sort(key=lambda j: -size(j[2].bounds)[0] * size(j[2].bounds)[1])
-    packers, pages = [], []
-    for j in jobs:
-        w, h = size(j[2].bounds)
-        for pk, pg in zip(packers, pages):
-            r = pk.insert(w, h)
-            if r: pg.append(j + (r,)); break
-        else:
-            pk = MaxRects(W - 2 * M + G, Hh - 2 * M - 18 + G); packers.append(pk)
-            pages.append([j + (pk.insert(w, h),)])
+    jobs["N1"] = dict(kind="strip", f=None, geom=Polygon(list(zip(s, zb)) + [(s[-1], H_TOTAL), (s[0], H_TOTAL)]),
+                      s=s, zb=zb)
+    hmin, hmax, _ = neck_heights()
+    jobs["N2"] = dict(kind="profile", f=None, hmin=hmin, hmax=hmax,
+                      geom=Polygon([(-R_OUT - 2.2, H_TOTAL - hmax - 1.6), (R_OUT + 2.2, H_TOTAL - hmax - 1.6),
+                                    (R_OUT + 2.2, H_TOTAL + 1.2), (-R_OUT - 2.2, H_TOTAL + 1.2)]))
+    return jobs
+
+
+def draw_job(svg, code, j, T, k):
+    kind = j["kind"]
+    if kind == "base":
+        f, full, cut, kept = j["f"], j["geom"], j["cut"], j["kept"]
+        if cut is not None:
+            svg.poly([T(q) for q in full.exterior.coords], stroke="#999", width=0.25, dash="2,1.5")
+            _poly(svg, cut.intersection(full), T, stroke="#c0392b", width=0.35, fill="#f6dcd8")
+            c = cut.intersection(full).representative_point()
+            svg.text(T((c.x, c.y)), "فتحة الصدر — تُقصّ", size=2.8, fill="#c0392b", rtl=True)
+        _poly(svg, kept, T, stroke="#111", width=0.5, fill="#f4efe6")
+        _edge_lengths(svg, kept, T, k)
+        cp = kept.representative_point() if cut is not None else kept.centroid
+        cx, cy = T((cp.x, cp.y))
+    elif kind == "chest":
+        f, full, cut, kept = j["f"], j["geom"], j["cut"], j["kept"]
+        _poly(svg, full, T, stroke="#111", width=0.5, fill="#f4efe6")
+        if cut is not None:
+            _poly(svg, cut, T, stroke="none", width=0, fill="#d9d9d9")
+            band = cut.intersection(kept.buffer(WALL, join_style=2))
+            _poly(svg, band, T, stroke="#d68910", width=0.2, fill="url(#hatch)")
+            _lines(svg, kept.boundary.intersection(cut.buffer(1e-4)), T, stroke="#c0392b", width=0.5, dash="2.2,1.2")
+            hp = cut.buffer(-WALL * 2) if not cut.buffer(-WALL * 2).is_empty else cut
+            q = hp.representative_point()
+            svg.text(T((q.x, q.y)), "داخل القاعدة", size=2.6, fill="#777", rtl=True)
+        svg.poly([T(q) for q in full.exterior.coords], stroke="#111", width=0.5)
+        _edge_lengths(svg, full, T, k)
+        if code == "U3":   # neck seat (scored ring) + bore on the sloped top
+            th = np.linspace(0, 2 * np.pi, 120)
+            ring = []
+            for r in (R_OUT, R_IN):
+                P = [np.array([NECK_C[0] + r * math.cos(a), NECK_C[1] + r * math.sin(a), 0]) for a in th]
+                for p in P: p[2] = top_plane_z(p[0], p[1])
+                ring.append(Polygon(f.to2d(P)))
+            _poly(svg, ring[0].difference(ring[1]), T, stroke="#d68910", width=0.25, fill="url(#hatch)")
+            _poly(svg, ring[1], T, stroke="#c0392b", width=0.45, fill="#fff")
+            c = ring[1].centroid; svg.text(T((c.x, c.y + 0.15)), f"Ø{NECK_ID * 10:.0f} تُقصّ", size=2.4, fill="#c0392b", rtl=True)
+        if code == "U6":   # vent: joins chest and base cavities, lets steam out in the kiln
+            vc = j["vent"]; circ = Point(vc).buffer(VENT_D / 2, 64)
+            _poly(svg, circ, T, stroke="#c0392b", width=0.45, fill="#fff")
+            svg.text(T((vc[0], vc[1] + 0.1)), f"فتحة تهوية Ø{VENT_D * 10:.0f} تُقصّ", size=2.4, fill="#c0392b", rtl=True)
+        cp = full.centroid
+        if code == "U3": cp = Point(cp.x, cp.y - (R_OUT + 1.0))
+        if code == "U6": cp = Point(j["vent"][0], j["vent"][1] - VENT_D / 2 - 1.6)
+        cx, cy = T((cp.x, cp.y))
+    elif kind == "strip":
+        g = j["geom"]; s, zb = j["s"], j["zb"]
+        _poly(svg, g, T, stroke="#111", width=0.5, fill="#f4efe6")
+        band = g.intersection(Polygon(list(zip(s, zb)) + list(zip(s[::-1], zb[::-1] + WALL))).buffer(0))
+        _poly(svg, band, T, stroke="#d68910", width=0.2, fill="url(#hatch)")
+        i = int(np.argmax(zb)); a, b = T((s[i], H_TOTAL)), T((s[i], zb[i]))
+        svg.line(a, b, stroke="#1f6fb2", width=0.3, dash="1.5,1")
+        svg.text((a[0], a[1] + 4.5), "الضلع الأقصر ← يتجه نحو الزاوية العليا P1", size=2.4, fill="#1f6fb2", rtl=True)
+        c = g.centroid; cx, cy = T((c.x, c.y + 0.4))
+        svg.text((cx, cy + 9.5), f"طولها {s[-1] * k:.0f} · تُلفّ حول أنبوب Ø{NECK_ID * k / 10 * 10:.0f} ويُلحم طرفاها", size=2.6, rtl=True)
+    else:   # profile for wheel throwing
+        hmin, hmax = j["hmin"], j["hmax"]
+        top, zl, zr = H_TOTAL, H_TOTAL - hmin, H_TOTAL - hmax
+        outer = [(-R_OUT, zl), (R_OUT, zr), (R_OUT, top), (-R_OUT, top)]
+        svg.poly([T(q) for q in outer], stroke="#111", width=0.5, fill="#f4efe6")
+        slope = (zl - zr) / (2 * R_OUT)
+        for x in (-R_IN, R_IN):
+            svg.line(T((x, top)), T((x, zl - slope * (x + R_OUT))), stroke="#777", width=0.25, dash="1.2,0.9")
+        svg.poly([T(q) for q in [(-R_OUT, zl), (R_OUT, zr), (R_OUT, zr + WALL), (-R_OUT, zl + WALL)]],
+                 stroke="#d68910", width=0.2, fill="url(#hatch)")
+        dim(svg, T((-R_OUT, top)), T((R_OUT, top)), -5, f"Ø{NECK_OD * k:.0f}", color="#1f6fb2")
+        dim(svg, T((-R_IN, top - 1.2)), T((R_IN, top - 1.2)), 0.01, f"Ø{NECK_ID * k:.0f}", size=2.4, color="#1f6fb2")
+        dim(svg, T((-R_OUT, zl)), T((-R_OUT, top)), 5, f"{hmin * k:.0f}", color="#1f6fb2")
+        dim(svg, T((R_OUT, zr)), T((R_OUT, top)), -5, f"{hmax * k:.0f}", color="#1f6fb2")
+        ang = math.degrees(math.atan(slope))
+        q = T((0, zr)); svg.text((q[0], q[1] + 6), f"قصّ القاعدة بميل {ang:.1f}°", size=2.6, fill="#c0392b", rtl=True)
+        cx, cy = T((0, top - hmin * 0.45))
+    name = {"N1": "شريحة العنق", "N2": "مقطع العنق للرمي"}.get(code) or j["f"].name
+    note = j["f"].mirror_note if j["f"] is not None else ""
+    svg.text((cx, cy - 1.5), code, size=6, weight="bold", fill="#444")
+    svg.text((cx, cy + 4.5), name + (f" ({note})" if note else ""), size=3, rtl=True)
+
+
+def templates(path_fmt):
+    k = 10.0 / (1 - SHRINK)             # cm(fired) -> mm(wet)
+    W, Hh, M, G, HEAD = 420, 297, 10, 8, 12
+    J = template_jobs()
     out = []
-    for pi, page in enumerate(pages):
-        svg = SVG(W, Hh)
-        for kind, f, full, cut, kept, (px, py, rot) in page:
-            minx, miny, maxx, maxy = full.bounds
-            px, py = px + M, py + M
-            if rot:   # 90° turn, no mirroring
-                T = lambda q: (px + (maxy - q[1]) * k, py + (maxx - q[0]) * k)
+    for key, title, codes, legend in MODULES:
+        size = lambda b: ((b[2] - b[0]) * k + G, (b[3] - b[1]) * k + G)
+        order = sorted(codes, key=lambda c: -size(J[c]["geom"].bounds)[0] * size(J[c]["geom"].bounds)[1])
+        packers, pages = [], []
+        for c in order:
+            w, h = size(J[c]["geom"].bounds)
+            rotate = J[c]["kind"] in ("base", "chest")   # neck pieces keep their reading direction
+            for pk, pg in zip(packers, pages):
+                r = pk.insert(w, h, rotate)
+                if r: pg.append((c, r)); break
             else:
-                T = lambda q: (px + (q[0] - minx) * k, py + (maxy - q[1]) * k)
-            if kind == "face":
-                fullpts = [T(q) for q in full.exterior.coords]
-                if cut is not None:
-                    svg.poly(fullpts, stroke="#999", width=0.25, dash="2,1.5")
-                    cg = cut.intersection(full)
-                    for g in getattr(cg, "geoms", [cg]):
-                        if g.geom_type == "Polygon" and g.area > 1e-4:
-                            svg.poly([T(q) for q in g.exterior.coords], stroke="#c0392b", width=0.3,
-                                     fill="#c0392b", dash=None)
-                            svg.items[-1] = svg.items[-1].replace('fill="#c0392b"', 'fill="#c0392b" fill-opacity="0.12"')
-                for g in getattr(kept, "geoms", [kept]):
-                    if g.geom_type != "Polygon" or g.area < 1e-4: continue
-                    pts = [T(q) for q in g.exterior.coords]
-                    svg.poly(pts, stroke="#111", width=0.5, fill="#f4efe6")
-                    for hole in g.interiors:
-                        svg.poly([T(q) for q in hole.coords], stroke="#111", width=0.5, fill="#fff")
-                    # edge lengths (wet mm)
-                    cs = list(g.exterior.coords)[:-1]
-                    for i in range(len(cs)):
-                        a, b = np.array(cs[i]), np.array(cs[(i + 1) % len(cs)])
-                        L = np.linalg.norm(b - a) * k
-                        if L < 12: continue
-                        A, B = np.array(T(a)), np.array(T(b))
-                        mid = (A + B) / 2; t = nrm(B - A); nn = np.array([t[1], -t[0]])
-                        c = np.array(T(np.array(g.centroid.coords[0])))
-                        if nn @ (c - mid) > 0: nn = -nn
-                        ang = math.degrees(math.atan2(t[1], t[0]))
-                        if ang > 90: ang -= 180
-                        if ang < -90: ang += 180
-                        svg.text(mid - nn * 2.6 + np.array([0, 1.0]), f"{L:.0f}", size=2.6, fill="#1f6fb2", rot=ang)
-                if f.code == "U3":   # neck seat + bore ellipse on the sloped top
-                    th = np.linspace(0, 2 * np.pi, 120)
-                    for r, sty in [(R_OUT, dict(stroke="#555", width=0.3, dash="1.5,1")), (R_IN, dict(stroke="#c0392b", width=0.35))]:
-                        P = [np.array([NECK_C[0] + r * math.cos(a), NECK_C[1] + r * math.sin(a), 0]) for a in th]
-                        for p in P: p[2] = top_plane_z(p[0], p[1])
-                        svg.poly([T(q) for q in f.to2d(P)], **sty)
-                cx, cy = T(np.array(kept.centroid.coords[0]) if not kept.is_empty else np.array(full.centroid.coords[0]))
-                svg.text((cx, cy - 1.5), f.code, size=6, weight="bold", fill="#444")
-                svg.text((cx, cy + 4.5), f.name + (f" ({f.mirror_note})" if f.mirror_note else ""), size=3, rtl=True)
-            else:
-                pts = [T(q) for q in full.exterior.coords]
-                svg.poly(pts, stroke="#111", width=0.5, fill="#f4efe6")
-                cx, cy = T(np.array(full.centroid.coords[0]))
-                svg.text((cx, cy - 1), "N1", size=6, weight="bold", fill="#444")
-                svg.text((cx, cy + 5), "شريحة العنق (تُلف حول قالب Ø45)", size=3, rtl=True)
-                svg.text((cx, cy + 9.5), f"الطول {s[-1] * k:.0f} · الحافة السفلية تتبع ميل السطح", size=2.6, rtl=True)
-        # footer: scale check + legend
-        svg.line((M, Hh - 14), (M + 100, Hh - 14), width=0.6)
-        for i in range(11): svg.line((M + i * 10, Hh - 15.5), (M + i * 10, Hh - 12.5), width=0.3)
-        svg.text((M + 50, Hh - 8.5), "مسطرة تحقق: 100 مم — اطبع بمقياس 100% (A3)", size=3, rtl=True)
-        svg.text((W - M, Hh - 13), f"قوالب القصّ بالمقاس الرطب (انكماش {SHRINK * 100:.0f}%) · الأرقام بالمليمتر · لوح {pi + 1}/{len(pages)}",
-                 size=3.2, anchor="end", rtl=True, weight="bold")
-        svg.text((W - M, Hh - 7.5), "الخط الأسود = خط القص · الأحمر المظلل = فتحة/جزء يُزال حيث تتداخل الكتلتان · المنقط = الشكل الكامل قبل التقليم",
-                 size=2.7, anchor="end", rtl=True)
-        p = path_fmt.format(pi + 1); svg.save(p); out.append(p)
+                pk = MaxRects(W - 2 * M + G, Hh - 2 * M - 18 - HEAD + G); packers.append(pk)
+                pages.append([(c, pk.insert(w, h, rotate))])
+        for pi, page in enumerate(pages):
+            svg = SVG(W, Hh)
+            for c, (px, py, rot) in page:
+                minx, miny, maxx, maxy = J[c]["geom"].bounds
+                px, py = px + M, py + M + HEAD
+                if rot:   # 90° turn, no mirroring
+                    T = lambda q, px=px, py=py, maxy=maxy, maxx=maxx: (px + (maxy - q[1]) * k, py + (maxx - q[0]) * k)
+                else:
+                    T = lambda q, px=px, py=py, minx=minx, maxy=maxy: (px + (q[0] - minx) * k, py + (maxy - q[1]) * k)
+                draw_job(svg, c, J[c], T, k)
+            n = key.split("-")[0]
+            svg.text((W - M, M + 7), f"الجزء {n}: {title}", size=7, anchor="end", weight="bold", rtl=True)
+            svg.text((W - M - 75, M + 7), f"لوح {pi + 1}/{len(pages)} · {len(codes)} قطع: {' '.join(codes)}",
+                     size=3.4, anchor="end", rtl=True, fill="#555")
+            svg.line((M, M + HEAD - 2), (W - M, M + HEAD - 2), width=0.3, stroke="#999")
+            svg.line((M, Hh - 14), (M + 100, Hh - 14), width=0.6)
+            for i in range(11): svg.line((M + i * 10, Hh - 15.5), (M + i * 10, Hh - 12.5), width=0.3)
+            svg.text((M + 50, Hh - 8.5), "مسطرة تحقق: 100 مم — اطبع بمقياس 100% (A3)", size=3, rtl=True)
+            svg.text((W - M, Hh - 13), f"قوالب القصّ بالمقاس الرطب (انكماش {SHRINK * 100:.0f}%) · شرائح بسماكة {WALL * 10:.0f} مم",
+                     size=3.2, anchor="end", rtl=True, weight="bold")
+            svg.text((W - M, Hh - 7.5), legend, size=2.7, anchor="end", rtl=True)
+            p = path_fmt.format(key, pi + 1); svg.save(p); out.append(p)
     return out
+
+
+# ───────────────────────── modules: solids, quantities, exploded assembly ─────────────────────────
+def top_plane():
+    n = nrm(np.cross(P4 - P1, P2 - P1))
+    if n[2] < 0: n = -n
+    return n, float(n @ P1)
+
+
+def modules():
+    base, upper = hull(base_halfspaces()), hull(upper_halfspaces())
+    n, d = top_plane()
+    z0, z1 = neck_z0() - 1, H_TOTAL
+    neck = (cylinder(R_OUT, z0, z1) - cylinder(R_IN, z0 - 1, z1 + 1)).trim_by_plane(list(n), d)
+    vf, vc = vent_center()
+    c3 = vf.o + vf.e1 * vc[0] + vf.e2 * vc[1]
+    ring = [c3 + VENT_D / 2 * (math.cos(a) * vf.e1 + math.sin(a) * vf.e2) for a in np.linspace(0, 2 * np.pi, 48, endpoint=False)]
+    vent = Manifold.hull_points(np.array([p + s * vf.n for p in ring for s in (-2.0, 2.0)]))
+    bore = cylinder(R_IN, 20.0, H_TOTAL + 1)
+    shells = dict(
+        base=base - hull(inset(base_halfspaces(), WALL, FLOOR)) - upper,
+        chest=upper - hull(inset(upper_halfspaces(), WALL)) - bore - vent,
+        neck=neck)
+    solids_ = dict(base=base - upper, chest=upper, neck=neck)
+    return solids_, shells
+
+
+def join_lines():
+    """3D segments where the chest meets the base surface (edges of the openings)."""
+    Hu = upper_halfspaces(); segs = []
+    for f in faces():
+        if f.code[0] != "B": continue
+        c = clip_poly(f.poly, Hu)
+        if len(c) < 3: continue
+        F = Polygon(f.to2d(f.poly))
+        for i in range(len(c)):
+            a, b = c[i], c[(i + 1) % len(c)]
+            m2 = Point(f.to2d([(a + b) / 2])[0])
+            if F.exterior.distance(m2) > 1e-6: segs.append((a, b))
+    return segs
+
+
+def assembly(path, mods):
+    sol, shells = mods
+    svg = SVG(420, 297)
+    svg.poly([(8, 8), (412, 8), (412, 289), (8, 289)], width=0.6)
+    E, PHI = math.radians(CAM["E"]), math.radians(CAM["PHI"])
+    CE, SE, CP, SP = math.cos(E), math.sin(E), math.cos(PHI), math.sin(PHI)
+    vdir = (SP * CE, CP * CE, -SE)
+    fP = lambda p: (CP * p[0] - SP * p[1], -(p[2] * CE + (SP * p[0] + CP * p[1]) * SE))
+    sc = 4.5
+    o = np.array([175, 262.0])
+    off = dict(base=np.zeros(3), chest=-1.15 * V + np.array([-5.0, 0, 9.0]))
+    off["neck"] = off["chest"] + np.array([0, 0, 9.0])
+    P = lambda p: o + np.array(fP(p)) * sc
+    for key in ("base", "chest", "neck"):
+        draw_view(svg, sol[key].translate(list(off[key])), vdir, fP, o, sc, hidden=False)
+    for a, b in join_lines():
+        svg.line(P(a), P(b), stroke="#c0392b", width=0.6)
+        svg.line(P(a + off["chest"]), P(b + off["chest"]), stroke="#c0392b", width=0.6, dash="2,1.2")
+    # insertion arrows
+    c0 = (P1 + P4 + P5 + P6) / 4 + V * 0.5
+    a, b = P(c0 + off["chest"] - V * 0.15), P(c0 + V * 0.1)
+    svg.add(f'<line x1="{a[0]:.2f}" y1="{a[1]:.2f}" x2="{b[0]:.2f}" y2="{b[1]:.2f}" stroke="#1f6fb2" stroke-width="0.6" '
+            f'stroke-dasharray="3,1.5" marker-end="url(#ab)"/>')
+    nc = np.array([NECK_C[0], NECK_C[1], H_TOTAL])
+    a, b = P(nc + off["neck"] - np.array([0, 0, 1.0])), P(nc + off["chest"] + np.array([0, 0, 0.6]))
+    svg.add(f'<line x1="{a[0]:.2f}" y1="{a[1]:.2f}" x2="{b[0]:.2f}" y2="{b[1]:.2f}" stroke="#1f6fb2" stroke-width="0.6" '
+            f'stroke-dasharray="3,1.5" marker-end="url(#ab)"/>')
+    for key, lab, pt in [("base", "١ القاعدة", np.array([xL - 1.5, yb, 6.0])),
+                         ("chest", "٢ الصدر", P6 + np.array([-2.5, 0, 4.0])),
+                         ("neck", "٣ الرأس", nc + np.array([-R_OUT - 3.5, 0, -1.0]))]:
+        q = P(pt + off[key]); svg.text(q, lab, size=5, weight="bold", anchor="end", rtl=True, fill="#1f6fb2")
+    svg.text((150, 283), "التركيب: الصدر ينزلق إلى فتحة القاعدة باتجاه عمقه، ثم يُثبَّت الرأس فوقه", size=3.6, weight="bold", rtl=True)
+    # steps + table
+    vol = {kk: shells[kk].volume() for kk in shells}
+    wet = lambda v: v / (1 - SHRINK) ** 3 * 1.95 / 1000
+    hmin, hmax, _ = neck_heights()
+    lines = [
+        ("ثلاثة أجزاء تُصنع منفصلة ثم تُجمع مرة واحدة", 5.0, "bold", "#111"),
+        ("", 2, "normal", "#111"),
+        ("١ · القاعدة — 7 شرائح، صندوق مغلق فيه فتحة واحدة متصلة", 3.3, "normal", "#111"),
+        ("    تلتف على الواجهة والمنحدرين (الخط الأحمر)", 3.3, "normal", "#111"),
+        ("٢ · الصدر — 6 شرائح، صندوق مغلق كامل الأوجه", 3.3, "normal", "#111"),
+        (f"    بفتحة Ø{NECK_ID * 10:.0f} في سطحه وفتحة تهوية Ø{VENT_D * 10:.0f} في قاعه", 3.3, "normal", "#111"),
+        (f"٣ · الرأس — أسطوانة Ø{NECK_OD * 10:.0f}/{NECK_ID * 10:.0f}، قاعدتها مقصوصة بميل السطح", 3.3, "normal", "#111"),
+        ("", 2, "normal", "#111"),
+        ("خطوات الجمع (كل الأجزاء بالجلد الصلب نفسه)", 3.8, "bold", "#111"),
+        ("1. تجربة جافة: أدخل الصدر في الفتحة دون طين سائل،", 3.2, "normal", "#111"),
+        ("    وشذّب حواف الفتحة مائلةً حتى ينزلق بلا فراغات", 3.2, "normal", "#111"),
+        ("2. علّم على الصدر خط التقاء القاعدة بقلم رصاص", 3.2, "normal", "#111"),
+        ("3. هشّر حواف الفتحة وشريطاً بعرض 8 مم تحت الخط على الصدر،", 3.2, "normal", "#111"),
+        ("    ثم ادهن الطين السائل على الجهتين", 3.2, "normal", "#111"),
+        ("4. أدخل الصدر باتجاه السهم حتى يلمس ظهرُه جدارَ القاعدة الخلفي", 3.2, "normal", "#111"),
+        (f"    — هذا هو الموضع الصحيح: الواجهة بارزة {PROUD * 10:.0f} مم عن القاعدة", 3.2, "normal", "#111"),
+        ("5. اضغط الوصلة، ومرّر حبل طين رفيعاً في الزاوية من الخارج", 3.2, "normal", "#111"),
+        ("    حيث تصل اليد، ثم امسح الفائض", 3.2, "normal", "#111"),
+        ("6. هشّر حلقة المقعد على سطح الصدر وقاعدة العنق، وثبّته رأسياً", 3.2, "normal", "#111"),
+        (f"    بحيث تكون فوهته على {H_TOTAL * 10:.0f} مم (بعد الحرق) والضلع الأقصر نحو P1", 3.2, "normal", "#111"),
+        ("7. غطِّ القطعة بالنايلون وجفّفها ببطء لعدة أيام", 3.2, "normal", "#111"),
+    ]
+    y = 22
+    for s, size, w, col in lines:
+        svg.text((404, y), s, size=size, anchor="end", weight=w, rtl=True, fill=col); y += size * 1.75
+    y += 4
+    svg.text((404, y), "كمية الطين لكل جزء (جدار 8 مم)", size=3.6, anchor="end", weight="bold", rtl=True); y += 6
+    rows = [("القاعدة", "base", 7), ("الصدر", "chest", 6), ("الرأس", "neck", 1)]
+    svg.text((404, y), "الجزء", size=3, anchor="end", rtl=True, weight="bold")
+    svg.text((350, y), "شرائح", size=3, anchor="end", rtl=True, weight="bold")
+    svg.text((320, y), "طين رطب (كجم)", size=3, anchor="end", rtl=True, weight="bold")
+    svg.text((285, y), "بعد الحرق (كجم)", size=3, anchor="end", rtl=True, weight="bold"); y += 5
+    for name, kk, n in rows:
+        svg.text((404, y), name, size=3, anchor="end", rtl=True)
+        svg.text((345, y), f"{n}", size=3, anchor="end")
+        svg.text((310, y), f"{wet(vol[kk]):.2f}", size=3, anchor="end")
+        svg.text((275, y), f"{vol[kk] * 2.2 / 1000:.2f}", size=3, anchor="end"); y += 4.6
+    tot = sum(vol.values())
+    svg.text((404, y), "المجموع", size=3, anchor="end", rtl=True, weight="bold")
+    svg.text((310, y), f"{wet(tot):.2f}", size=3, anchor="end", weight="bold")
+    svg.text((275, y), f"{tot * 2.2 / 1000:.2f}", size=3, anchor="end", weight="bold"); y += 7
+    svg.text((404, y), "أضف 25% هدراً عند شراء الطين · كثافة الطين الرطب 1.95 والمحروق 2.2 غ/سم³", size=2.8, anchor="end", rtl=True, fill="#555")
+    svg.save(path)
+    return vol
 
 
 # ───────────────────────── main ─────────────────────────
@@ -623,7 +860,13 @@ def main():
     drawings(S, os.path.join(OUT, "drawings.svg"))
     for f in os.listdir(OUT):
         if f.startswith("templates-") and f.endswith(".svg"): os.remove(os.path.join(OUT, f))
-    pages = templates(os.path.join(OUT, "templates-{}.svg"))
+    pages = templates(os.path.join(OUT, "templates-{}-{}.svg"))
+    mods = modules()
+    # mould masters: the base is exported whole; its opening is cut from B1/B5/B6 after casting
+    write_stl(hull(base_halfspaces()), os.path.join(OUT, "module-base.stl"))
+    for kk in ("chest", "neck"):
+        write_stl(mods[0][kk], os.path.join(OUT, f"module-{kk}.stl"))
+    mvol = assembly(os.path.join(OUT, "assembly.svg"), mods)
     vol_ext = S["solid"].volume(); vol_clay = S["hollow"].volume()
     vol_cav = (S["cavity"] ^ S["solid"]).volume()
     print("== derived ==")
@@ -644,7 +887,10 @@ def main():
     for f in faces():
         full, cut, kept = f.shapes()
         print(f"{f.code}: full {full.area:.1f} cm2, kept {kept.area:.1f} cm2, cut {0 if cut is None else cut.area:.1f}")
-    print("template pages:", pages)
+    print("template pages:", [os.path.basename(p) for p in pages])
+    print("module clay (fired cm3):", {kk: round(v_) for kk, v_ in mvol.items()},
+          "wet kg:", {kk: round(v_ / (1 - SHRINK) ** 3 * 1.95 / 1000, 2) for kk, v_ in mvol.items()})
+    print(f"V = {np.round(V, 3)}  depth = {np.linalg.norm(V[:2]):.2f}  chest back y = {(yf + V[1]):.2f}")
 
 
 if __name__ == "__main__":

@@ -1,13 +1,14 @@
-// Combine templates-*.svg into one print-ready A3 PDF (1:1, no margins).
+// Combine the template sheets (grouped by part) into one print-ready A3 PDF (1:1, no margins).
 // Run:  node docs/vase/src/templates_pdf.js      (needs Playwright + Chromium)
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
 
 const OUT = path.dirname(__dirname);
+// templates-<n>-<part>-<page>.svg : part 1 base, 2 chest, 3 neck
 const sheets = fs.readdirSync(OUT)
-  .filter(f => /^templates-\d+\.svg$/.test(f))
-  .sort((a, b) => parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]));
+  .filter(f => /^templates-\d+-[a-z]+-\d+\.svg$/.test(f))
+  .sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
 
 const pages = sheets.map(f => `<div class="page">${fs.readFileSync(path.join(OUT, f), 'utf8')}</div>`).join('\n');
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>

@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420mm" height="297mm" viewBox="0 0 420 297" font-family="Noto Naskh Arabic, Amiri, Tahoma, Arial, sans-serif">
+<rect width="420" height="297" fill="#fff"/>
+<defs><marker id="ar" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" fill="#c0392b"/></marker><marker id="ab" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,1 L10,5 L0,9 z" fill="#1f6fb2"/></marker><pattern id="hatch" width="2" height="2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="2" fill="#fff3d6"/><line x1="0" y1="0" x2="0" y2="2" stroke="#d68910" stroke-width="0.6"/></pattern></defs>
+<polygon points="10.00,194.73 21.36,22.00 145.23,68.59 123.64,217.45 10.00,194.73" fill="#f4efe6" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="10.00,194.73 21.36,22.00 145.23,68.59 123.64,217.45 10.00,194.73" fill="none" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
+<text x="18.28" y="109.53" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-86.2 18.28 109.53)">173</text>
+<text x="82.38" y="48.73" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(20.6 82.38 48.73)">132</text>
+<text x="131.86" y="143.65" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-81.7 131.86 143.65)">150</text>
+<text x="67.33" y="204.54" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(11.3 67.33 204.54)">116</text>
+<text x="73.95" y="122.44" font-size="6" text-anchor="middle" fill="#444" font-weight="bold" direction="ltr">U1</text>
+<text x="73.95" y="128.44" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">واجهة الكتلة العلوية</text>
+<polygon points="174.82,217.45 153.23,68.59 277.09,22.00 288.45,194.73 174.82,217.45" fill="#f4efe6" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="174.82,217.45 159.09,108.99 213.54,83.60 283.28,116.12 288.45,194.73 174.82,217.45" fill="#d9d9d9" stroke="none" stroke-width="0" stroke-linejoin="round"/>
+<polygon points="159.09,108.99 213.54,83.60 283.28,116.12 283.96,126.47 213.54,93.63 160.45,118.39 159.09,108.99" fill="url(#hatch)" stroke="#d68910" stroke-width="0.2" stroke-linejoin="round"/>
+<polyline points="283.28,116.12 283.28,116.12 213.54,83.60 159.09,108.99 159.09,108.99" fill="none" stroke="#c0392b" stroke-width="0.5" stroke-dasharray="2.2,1.2" stroke-linejoin="round"/>
+<text x="225.77" y="154.04" font-size="2.6" text-anchor="middle" fill="#777" font-weight="normal" direction="rtl">داخل القاعدة</text>
+<polygon points="174.82,217.45 153.23,68.59 277.09,22.00 288.45,194.73 174.82,217.45" fill="none" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
+<text x="166.60" y="143.65" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(81.7 166.60 143.65)">150</text>
+<text x="216.07" y="48.73" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-20.6 216.07 48.73)">132</text>
+<text x="280.18" y="109.53" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(86.2 280.18 109.53)">173</text>
+<text x="231.13" y="204.54" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-11.3 231.13 204.54)">116</text>
+<text x="224.50" y="122.44" font-size="6" text-anchor="middle" fill="#444" font-weight="bold" direction="ltr">U2</text>
+<text x="224.50" y="128.44" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">ظهر الكتلة العلوية (معكوسة)</text>
+<polygon points="300.03,205.02 296.45,31.96 401.60,22.00 405.17,195.06 300.03,205.02" fill="#f4efe6" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="300.03,205.02 298.40,126.26 389.67,140.06 390.84,196.42 300.03,205.02" fill="#d9d9d9" stroke="none" stroke-width="0" stroke-linejoin="round"/>
+<polygon points="298.40,126.26 389.67,140.06 390.84,196.42 381.76,197.28 380.74,147.90 298.59,135.48 298.40,126.26" fill="url(#hatch)" stroke="#d68910" stroke-width="0.2" stroke-linejoin="round"/>
+<polyline points="390.84,196.42 390.84,196.42 389.67,140.06 298.40,126.26 298.40,126.26" fill="none" stroke="#c0392b" stroke-width="0.5" stroke-dasharray="2.2,1.2" stroke-linejoin="round"/>
+<text x="344.75" y="167.83" font-size="2.6" text-anchor="middle" fill="#777" font-weight="normal" direction="rtl">داخل القاعدة</text>
+<polygon points="300.03,205.02 296.45,31.96 401.60,22.00 405.17,195.06 300.03,205.02" fill="none" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
+<text x="300.84" y="119.44" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(88.8 300.84 119.44)">173</text>
+<text x="349.27" y="30.57" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-5.4 349.27 30.57)">106</text>
+<text x="400.79" y="109.59" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(88.8 400.79 109.59)">173</text>
+<text x="352.36" y="198.45" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-5.4 352.36 198.45)">106</text>
+<text x="350.81" y="112.01" font-size="6" text-anchor="middle" fill="#444" font-weight="bold" direction="ltr">U5</text>
+<text x="350.81" y="118.01" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">جانب الكتلة العلوية الأيسر</text>
+<text x="410.00" y="17.00" font-size="7" text-anchor="start" fill="#111" font-weight="bold" direction="rtl">الجزء 2: الصدر</text>
+<text x="335.00" y="17.00" font-size="3.4" text-anchor="start" fill="#555" font-weight="normal" direction="rtl">لوح 1/2 · 6 قطع: U1 U2 U3 U4 U5 U6</text>
+<line x1="10.00" y1="20.00" x2="410.00" y2="20.00" stroke="#999" stroke-width="0.3"/>
+<line x1="10.00" y1="283.00" x2="110.00" y2="283.00" stroke="#111" stroke-width="0.6"/>
+<line x1="10.00" y1="281.50" x2="10.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="20.00" y1="281.50" x2="20.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="30.00" y1="281.50" x2="30.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="40.00" y1="281.50" x2="40.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="50.00" y1="281.50" x2="50.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="60.00" y1="281.50" x2="60.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="70.00" y1="281.50" x2="70.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="80.00" y1="281.50" x2="80.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="90.00" y1="281.50" x2="90.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="100.00" y1="281.50" x2="100.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="110.00" y1="281.50" x2="110.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<text x="60.00" y="288.50" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">مسطرة تحقق: 100 مم — اطبع بمقياس 100% (A3)</text>
+<text x="410.00" y="284.00" font-size="3.2" text-anchor="start" fill="#111" font-weight="bold" direction="rtl">قوالب القصّ بالمقاس الرطب (انكماش 12%) · شرائح بسماكة 8 مم</text>
+<text x="410.00" y="289.50" font-size="2.7" text-anchor="start" fill="#111" font-weight="normal" direction="rtl">كل وجه يُقصّ كاملاً · الأحمر المنقط = خط التقاء القاعدة · المخطط البرتقالي = شريط التهشير · الرمادي = جزء يختفي داخل القاعدة</text>
+</svg>
