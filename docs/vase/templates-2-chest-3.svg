@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420mm" height="297mm" viewBox="0 0 420 297" font-family="Noto Naskh Arabic, Amiri, Tahoma, Arial, sans-serif">
+<rect width="420" height="297" fill="#fff"/>
+<defs><marker id="ar" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" fill="#c0392b"/></marker><marker id="ab" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,1 L10,5 L0,9 z" fill="#1f6fb2"/></marker><pattern id="hatch" width="2" height="2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="2" fill="#fff3d6"/><line x1="0" y1="0" x2="0" y2="2" stroke="#d68910" stroke-width="0.6"/></pattern></defs>
+<polygon points="10.00,27.00 125.89,27.00 125.89,149.73 10.00,149.73 10.00,27.00" fill="#f4efe6" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="10.00,40.64 125.89,40.64 125.89,136.09 10.00,136.09 10.00,40.64" fill="url(#hatch)" stroke="#d68910" stroke-width="0.2" stroke-linejoin="round"/>
+<polyline points="10.00,136.09 10.00,136.09 125.89,136.09 125.89,136.09" fill="none" stroke="#c0392b" stroke-width="0.5" stroke-dasharray="2.2,1.2" stroke-linejoin="round"/>
+<polyline points="125.89,40.64 125.89,40.64 10.00,40.64 10.00,40.64" fill="none" stroke="#c0392b" stroke-width="0.5" stroke-dasharray="2.2,1.2" stroke-linejoin="round"/>
+<text x="67.94" y="88.36" font-size="2.6" text-anchor="middle" fill="#9c640c" font-weight="normal" direction="rtl">يلتصق بالمقعد — هشّر</text>
+<polygon points="10.00,27.00 125.89,27.00 125.89,149.73 10.00,149.73 10.00,27.00" fill="none" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
+<text x="67.94" y="30.60" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr">116</text>
+<text x="123.29" y="89.36" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(90.0 123.29 89.36)">123</text>
+<text x="67.94" y="148.13" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr">116</text>
+<text x="12.60" y="89.36" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-90.0 12.60 89.36)">123</text>
+<text x="67.94" y="25.90" font-size="2.5" text-anchor="middle" fill="#7d3c98" font-weight="normal" direction="ltr">∠45°</text>
+<text x="126.99" y="88.36" font-size="2.5" text-anchor="middle" fill="#7d3c98" font-weight="normal" direction="ltr" transform="rotate(90.0 126.99 88.36)">∠43°</text>
+<text x="67.94" y="152.83" font-size="2.5" text-anchor="middle" fill="#7d3c98" font-weight="normal" direction="ltr">∠45°</text>
+<text x="8.90" y="88.36" font-size="2.5" text-anchor="middle" fill="#7d3c98" font-weight="normal" direction="ltr" transform="rotate(-90.0 8.90 88.36)">∠49°</text>
+<polygon points="32.73,63.36 103.16,63.36 103.16,113.36 32.73,113.36 32.73,63.36" fill="#fff" stroke="#c0392b" stroke-width="0.45" stroke-linejoin="round"/>
+<text x="67.94" y="98.59" font-size="2.4" text-anchor="middle" fill="#c0392b" font-weight="normal" direction="rtl">نافذة تُقصّ · تنطبق على S1</text>
+<text x="67.94" y="86.86" font-size="6" text-anchor="middle" fill="#444" font-weight="bold" direction="ltr">U6</text>
+<text x="67.94" y="92.86" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">قاع الكتلة العلوية</text>
+<text x="410.00" y="17.00" font-size="7" text-anchor="start" fill="#111" font-weight="bold" direction="rtl">الجزء 2: الصدر</text>
+<text x="410.00" y="21.50" font-size="3" text-anchor="start" fill="#555" font-weight="normal" direction="rtl">لوح 3/3 · 6 قطع: U1 U2 U3 U4 U5 U6</text>
+<polygon points="232.00,11.00 239.00,11.00 239.00,15.00 232.00,15.00" fill="#f4efe6" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
+<text x="230.50" y="14.20" font-size="2.6" text-anchor="start" fill="#111" font-weight="normal" direction="rtl">قصّ على الخط الأسود</text>
+<polygon points="174.00,11.00 181.00,11.00 181.00,15.00 174.00,15.00" fill="#f6dcd8" stroke="#c0392b" stroke-width="0.35" stroke-linejoin="round"/>
+<text x="172.50" y="14.20" font-size="2.6" text-anchor="start" fill="#111" font-weight="normal" direction="rtl">يُقصّ ويُرمى (مكان المقعد)</text>
+<polygon points="116.00,11.00 123.00,11.00 123.00,15.00 116.00,15.00" fill="#fff" stroke="#c0392b" stroke-width="0.45" stroke-linejoin="round"/>
+<text x="114.50" y="14.20" font-size="2.6" text-anchor="start" fill="#111" font-weight="normal" direction="rtl">فتحة تُقصّ وتُرمى</text>
+<polygon points="58.00,11.00 65.00,11.00 65.00,15.00 58.00,15.00" fill="url(#hatch)" stroke="#d68910" stroke-width="0.2" stroke-linejoin="round"/>
+<text x="56.50" y="14.20" font-size="2.6" text-anchor="start" fill="#111" font-weight="normal" direction="rtl">تهشير: يلتصق، لا يُقصّ</text>
+<line x1="232.00" y1="19.00" x2="239.00" y2="19.00" stroke="#c0392b" stroke-width="0.5" stroke-dasharray="2.2,1.2"/>
+<text x="230.50" y="20.20" font-size="2.6" text-anchor="start" fill="#111" font-weight="normal" direction="rtl">حافة المقعد على الصدر</text>
+<polygon points="174.00,17.00 181.00,17.00 181.00,21.00 174.00,21.00" fill="none" stroke="#999" stroke-width="0.25" stroke-dasharray="1.5,1" stroke-linejoin="round"/>
+<text x="172.50" y="20.20" font-size="2.6" text-anchor="start" fill="#111" font-weight="normal" direction="rtl">شكل مرجعي — لا تقصّ عليه</text>
+<text x="119.50" y="20.30" font-size="2.8" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr">116</text>
+<text x="114.50" y="20.20" font-size="2.6" text-anchor="start" fill="#111" font-weight="normal" direction="rtl">طول الضلع بالمم (رطب)</text>
+<text x="61.50" y="20.30" font-size="2.6" text-anchor="middle" fill="#7d3c98" font-weight="normal" direction="ltr">∠45°</text>
+<text x="56.50" y="20.20" font-size="2.6" text-anchor="start" fill="#111" font-weight="normal" direction="rtl">زاوية قطع الحافة</text>
+<line x1="10.00" y1="25.00" x2="410.00" y2="25.00" stroke="#999" stroke-width="0.3"/>
+<line x1="10.00" y1="283.00" x2="110.00" y2="283.00" stroke="#111" stroke-width="0.6"/>
+<line x1="10.00" y1="281.50" x2="10.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="20.00" y1="281.50" x2="20.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="30.00" y1="281.50" x2="30.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="40.00" y1="281.50" x2="40.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="50.00" y1="281.50" x2="50.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="60.00" y1="281.50" x2="60.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="70.00" y1="281.50" x2="70.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="80.00" y1="281.50" x2="80.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="90.00" y1="281.50" x2="90.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="100.00" y1="281.50" x2="100.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<line x1="110.00" y1="281.50" x2="110.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
+<text x="60.00" y="288.50" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">مسطرة تحقق: 100 مم — اطبع بمقياس 100% (A3)</text>
+<text x="410.00" y="284.00" font-size="3.2" text-anchor="start" fill="#111" font-weight="bold" direction="rtl">قوالب القصّ بالمقاس الرطب (انكماش 12%) · شرائح بسماكة 8 مم</text>
+<text x="410.00" y="289.50" font-size="2.6" text-anchor="start" fill="#111" font-weight="normal" direction="rtl">كل وجه يُقصّ كاملاً · المخطط البرتقالي = يلتصق بالمقعد (هشّر كامل المساحة) · الأحمر المنقط = حافة المقعد · ∠ = الزاوية بين الوجه الظاهر وسطح القطع · ⟂ + حبل = قص عمودي وحبل طين من الداخل</text>
+</svg>

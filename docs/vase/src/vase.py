@@ -27,9 +27,12 @@ ROOF = 25.0               # both roof slopes of the base (deg)
 PROUD = 1.2               # upper block front face stands proud of base front face
 # upper block front face (x, z) on plane y = -(D0/2 + PROUD):  P6, P1, P4, P5
 UPPER_FRONT = [(-6.1, 12.2), (-5.1, 27.4), (5.8, 23.3), (3.9, 10.2)]
-UPPER_SKEW = 18.0             # chest depth runs back and this many degrees to the right
-UPPER_DROP = 5.4              # chest top falls this many degrees toward the back
+SYMMETRIC = True              # front and back halves mirror each other: the chest runs straight
+                              # through the base and stands proud by PROUD at front and back
+UPPER_SKEW = 18.0             # used only when SYMMETRIC is False (closest fit to the photo):
+UPPER_DROP = 5.4              #   chest depth skews right / top falls toward the back
 NECK_OD, NECK_ID = 5.8, 4.5   # neck outer / inner diameter
+NECK_X = 1.3                  # neck axis x when SYMMETRIC (matches the photo)
 WALL, FLOOR = 0.8, 1.0        # slab thickness, base floor thickness
 SHRINK = 0.12                 # total clay shrinkage (wet -> fired)
 RIM = 2.0                     # contact rim left around the window joining chest floor and seat floor
@@ -46,13 +49,18 @@ xL = -(W0 / 2 + tw * EAVE_L)          # left eave x
 xR = W0 / 2 + tw * EAVE_R             # right eave x
 x_ridge = (EAVE_R - EAVE_L + sr * (xR + xL)) / (2 * sr)
 z_ridge = EAVE_L + sr * (x_ridge - xL)
-# chest depth: its back wall rests on the inner face of the base back wall (assembly stop)
-_vy = (D0 / 2 - WALL) - yf
-_vxy = _vy / math.cos(math.radians(UPPER_SKEW))
-V = np.array([_vy * math.tan(math.radians(UPPER_SKEW)), _vy, -_vxy * math.tan(math.radians(UPPER_DROP))])
+if SYMMETRIC:
+    V = np.array([0.0, D0 + 2 * PROUD, 0.0])
+else:   # chest back rests on the inner face of the base back wall (assembly stop)
+    _vy = (D0 / 2 - WALL) - yf
+    _vxy = _vy / math.cos(math.radians(UPPER_SKEW))
+    V = np.array([_vy * math.tan(math.radians(UPPER_SKEW)), _vy, -_vxy * math.tan(math.radians(UPPER_DROP))])
 P6, P1, P4, P5 = [np.array([x, yf, z]) for x, z in UPPER_FRONT]
 P2, P3 = P1 + V, P4 + V
 NECK_C = (P1 + P4) / 2 + V / 2        # centre of upper top face
+if SYMMETRIC:   # on the front/back mirror plane, left-right where the photo shows it
+    _n = np.cross(P4 - P1, P2 - P1)
+    NECK_C = np.array([NECK_X, 0.0, P1[2] - (_n[0] * (NECK_X - P1[0]) + _n[1] * (0.0 - P1[1])) / _n[2]])
 R_OUT, R_IN = NECK_OD / 2, NECK_ID / 2
 
 
@@ -864,7 +872,7 @@ def assembly(path, mods):
     for a, b in join_lines():
         svg.line(o2 + np.array(f2(a)) * sc2, o2 + np.array(f2(b)) * sc2, stroke="#c0392b", width=0.5)
     svg.text(o2 + np.array([0, 14]), "القاعدة من الأمام والأعلى: المقعد بين الذراعين", size=3.2, weight="bold", rtl=True)
-    svg.text((150, 283), "التركيب: الصدر يجلس في مقعد القاعدة (يدخل من الأمام كالدُّرج)، ثم يُثبَّت الرأس فوقه", size=3.6, weight="bold", rtl=True)
+    svg.text((150, 283), "التركيب: الصدر يجلس في مقعد القاعدة ويبرز منه أماماً وخلفاً بالتساوي، ثم يُثبَّت الرأس فوقه", size=3.6, weight="bold", rtl=True)
     # steps + table
     vol = {kk: shells[kk].volume() for kk in shells}
     wet = lambda v: v / (1 - SHRINK) ** 3 * 1.95 / 1000
@@ -879,12 +887,12 @@ def assembly(path, mods):
         (f"٣ · الرأس — أسطوانة Ø{NECK_OD * 10:.0f}/{NECK_ID * 10:.0f}، قاعدتها مقصوصة بميل سطح الصدر", 3.3, "normal", "#111"),
         ("", 2, "normal", "#111"),
         ("خطوات الجمع (كل الكتل بالجلد الصلب نفسه)", 3.8, "bold", "#111"),
-        ("1. تجربة جافة: أدخل الصدر في المقعد من الأمام كالدُّرج، باتجاه السهم،", 3.2, "normal", "#111"),
-        ("    حتى يلمس ظهرُه جدار القاعدة الخلفي. هذا هو موضعه الصحيح", 3.2, "normal", "#111"),
-        (f"    (الواجهة بارزة {PROUD * 10:.0f} مم عن القاعدة). شذّب أي احتكاك", 3.2, "normal", "#111"),
-        ("2. هشّر وجوه المقعد الثلاثة (الأرضية والجداران) وجدار الظهر،", 3.2, "normal", "#111"),
+        ("1. تجربة جافة: أدخل الصدر في المقعد كالدُّرج، باتجاه السهم،", 3.2, "normal", "#111"),
+        (f"    حتى يبرز {PROUD * 10:.0f} مم من الأمام و{PROUD * 10:.0f} مم من الخلف (رطب: {PROUD / (1 - SHRINK) * 10:.1f} مم)", 3.2, "normal", "#111"),
+        ("    — النصف الأمامي والخلفي متماثلان. شذّب أي احتكاك", 3.2, "normal", "#111"),
+        ("2. هشّر وجوه المقعد الثلاثة (الأرضية والجداران)،", 3.2, "normal", "#111"),
         ("    والمساحة البرتقالية على الصدر، ثم ادهن الطين السائل على الجهتين", 3.2, "normal", "#111"),
-        ("3. أدخل الصدر حتى يلمس الظهر، واضغطه لأسفل وللجانبين", 3.2, "normal", "#111"),
+        ("3. أدخل الصدر حتى يتساوى بروزه، واضغطه لأسفل وللجانبين", 3.2, "normal", "#111"),
         ("4. مرّر حبل طين رفيعاً على حواف المقعد من الخارج (الخط الأحمر)،", 3.2, "normal", "#111"),
         ("    وامسح الطين السائل الزائد", 3.2, "normal", "#111"),
         ("5. هشّر حلقة المقعد على سطح الصدر وقاعدة العنق، وثبّته رأسياً", 3.2, "normal", "#111"),
