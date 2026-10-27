@@ -3,15 +3,14 @@
 <defs><marker id="ar" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" fill="#c0392b"/></marker><marker id="ab" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,1 L10,5 L0,9 z" fill="#1f6fb2"/></marker><pattern id="hatch" width="2" height="2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="2" fill="#fff3d6"/><line x1="0" y1="0" x2="0" y2="2" stroke="#d68910" stroke-width="0.6"/></pattern></defs>
 <polygon points="105.45,186.14 10.00,186.14 10.00,22.00 105.45,22.00 105.45,186.14" fill="none" stroke="#999" stroke-width="0.25" stroke-dasharray="2,1.5" stroke-linejoin="round"/>
 <polygon points="19.09,98.95 19.09,22.00 105.45,22.00 105.45,131.53 19.09,98.95" fill="#f6dcd8" stroke="#c0392b" stroke-width="0.35" stroke-linejoin="round"/>
-<text x="62.27" y="68.62" font-size="2.8" text-anchor="middle" fill="#c0392b" font-weight="normal" direction="rtl">فتحة الصدر — تُقصّ</text>
-<polygon points="10.00,186.14 10.00,22.00 19.09,22.00 19.09,98.95 105.45,131.53 105.45,186.14 10.00,186.14" fill="#f4efe6" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
-<text x="12.60" y="105.07" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-90.0 12.60 105.07)">164</text>
-<text x="21.69" y="61.47" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(90.0 21.69 61.47)">77</text>
-<text x="61.35" y="118.67" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(20.7 61.35 118.67)">92</text>
+<text x="62.27" y="68.62" font-size="2.8" text-anchor="middle" fill="#c0392b" font-weight="normal" direction="rtl">يُقصّ — مكان المقعد</text>
+<polygon points="10.00,95.52 105.45,131.53 105.45,186.14 10.00,186.14 10.00,95.52" fill="#f4efe6" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
+<text x="56.81" y="116.96" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(20.7 56.81 116.96)">102</text>
 <text x="102.85" y="159.84" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(90.0 102.85 159.84)">55</text>
 <text x="57.73" y="184.54" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr">95</text>
-<text x="62.27" y="149.19" font-size="6" text-anchor="middle" fill="#444" font-weight="bold" direction="ltr">B5</text>
-<text x="62.27" y="155.19" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">سطح القاعدة المائل الأيسر</text>
+<text x="12.60" y="141.83" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-90.0 12.60 141.83)">91</text>
+<text x="57.73" y="148.33" font-size="6" text-anchor="middle" fill="#444" font-weight="bold" direction="ltr">B5</text>
+<text x="57.73" y="154.33" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">سطح القاعدة المائل الأيسر</text>
 <polygon points="208.91,158.36 113.45,158.36 113.45,22.00 208.91,22.00 208.91,158.36" fill="#f4efe6" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
 <text x="161.18" y="156.76" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr">95</text>
 <text x="116.05" y="91.18" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-90.0 116.05 91.18)">136</text>
@@ -19,19 +18,41 @@
 <text x="206.31" y="91.18" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(90.0 206.31 91.18)">136</text>
 <text x="161.18" y="88.68" font-size="6" text-anchor="middle" fill="#444" font-weight="bold" direction="ltr">B7</text>
 <text x="161.18" y="94.68" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">قاع القاعدة</text>
-<polygon points="113.45,261.82 113.45,166.36 202.31,166.36 202.31,261.82 113.45,261.82" fill="none" stroke="#999" stroke-width="0.25" stroke-dasharray="2,1.5" stroke-linejoin="round"/>
-<polygon points="113.45,175.45 173.54,175.45 143.25,261.82 113.45,261.82 113.45,175.45" fill="#f6dcd8" stroke="#c0392b" stroke-width="0.35" stroke-linejoin="round"/>
-<text x="135.93" y="218.64" font-size="2.8" text-anchor="middle" fill="#c0392b" font-weight="normal" direction="rtl">فتحة الصدر — تُقصّ</text>
-<polygon points="113.45,166.36 202.31,166.36 202.31,261.82 143.25,261.82 173.54,175.45 113.45,175.45 113.45,166.36" fill="#f4efe6" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
-<text x="157.88" y="169.96" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr">89</text>
-<text x="199.71" y="215.09" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(90.0 199.71 215.09)">95</text>
-<text x="172.78" y="260.22" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr">59</text>
-<text x="160.85" y="220.50" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-70.7 160.85 220.50)">92</text>
-<text x="143.50" y="179.05" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr">60</text>
-<text x="180.35" y="217.14" font-size="6" text-anchor="middle" fill="#444" font-weight="bold" direction="ltr">B6</text>
-<text x="180.35" y="223.14" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">سطح القاعدة المائل الأيمن</text>
-<text x="410.00" y="17.00" font-size="7" text-anchor="start" fill="#111" font-weight="bold" direction="rtl">الجزء 1: القاعدة</text>
-<text x="335.00" y="17.00" font-size="3.4" text-anchor="start" fill="#555" font-weight="normal" direction="rtl">لوح 3/3 · 7 قطع: B1 B2 B3 B4 B5 B6 B7</text>
+<polygon points="229.34,252.78 113.45,252.78 142.65,166.36 258.54,166.36 229.34,252.78" fill="#f4efe6" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
+<text x="171.40" y="251.18" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr">116</text>
+<text x="130.52" y="211.40" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-71.3 130.52 211.40)">91</text>
+<text x="200.60" y="169.96" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr">116</text>
+<text x="241.48" y="209.74" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-71.3 241.48 209.74)">91</text>
+<polygon points="145.12,230.05 213.03,230.05 226.87,189.09 158.96,189.09 145.12,230.05" fill="#fff" stroke="#c0392b" stroke-width="0.45" stroke-linejoin="round"/>
+<text x="186.00" y="219.80" font-size="2.4" text-anchor="middle" fill="#c0392b" font-weight="normal" direction="rtl">نافذة تُقصّ · تنطبق على U6</text>
+<text x="186.00" y="208.07" font-size="6" text-anchor="middle" fill="#444" font-weight="bold" direction="ltr">S1</text>
+<text x="186.00" y="214.07" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">أرضية المقعد</text>
+<polygon points="307.51,22.00 312.76,135.73 221.96,144.40 216.91,34.92 307.51,22.00" fill="#f4efe6" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
+<text x="307.54" y="79.99" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(87.4 307.54 79.99)">114</text>
+<text x="267.12" y="138.48" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-5.5 267.12 138.48)">91</text>
+<text x="222.03" y="90.54" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(87.4 222.03 90.54)">110</text>
+<text x="262.58" y="32.03" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-8.1 262.58 32.03)">92</text>
+<text x="265.08" y="82.73" font-size="6" text-anchor="middle" fill="#444" font-weight="bold" direction="ltr">S3</text>
+<text x="265.08" y="88.73" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">جدار المقعد الأيمن</text>
+<polygon points="320.76,117.45 320.76,22.00 409.62,22.00 409.62,117.45 320.76,117.45" fill="none" stroke="#999" stroke-width="0.25" stroke-dasharray="2,1.5" stroke-linejoin="round"/>
+<polygon points="320.76,31.09 380.85,31.09 350.56,117.45 320.76,117.45 320.76,31.09" fill="#f6dcd8" stroke="#c0392b" stroke-width="0.35" stroke-linejoin="round"/>
+<text x="343.24" y="74.27" font-size="2.8" text-anchor="middle" fill="#c0392b" font-weight="normal" direction="rtl">يُقصّ — مكان المقعد</text>
+<polygon points="409.62,22.00 409.62,117.45 350.56,117.45 384.04,22.00 409.62,22.00" fill="#f4efe6" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
+<text x="407.02" y="70.73" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(90.0 407.02 70.73)">95</text>
+<text x="380.09" y="115.85" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr">59</text>
+<text x="369.76" y="71.59" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-70.7 369.76 71.59)">101</text>
+<text x="396.83" y="25.60" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr">26</text>
+<text x="388.46" y="68.23" font-size="6" text-anchor="middle" fill="#444" font-weight="bold" direction="ltr">B6</text>
+<text x="388.46" y="74.23" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">سطح القاعدة المائل الأيمن</text>
+<polygon points="320.76,125.45 399.53,127.08 390.93,217.89 334.56,216.72 320.76,125.45" fill="#f4efe6" stroke="#111" stroke-width="0.5" stroke-linejoin="round"/>
+<text x="360.09" y="129.87" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(1.2 360.09 129.87)">79</text>
+<text x="392.64" y="173.24" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(-84.6 392.64 173.24)">91</text>
+<text x="362.80" y="215.71" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(1.2 362.80 215.71)">56</text>
+<text x="330.23" y="171.70" font-size="2.6" text-anchor="middle" fill="#1f6fb2" font-weight="normal" direction="ltr" transform="rotate(81.4 330.23 171.70)">92</text>
+<text x="361.37" y="167.77" font-size="6" text-anchor="middle" fill="#444" font-weight="bold" direction="ltr">S2</text>
+<text x="361.37" y="173.77" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">جدار المقعد الأيسر</text>
+<text x="410.00" y="17.00" font-size="7" text-anchor="start" fill="#111" font-weight="bold" direction="rtl">الجزء 1: القاعدة (الكرسي)</text>
+<text x="310.00" y="17.00" font-size="3.4" text-anchor="start" fill="#555" font-weight="normal" direction="rtl">لوح 3/3 · 10 قطع: B1 B2 B3 B4 B5 B6 B7 S1 S2 S3</text>
 <line x1="10.00" y1="20.00" x2="410.00" y2="20.00" stroke="#999" stroke-width="0.3"/>
 <line x1="10.00" y1="283.00" x2="110.00" y2="283.00" stroke="#111" stroke-width="0.6"/>
 <line x1="10.00" y1="281.50" x2="10.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
@@ -47,5 +68,5 @@
 <line x1="110.00" y1="281.50" x2="110.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
 <text x="60.00" y="288.50" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">مسطرة تحقق: 100 مم — اطبع بمقياس 100% (A3)</text>
 <text x="410.00" y="284.00" font-size="3.2" text-anchor="start" fill="#111" font-weight="bold" direction="rtl">قوالب القصّ بالمقاس الرطب (انكماش 12%) · شرائح بسماكة 8 مم</text>
-<text x="410.00" y="289.50" font-size="2.7" text-anchor="start" fill="#111" font-weight="normal" direction="rtl">الخط الأسود = خط القص · الأحمر المظلل = فتحة تُقصّ ويدخل منها الصدر (هشّر حوافها وقصّها مائلة باتجاه دخوله) · الأرقام بالمليمتر</text>
+<text x="410.00" y="289.50" font-size="2.7" text-anchor="start" fill="#111" font-weight="normal" direction="rtl">B = غلاف القاعدة · S = المقعد الذي يجلس فيه الصدر · الأحمر المظلل = يُقصّ مكان المقعد · الأرقام بالمليمتر</text>
 </svg>

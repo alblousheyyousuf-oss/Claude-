@@ -32,7 +32,7 @@ UPPER_DROP = 5.4              # chest top falls this many degrees toward the bac
 NECK_OD, NECK_ID = 5.8, 4.5   # neck outer / inner diameter
 WALL, FLOOR = 0.8, 1.0        # slab thickness, base floor thickness
 SHRINK = 0.12                 # total clay shrinkage (wet -> fired)
-VENT_D = 4.0                  # hole in chest bottom joining chest and base cavities
+RIM = 2.0                     # contact rim left around the window joining chest floor and seat floor
 
 # camera recovered from the photo (orthographic): used only for the fit check
 CAM = dict(E=12.7, PHI=-32.2, K=18.975, U0=443.5, V0=878.3)
@@ -241,8 +241,9 @@ def clip_poly(poly, H):
 
 
 class Face:
-    def __init__(self, code, name, poly, e1=None, other=None, mirror_note=""):
+    def __init__(self, code, name, poly, e1=None, other=None, mirror_note="", trim=False):
         self.code, self.name, self.poly = code, name, [np.asarray(p, float) for p in poly]
+        self.trim = trim
         self.n = nrm(np.cross(self.poly[1] - self.poly[0], self.poly[2] - self.poly[0]))
         up = np.array([0, 0, 1.0]) - self.n * self.n[2]
         if np.linalg.norm(up) < 1e-6: up = np.array([0, 1.0, 0]) - self.n * self.n[1]
@@ -263,6 +264,9 @@ class Face:
                 cp = Polygon(self.to2d(c)).buffer(0)
                 if cp.area > 1e-4: cut = cp
         kept = full if cut is None else full.difference(cut.buffer(1e-5, join_style=2)).buffer(0)
+        if self.trim:   # drop strips no wider than a wall: that edge is the top of the wall below
+            w = WALL * 0.6
+            kept = kept.buffer(-w, join_style=2).buffer(w, join_style=2).intersection(full)
         return full, cut, kept
 
 
@@ -276,8 +280,8 @@ def faces():
         Face("B2", "واجهة القاعدة الخلفية", [BRb, BLb, eLb, rb, eRb], other=Hu, mirror_note="معكوسة"),
         Face("B3", "جانب القاعدة الأيسر", [BLb, FLb, eLf, eLb], other=Hu),
         Face("B4", "جانب القاعدة الأيمن", [FRb, BRb, eRb, eRf], other=Hu),
-        Face("B5", "سطح القاعدة المائل الأيسر", [eLf, rf, rb, eLb], e1=(1, 0, 0), other=Hu),
-        Face("B6", "سطح القاعدة المائل الأيمن", [rf, eRf, eRb, rb], e1=(1, 0, 0), other=Hu),
+        Face("B5", "سطح القاعدة المائل الأيسر", [eLf, rf, rb, eLb], e1=(1, 0, 0), other=Hu, trim=True),
+        Face("B6", "سطح القاعدة المائل الأيمن", [rf, eRf, eRb, rb], e1=(1, 0, 0), other=Hu, trim=True),
         Face("B7", "قاع القاعدة", [BLb, BRb, FRb, FLb], e1=(1, 0, 0)),
         Face("U1", "واجهة الكتلة العلوية", [P6, P5, P4, P1], other=Hb),
         Face("U2", "ظهر الكتلة العلوية", [P5 + V, P6 + V, P1 + V, P4 + V], other=Hb, mirror_note="معكوسة"),
@@ -286,6 +290,11 @@ def faces():
         Face("U5", "جانب الكتلة العلوية الأيسر", [P6 + V, P6, P1, P1 + V], other=Hb),
         Face("U6", "قاع الكتلة العلوية", [P6, P6 + V, P5 + V, P5], e1=P5 - P6, other=Hb),
     ]
+    # seat of the chair-shaped base: the chest faces where they lie inside the base, seen from the seat
+    U = {f.code: f for f in F}
+    for code, name, src in [("S1", "أرضية المقعد", "U6"), ("S2", "جدار المقعد الأيسر", "U5"), ("S3", "جدار المقعد الأيمن", "U4")]:
+        poly = clip_poly(U[src].poly, Hb)[::-1]
+        F.append(Face(code, name, poly, e1=(P5 - P6) if code == "S1" else None))
     return F
 
 
@@ -535,21 +544,21 @@ class MaxRects:
 
 # three modules built separately, then joined once (score + slip)
 MODULES = [
-    ("1-base", "القاعدة", ["B1", "B2", "B3", "B4", "B5", "B6", "B7"],
-     "الخط الأسود = خط القص · الأحمر المظلل = فتحة تُقصّ ويدخل منها الصدر (هشّر حوافها وقصّها مائلة باتجاه دخوله) · الأرقام بالمليمتر"),
+    ("1-base", "القاعدة (الكرسي)", ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "S1", "S2", "S3"],
+     "B = غلاف القاعدة · S = المقعد الذي يجلس فيه الصدر · الأحمر المظلل = يُقصّ مكان المقعد · الأرقام بالمليمتر"),
     ("2-chest", "الصدر", ["U1", "U2", "U3", "U4", "U5", "U6"],
-     "كل وجه يُقصّ كاملاً · الأحمر المنقط = خط التقاء القاعدة · المخطط البرتقالي = شريط التهشير · الرمادي = جزء يختفي داخل القاعدة"),
+     "كل وجه يُقصّ كاملاً · المخطط البرتقالي = يلتصق بالمقعد (هشّر كامل المساحة) · الأحمر المنقط = حافة المقعد"),
     ("3-neck", "الرأس (العنق والفوهة)", ["N1", "N2"],
      "N1 للبناء بالشريحة · N2 مقطع للرمي على الدولاب · المخطط البرتقالي = حافة التهشير على سطح الصدر"),
 ]
 
 
-def vent_center():
+def floor_window():
+    """Window through chest floor U6 and seat floor S1 (same place): joins the cavities, vents the kiln."""
     f = [x for x in faces() if x.code == "U6"][0]
     full, cut, kept = f.shapes()
-    core = cut.buffer(-(VENT_D / 2 + WALL + 0.3))
-    c = (core if not core.is_empty else cut).centroid
-    return f, np.array([c.x, c.y])
+    win = cut.buffer(-RIM, join_style=2)
+    return f, [f.o + x * f.e1 + y * f.e2 for x, y in list(win.exterior.coords)[:-1]]
 
 
 def neck_heights():
@@ -593,11 +602,11 @@ def _edge_lengths(svg, g, T, k):
 def template_jobs():
     """(code, kind, face, outline-geometry, extras) for every slab of every module."""
     jobs = {}
-    vf, vc = vent_center()
+    _, win = floor_window()
     for f in faces():
         full, cut, kept = f.shapes()
-        jobs[f.code] = dict(kind="base" if f.code[0] == "B" else "chest", f=f, geom=full, cut=cut, kept=kept)
-    jobs["U6"]["vent"] = vc
+        jobs[f.code] = dict(kind="chest" if f.code[0] == "U" else "base", f=f, geom=full, cut=cut, kept=kept)
+    jobs["U6"]["window"] = jobs["S1"]["window"] = win
     s, zb = neck_strip()
     jobs["N1"] = dict(kind="strip", f=None, geom=Polygon(list(zip(s, zb)) + [(s[-1], H_TOTAL), (s[0], H_TOTAL)]),
                       s=s, zb=zb)
@@ -608,6 +617,14 @@ def template_jobs():
     return jobs
 
 
+def _window(svg, j, T):
+    g = Polygon(j["f"].to2d(j["window"]))
+    _poly(svg, g, T, stroke="#c0392b", width=0.45, fill="#fff")
+    c = g.centroid
+    svg.text(T((c.x, c.y - 0.9)), "نافذة تُقصّ · تنطبق على " + ("S1" if j["f"].code == "U6" else "U6"),
+             size=2.4, fill="#c0392b", rtl=True)
+
+
 def draw_job(svg, code, j, T, k):
     kind = j["kind"]
     if kind == "base":
@@ -616,22 +633,22 @@ def draw_job(svg, code, j, T, k):
             svg.poly([T(q) for q in full.exterior.coords], stroke="#999", width=0.25, dash="2,1.5")
             _poly(svg, cut.intersection(full), T, stroke="#c0392b", width=0.35, fill="#f6dcd8")
             c = cut.intersection(full).representative_point()
-            svg.text(T((c.x, c.y)), "فتحة الصدر — تُقصّ", size=2.8, fill="#c0392b", rtl=True)
+            svg.text(T((c.x, c.y)), "يُقصّ — مكان المقعد", size=2.8, fill="#c0392b", rtl=True)
         _poly(svg, kept, T, stroke="#111", width=0.5, fill="#f4efe6")
         _edge_lengths(svg, kept, T, k)
+        if "window" in j:
+            _window(svg, j, T)
         cp = kept.representative_point() if cut is not None else kept.centroid
+        if "window" in j: cp = Polygon(f.to2d(j["window"])).centroid
         cx, cy = T((cp.x, cp.y))
     elif kind == "chest":
         f, full, cut, kept = j["f"], j["geom"], j["cut"], j["kept"]
         _poly(svg, full, T, stroke="#111", width=0.5, fill="#f4efe6")
-        if cut is not None:
-            _poly(svg, cut, T, stroke="none", width=0, fill="#d9d9d9")
-            band = cut.intersection(kept.buffer(WALL, join_style=2))
-            _poly(svg, band, T, stroke="#d68910", width=0.2, fill="url(#hatch)")
+        if cut is not None:   # this part sits in the seat: the whole area is scored and slipped
+            _poly(svg, cut, T, stroke="#d68910", width=0.2, fill="url(#hatch)")
             _lines(svg, kept.boundary.intersection(cut.buffer(1e-4)), T, stroke="#c0392b", width=0.5, dash="2.2,1.2")
-            hp = cut.buffer(-WALL * 2) if not cut.buffer(-WALL * 2).is_empty else cut
-            q = hp.representative_point()
-            svg.text(T((q.x, q.y)), "داخل القاعدة", size=2.6, fill="#777", rtl=True)
+            q = cut.representative_point()
+            svg.text(T((q.x, q.y)), "يلتصق بالمقعد — هشّر", size=2.6, fill="#9c640c", rtl=True)
         svg.poly([T(q) for q in full.exterior.coords], stroke="#111", width=0.5)
         _edge_lengths(svg, full, T, k)
         if code == "U3":   # neck seat (scored ring) + bore on the sloped top
@@ -644,13 +661,11 @@ def draw_job(svg, code, j, T, k):
             _poly(svg, ring[0].difference(ring[1]), T, stroke="#d68910", width=0.25, fill="url(#hatch)")
             _poly(svg, ring[1], T, stroke="#c0392b", width=0.45, fill="#fff")
             c = ring[1].centroid; svg.text(T((c.x, c.y + 0.15)), f"Ø{NECK_ID * 10:.0f} تُقصّ", size=2.4, fill="#c0392b", rtl=True)
-        if code == "U6":   # vent: joins chest and base cavities, lets steam out in the kiln
-            vc = j["vent"]; circ = Point(vc).buffer(VENT_D / 2, 64)
-            _poly(svg, circ, T, stroke="#c0392b", width=0.45, fill="#fff")
-            svg.text(T((vc[0], vc[1] + 0.1)), f"فتحة تهوية Ø{VENT_D * 10:.0f} تُقصّ", size=2.4, fill="#c0392b", rtl=True)
+        if "window" in j:
+            _window(svg, j, T)
         cp = full.centroid
         if code == "U3": cp = Point(cp.x, cp.y - (R_OUT + 1.0))
-        if code == "U6": cp = Point(j["vent"][0], j["vent"][1] - VENT_D / 2 - 1.6)
+        if code == "U6": cp = Polygon(j["f"].to2d(j["window"])).centroid
         cx, cy = T((cp.x, cp.y))
     elif kind == "strip":
         g = j["geom"]; s, zb = j["s"], j["zb"]
@@ -715,7 +730,7 @@ def templates(path_fmt):
                 draw_job(svg, c, J[c], T, k)
             n = key.split("-")[0]
             svg.text((W - M, M + 7), f"الجزء {n}: {title}", size=7, anchor="end", weight="bold", rtl=True)
-            svg.text((W - M - 75, M + 7), f"لوح {pi + 1}/{len(pages)} · {len(codes)} قطع: {' '.join(codes)}",
+            svg.text((W - M - 100, M + 7), f"لوح {pi + 1}/{len(pages)} · {len(codes)} قطع: {' '.join(codes)}",
                      size=3.4, anchor="end", rtl=True, fill="#555")
             svg.line((M, M + HEAD - 2), (W - M, M + HEAD - 2), width=0.3, stroke="#999")
             svg.line((M, Hh - 14), (M + 100, Hh - 14), width=0.6)
@@ -740,14 +755,13 @@ def modules():
     n, d = top_plane()
     z0, z1 = neck_z0() - 1, H_TOTAL
     neck = (cylinder(R_OUT, z0, z1) - cylinder(R_IN, z0 - 1, z1 + 1)).trim_by_plane(list(n), d)
-    vf, vc = vent_center()
-    c3 = vf.o + vf.e1 * vc[0] + vf.e2 * vc[1]
-    ring = [c3 + VENT_D / 2 * (math.cos(a) * vf.e1 + math.sin(a) * vf.e2) for a in np.linspace(0, 2 * np.pi, 48, endpoint=False)]
-    vent = Manifold.hull_points(np.array([p + s * vf.n for p in ring for s in (-2.0, 2.0)]))
+    wf, win = floor_window()
+    window = Manifold.hull_points(np.array([p + s * wf.n for p in win for s in (-2.0, 2.0)]))
     bore = cylinder(R_IN, 20.0, H_TOTAL + 1)
+    seat_wall = hull(inset(upper_halfspaces(), -WALL))     # chest grown by one wall: inner face of the seat slabs
     shells = dict(
-        base=base - hull(inset(base_halfspaces(), WALL, FLOOR)) - upper,
-        chest=upper - hull(inset(upper_halfspaces(), WALL)) - bore - vent,
+        base=(base - upper) - (hull(inset(base_halfspaces(), WALL, FLOOR)) - seat_wall) - window,
+        chest=upper - hull(inset(upper_halfspaces(), WALL)) - bore - window,
         neck=neck)
     solids_ = dict(base=base - upper, chest=upper, neck=neck)
     return solids_, shells
@@ -795,44 +809,54 @@ def assembly(path, mods):
     a, b = P(nc + off["neck"] - np.array([0, 0, 1.0])), P(nc + off["chest"] + np.array([0, 0, 0.6]))
     svg.add(f'<line x1="{a[0]:.2f}" y1="{a[1]:.2f}" x2="{b[0]:.2f}" y2="{b[1]:.2f}" stroke="#1f6fb2" stroke-width="0.6" '
             f'stroke-dasharray="3,1.5" marker-end="url(#ab)"/>')
-    for key, lab, pt in [("base", "١ القاعدة", np.array([xL - 1.5, yb, 6.0])),
+    for key, lab, pt in [("base", "١ القاعدة (الكرسي)", np.array([xL - 1.5, yb, 6.0])),
                          ("chest", "٢ الصدر", P6 + np.array([-2.5, 0, 4.0])),
                          ("neck", "٣ الرأس", nc + np.array([-R_OUT - 3.5, 0, -1.0]))]:
         q = P(pt + off[key]); svg.text(q, lab, size=5, weight="bold", anchor="end", rtl=True, fill="#1f6fb2")
-    svg.text((150, 283), "التركيب: الصدر ينزلق إلى فتحة القاعدة باتجاه عمقه، ثم يُثبَّت الرأس فوقه", size=3.6, weight="bold", rtl=True)
+    E2, PH2 = math.radians(38), math.radians(28)
+    c2, s2, cp2, sp2 = math.cos(E2), math.sin(E2), math.cos(PH2), math.sin(PH2)
+    f2 = lambda p: (cp2 * p[0] - sp2 * p[1], -(p[2] * c2 + (sp2 * p[0] + cp2 * p[1]) * s2))
+    o2 = np.array([328, 258.0]); sc2 = 2.6
+    draw_view(svg, sol["base"], (sp2 * c2, cp2 * c2, -s2), f2, o2, sc2, hidden=False)
+    for a, b in join_lines():
+        svg.line(o2 + np.array(f2(a)) * sc2, o2 + np.array(f2(b)) * sc2, stroke="#c0392b", width=0.5)
+    svg.text(o2 + np.array([0, 14]), "القاعدة من الأمام والأعلى: المقعد بين الذراعين", size=3.2, weight="bold", rtl=True)
+    svg.text((150, 283), "التركيب: الصدر يجلس في مقعد القاعدة (يدخل من الأمام كالدُّرج)، ثم يُثبَّت الرأس فوقه", size=3.6, weight="bold", rtl=True)
     # steps + table
     vol = {kk: shells[kk].volume() for kk in shells}
     wet = lambda v: v / (1 - SHRINK) ** 3 * 1.95 / 1000
     hmin, hmax, _ = neck_heights()
     lines = [
-        ("ثلاثة أجزاء تُصنع منفصلة ثم تُجمع مرة واحدة", 5.0, "bold", "#111"),
+        ("ثلاث كتل تُصنع منفصلة ثم تُجمع مرة واحدة", 5.0, "bold", "#111"),
         ("", 2, "normal", "#111"),
-        ("١ · القاعدة — 7 شرائح، صندوق مغلق فيه فتحة واحدة متصلة", 3.3, "normal", "#111"),
-        ("    تلتف على الواجهة والمنحدرين (الخط الأحمر)", 3.3, "normal", "#111"),
-        ("٢ · الصدر — 6 شرائح، صندوق مغلق كامل الأوجه", 3.3, "normal", "#111"),
-        (f"    بفتحة Ø{NECK_ID * 10:.0f} في سطحه وفتحة تهوية Ø{VENT_D * 10:.0f} في قاعه", 3.3, "normal", "#111"),
-        (f"٣ · الرأس — أسطوانة Ø{NECK_OD * 10:.0f}/{NECK_ID * 10:.0f}، قاعدتها مقصوصة بميل السطح", 3.3, "normal", "#111"),
+        ("١ · القاعدة على شكل كرسي — 10 شرائح، صندوق مغلق:", 3.3, "normal", "#111"),
+        ("    ذراع يسرى منخفضة · ذراع يمنى عالية (الكتف) · مقعد بينهما", 3.3, "normal", "#111"),
+        ("٢ · الصدر — 6 شرائح، صندوق مغلق كامل الأوجه يجلس في المقعد", 3.3, "normal", "#111"),
+        (f"    بفتحة Ø{NECK_ID * 10:.0f} في سطحه ونافذة في قاعه تنطبق على نافذة المقعد", 3.3, "normal", "#111"),
+        (f"٣ · الرأس — أسطوانة Ø{NECK_OD * 10:.0f}/{NECK_ID * 10:.0f}، قاعدتها مقصوصة بميل سطح الصدر", 3.3, "normal", "#111"),
         ("", 2, "normal", "#111"),
-        ("خطوات الجمع (كل الأجزاء بالجلد الصلب نفسه)", 3.8, "bold", "#111"),
-        ("1. تجربة جافة: أدخل الصدر في الفتحة دون طين سائل،", 3.2, "normal", "#111"),
-        ("    وشذّب حواف الفتحة مائلةً حتى ينزلق بلا فراغات", 3.2, "normal", "#111"),
-        ("2. علّم على الصدر خط التقاء القاعدة بقلم رصاص", 3.2, "normal", "#111"),
-        ("3. هشّر حواف الفتحة وشريطاً بعرض 8 مم تحت الخط على الصدر،", 3.2, "normal", "#111"),
-        ("    ثم ادهن الطين السائل على الجهتين", 3.2, "normal", "#111"),
-        ("4. أدخل الصدر باتجاه السهم حتى يلمس ظهرُه جدارَ القاعدة الخلفي", 3.2, "normal", "#111"),
-        (f"    — هذا هو الموضع الصحيح: الواجهة بارزة {PROUD * 10:.0f} مم عن القاعدة", 3.2, "normal", "#111"),
-        ("5. اضغط الوصلة، ومرّر حبل طين رفيعاً في الزاوية من الخارج", 3.2, "normal", "#111"),
-        ("    حيث تصل اليد، ثم امسح الفائض", 3.2, "normal", "#111"),
-        ("6. هشّر حلقة المقعد على سطح الصدر وقاعدة العنق، وثبّته رأسياً", 3.2, "normal", "#111"),
+        ("خطوات الجمع (كل الكتل بالجلد الصلب نفسه)", 3.8, "bold", "#111"),
+        ("1. تجربة جافة: أدخل الصدر في المقعد من الأمام كالدُّرج، باتجاه السهم،", 3.2, "normal", "#111"),
+        ("    حتى يلمس ظهرُه جدار القاعدة الخلفي. هذا هو موضعه الصحيح", 3.2, "normal", "#111"),
+        (f"    (الواجهة بارزة {PROUD * 10:.0f} مم عن القاعدة). شذّب أي احتكاك", 3.2, "normal", "#111"),
+        ("2. هشّر وجوه المقعد الثلاثة (الأرضية والجداران) وجدار الظهر،", 3.2, "normal", "#111"),
+        ("    والمساحة البرتقالية على الصدر، ثم ادهن الطين السائل على الجهتين", 3.2, "normal", "#111"),
+        ("3. أدخل الصدر حتى يلمس الظهر، واضغطه لأسفل وللجانبين", 3.2, "normal", "#111"),
+        ("4. مرّر حبل طين رفيعاً على حواف المقعد من الخارج (الخط الأحمر)،", 3.2, "normal", "#111"),
+        ("    وامسح الطين السائل الزائد", 3.2, "normal", "#111"),
+        ("5. هشّر حلقة المقعد على سطح الصدر وقاعدة العنق، وثبّته رأسياً", 3.2, "normal", "#111"),
         (f"    بحيث تكون فوهته على {H_TOTAL * 10:.0f} مم (بعد الحرق) والضلع الأقصر نحو P1", 3.2, "normal", "#111"),
-        ("7. غطِّ القطعة بالنايلون وجفّفها ببطء لعدة أيام", 3.2, "normal", "#111"),
+        ("6. غطِّ القطعة بالنايلون وجفّفها ببطء لعدة أيام", 3.2, "normal", "#111"),
+        ("", 2, "normal", "#111"),
+        ("كل الوصلات وجه مستوٍ على وجه مستوٍ، فلا قصّ مائل ولا فراغات.", 3.2, "bold", "#1f6fb2"),
+        ("النافذة المشتركة في القاع إلزامية: تصل الماء إلى القاعدة وتُخرج البخار في الفرن.", 3.2, "bold", "#1f6fb2"),
     ]
     y = 22
     for s, size, w, col in lines:
         svg.text((404, y), s, size=size, anchor="end", weight=w, rtl=True, fill=col); y += size * 1.75
     y += 4
     svg.text((404, y), "كمية الطين لكل جزء (جدار 8 مم)", size=3.6, anchor="end", weight="bold", rtl=True); y += 6
-    rows = [("القاعدة", "base", 7), ("الصدر", "chest", 6), ("الرأس", "neck", 1)]
+    rows = [("القاعدة", "base", 10), ("الصدر", "chest", 6), ("الرأس", "neck", 1)]
     svg.text((404, y), "الجزء", size=3, anchor="end", rtl=True, weight="bold")
     svg.text((350, y), "شرائح", size=3, anchor="end", rtl=True, weight="bold")
     svg.text((320, y), "طين رطب (كجم)", size=3, anchor="end", rtl=True, weight="bold")
@@ -862,9 +886,8 @@ def main():
         if f.startswith("templates-") and f.endswith(".svg"): os.remove(os.path.join(OUT, f))
     pages = templates(os.path.join(OUT, "templates-{}-{}.svg"))
     mods = modules()
-    # mould masters: the base is exported whole; its opening is cut from B1/B5/B6 after casting
-    write_stl(hull(base_halfspaces()), os.path.join(OUT, "module-base.stl"))
-    for kk in ("chest", "neck"):
+    # mould masters, one per block (the base is the chair shape, seat included)
+    for kk in ("base", "chest", "neck"):
         write_stl(mods[0][kk], os.path.join(OUT, f"module-{kk}.stl"))
     mvol = assembly(os.path.join(OUT, "assembly.svg"), mods)
     vol_ext = S["solid"].volume(); vol_clay = S["hollow"].volume()

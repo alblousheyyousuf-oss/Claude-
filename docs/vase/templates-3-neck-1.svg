@@ -32,7 +32,7 @@
 <text x="67.95" y="132.79" font-size="6" text-anchor="middle" fill="#444" font-weight="bold" direction="ltr">N2</text>
 <text x="67.95" y="138.79" font-size="3" text-anchor="middle" fill="#111" font-weight="normal" direction="rtl">مقطع العنق للرمي</text>
 <text x="410.00" y="17.00" font-size="7" text-anchor="start" fill="#111" font-weight="bold" direction="rtl">الجزء 3: الرأس (العنق والفوهة)</text>
-<text x="335.00" y="17.00" font-size="3.4" text-anchor="start" fill="#555" font-weight="normal" direction="rtl">لوح 1/1 · 2 قطع: N1 N2</text>
+<text x="310.00" y="17.00" font-size="3.4" text-anchor="start" fill="#555" font-weight="normal" direction="rtl">لوح 1/1 · 2 قطع: N1 N2</text>
 <line x1="10.00" y1="20.00" x2="410.00" y2="20.00" stroke="#999" stroke-width="0.3"/>
 <line x1="10.00" y1="283.00" x2="110.00" y2="283.00" stroke="#111" stroke-width="0.6"/>
 <line x1="10.00" y1="281.50" x2="10.00" y2="284.50" stroke="#111" stroke-width="0.3"/>
