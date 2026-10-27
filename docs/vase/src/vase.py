@@ -548,8 +548,8 @@ MODULES = [
      "B = غلاف القاعدة · S = المقعد الذي يجلس فيه الصدر · الأحمر المظلل = يُقصّ مكان المقعد · الأرقام بالمليمتر"),
     ("2-chest", "الصدر", ["U1", "U2", "U3", "U4", "U5", "U6"],
      "كل وجه يُقصّ كاملاً · المخطط البرتقالي = يلتصق بالمقعد (هشّر كامل المساحة) · الأحمر المنقط = حافة المقعد"),
-    ("3-neck", "الرأس (العنق والفوهة)", ["N1", "N2"],
-     "N1 للبناء بالشريحة · N2 مقطع للرمي على الدولاب · المخطط البرتقالي = حافة التهشير على سطح الصدر"),
+    ("3-neck", "الرأس (العنق والفوهة)", ["N1", "N2", "T1"],
+     "N1 للبناء بالشريحة · N2 مقطع للرمي على الدولاب · T1 اختبار الانكماش: اعمله قبل كل شيء"),
 ]
 
 
@@ -610,6 +610,8 @@ def template_jobs():
     s, zb = neck_strip()
     jobs["N1"] = dict(kind="strip", f=None, geom=Polygon(list(zip(s, zb)) + [(s[-1], H_TOTAL), (s[0], H_TOTAL)]),
                       s=s, zb=zb)
+    kk = 10.0 / (1 - SHRINK)
+    jobs["T1"] = dict(kind="test", f=None, geom=Polygon([(0, 0), (130 / kk, 0), (130 / kk, 50 / kk), (0, 50 / kk)]))
     hmin, hmax, _ = neck_heights()
     jobs["N2"] = dict(kind="profile", f=None, hmin=hmin, hmax=hmax,
                       geom=Polygon([(-R_OUT - 2.2, H_TOTAL - hmax - 1.6), (R_OUT + 2.2, H_TOTAL - hmax - 1.6),
@@ -625,7 +627,7 @@ def _window(svg, j, T):
              size=2.4, fill="#c0392b", rtl=True)
 
 
-def draw_job(svg, code, j, T, k):
+def draw_job(svg, code, j, T, k, J=None):
     kind = j["kind"]
     if kind == "base":
         f, full, cut, kept = j["f"], j["geom"], j["cut"], j["kept"]
@@ -636,6 +638,7 @@ def draw_job(svg, code, j, T, k):
             svg.text(T((c.x, c.y)), "يُقصّ — مكان المقعد", size=2.8, fill="#c0392b", rtl=True)
         _poly(svg, kept, T, stroke="#111", width=0.5, fill="#f4efe6")
         _edge_lengths(svg, kept, T, k)
+        _joint_labels(svg, j, T, k, J)
         if "window" in j:
             _window(svg, j, T)
         cp = kept.representative_point() if cut is not None else kept.centroid
@@ -651,6 +654,7 @@ def draw_job(svg, code, j, T, k):
             svg.text(T((q.x, q.y)), "يلتصق بالمقعد — هشّر", size=2.6, fill="#9c640c", rtl=True)
         svg.poly([T(q) for q in full.exterior.coords], stroke="#111", width=0.5)
         _edge_lengths(svg, full, T, k)
+        _joint_labels(svg, j, T, k, J)
         if code == "U3":   # neck seat (scored ring) + bore on the sloped top
             th = np.linspace(0, 2 * np.pi, 120)
             ring = []
@@ -677,6 +681,20 @@ def draw_job(svg, code, j, T, k):
         svg.text((a[0], a[1] + 4.5), "الضلع الأقصر ← يتجه نحو الزاوية العليا P1", size=2.4, fill="#1f6fb2", rtl=True)
         c = g.centroid; cx, cy = T((c.x, c.y + 0.4))
         svg.text((cx, cy + 9.5), f"طولها {s[-1] * k:.0f} · تُلفّ حول أنبوب Ø{NECK_ID * k / 10 * 10:.0f} ويُلحم طرفاها", size=2.6, rtl=True)
+    elif kind == "test":   # shrinkage test strip, drawn directly in wet mm
+        x0, y0 = T((j["geom"].bounds[0], j["geom"].bounds[3]))
+        svg.poly([(x0, y0), (x0 + 130, y0), (x0 + 130, y0 + 34), (x0, y0 + 34)], stroke="#111", width=0.5, fill="#f4efe6")
+        for xm, lab in ((15, "0"), (115, "100 مم")):
+            svg.line((x0 + xm, y0 + 6), (x0 + xm, y0 + 20), stroke="#c0392b", width=0.5)
+            svg.text((x0 + xm, y0 + 25), lab, size=3, fill="#c0392b", rtl="مم" in lab)
+        svg.line((x0 + 15, y0 + 13), (x0 + 115, y0 + 13), stroke="#c0392b", width=0.25, dash="1.5,1")
+        lines = ["اقطعها من نفس الطين، واخدش خطّين بينهما 100 مم، واحرقها قبل القطعة",
+                 f"بعد الحرق: {100 * (1 - SHRINK):.0f} مم = القوالب صحيحة · غير ذلك اطبع بمقياس {100 * (1 - SHRINK):.0f} ÷ القياس × 100%"]
+        for i_, t_ in enumerate(lines):
+            svg.text((x0 + 65, y0 + 40 + i_ * 4.6), t_, size=2.7, rtl=True)
+        cx, cy = x0 + 65, y0 + 5.5
+        svg.text((cx, cy + 1.2), "T1 · شريحة اختبار الانكماش", size=3.2, weight="bold", rtl=True)
+        return
     else:   # profile for wheel throwing
         hmin, hmax = j["hmin"], j["hmax"]
         top, zl, zr = H_TOTAL, H_TOTAL - hmin, H_TOTAL - hmax
@@ -700,10 +718,33 @@ def draw_job(svg, code, j, T, k):
     svg.text((cx, cy + 4.5), name + (f" ({note})" if note else ""), size=3, rtl=True)
 
 
+def color_key(svg, x0, y0):
+    """compact colour key in the sheet header (two rows of four)."""
+    items = [("cut", "قصّ على الخط الأسود"), ("remove", "يُقصّ ويُرمى (مكان المقعد)"),
+             ("hole", "فتحة تُقصّ وتُرمى"), ("hatch", "تهشير: يلتصق، لا يُقصّ"),
+             ("seat", "حافة المقعد على الصدر"), ("ref", "شكل مرجعي — لا تقصّ عليه"),
+             ("len", "طول الضلع بالمم (رطب)"), ("ang", "زاوية قطع الحافة")]
+    w = 58
+    for i, (kind, lab) in enumerate(items):
+        col, row = i % 4, i // 4
+        xr = x0 + (4 - col) * w - 2; y = y0 + row * 6
+        sw = (xr - 8, y, xr - 1, y + 4)
+        if kind == "cut": svg.poly([(sw[0], sw[1]), (sw[2], sw[1]), (sw[2], sw[3]), (sw[0], sw[3])], stroke="#111", width=0.5, fill="#f4efe6")
+        if kind == "remove": svg.poly([(sw[0], sw[1]), (sw[2], sw[1]), (sw[2], sw[3]), (sw[0], sw[3])], stroke="#c0392b", width=0.35, fill="#f6dcd8")
+        if kind == "hole": svg.poly([(sw[0], sw[1]), (sw[2], sw[1]), (sw[2], sw[3]), (sw[0], sw[3])], stroke="#c0392b", width=0.45, fill="#fff")
+        if kind == "hatch": svg.poly([(sw[0], sw[1]), (sw[2], sw[1]), (sw[2], sw[3]), (sw[0], sw[3])], stroke="#d68910", width=0.2, fill="url(#hatch)")
+        if kind == "seat": svg.line((sw[0], y + 2), (sw[2], y + 2), stroke="#c0392b", width=0.5, dash="2.2,1.2")
+        if kind == "ref": svg.poly([(sw[0], sw[1]), (sw[2], sw[1]), (sw[2], sw[3]), (sw[0], sw[3])], stroke="#999", width=0.25, dash="1.5,1")
+        if kind == "len": svg.text((xr - 4.5, y + 3.3), "116", size=2.8, fill="#1f6fb2")
+        if kind == "ang": svg.text((xr - 4.5, y + 3.3), "∠45°", size=2.6, fill="#7d3c98")
+        svg.text((xr - 9.5, y + 3.2), lab, size=2.6, anchor="end", rtl=True)
+
+
 def templates(path_fmt):
     k = 10.0 / (1 - SHRINK)             # cm(fired) -> mm(wet)
-    W, Hh, M, G, HEAD = 420, 297, 10, 8, 12
+    W, Hh, M, G, HEAD = 420, 297, 10, 8, 17
     J = template_jobs()
+    JT = joints()
     out = []
     for key, title, codes, legend in MODULES:
         size = lambda b: ((b[2] - b[0]) * k + G, (b[3] - b[1]) * k + G)
@@ -727,18 +768,20 @@ def templates(path_fmt):
                     T = lambda q, px=px, py=py, maxy=maxy, maxx=maxx: (px + (maxy - q[1]) * k, py + (maxx - q[0]) * k)
                 else:
                     T = lambda q, px=px, py=py, minx=minx, maxy=maxy: (px + (q[0] - minx) * k, py + (maxy - q[1]) * k)
-                draw_job(svg, c, J[c], T, k)
+                draw_job(svg, c, J[c], T, k, JT)
             n = key.split("-")[0]
             svg.text((W - M, M + 7), f"الجزء {n}: {title}", size=7, anchor="end", weight="bold", rtl=True)
-            svg.text((W - M - 100, M + 7), f"لوح {pi + 1}/{len(pages)} · {len(codes)} قطع: {' '.join(codes)}",
-                     size=3.4, anchor="end", rtl=True, fill="#555")
+            svg.text((W - M, M + 11.5), f"لوح {pi + 1}/{len(pages)} · {len(codes)} قطع: {' '.join(codes)}",
+                     size=3, anchor="end", rtl=True, fill="#555")
+            color_key(svg, M, M + 1)
             svg.line((M, M + HEAD - 2), (W - M, M + HEAD - 2), width=0.3, stroke="#999")
             svg.line((M, Hh - 14), (M + 100, Hh - 14), width=0.6)
             for i in range(11): svg.line((M + i * 10, Hh - 15.5), (M + i * 10, Hh - 12.5), width=0.3)
             svg.text((M + 50, Hh - 8.5), "مسطرة تحقق: 100 مم — اطبع بمقياس 100% (A3)", size=3, rtl=True)
             svg.text((W - M, Hh - 13), f"قوالب القصّ بالمقاس الرطب (انكماش {SHRINK * 100:.0f}%) · شرائح بسماكة {WALL * 10:.0f} مم",
                      size=3.2, anchor="end", rtl=True, weight="bold")
-            svg.text((W - M, Hh - 7.5), legend, size=2.7, anchor="end", rtl=True)
+            svg.text((W - M, Hh - 7.5), legend + " · ∠ = الزاوية بين الوجه الظاهر وسطح القطع · ⟂ + حبل = قص عمودي وحبل طين من الداخل",
+                     size=2.6, anchor="end", rtl=True)
             p = path_fmt.format(key, pi + 1); svg.save(p); out.append(p)
     return out
 
@@ -873,6 +916,161 @@ def assembly(path, mods):
     svg.text((404, y), "أضف 25% هدراً عند شراء الطين · كثافة الطين الرطب 1.95 والمحروق 2.2 غ/سم³", size=2.8, anchor="end", rtl=True, fill="#555")
     svg.save(path)
     return vol
+
+
+# ───────────────────────── joints: the cut angle of every slab edge ─────────────────────────
+BLOCKS = {"base": "BS", "chest": "U"}
+
+
+def _inside(block, p, tol=1e-6):
+    Hb, Hu = base_halfspaces(), upper_halfspaces()
+    in_u = all(n @ p < c - tol for n, c in Hu)
+    if block == "chest": return all(n @ p <= c + tol for n, c in Hu)
+    return all(n @ p <= c + tol for n, c in Hb) and not in_u
+
+
+def slabs():
+    """code -> dict(face, block, 2D outline (as cut), 3D rings, outward normal, plane constant)."""
+    out = {}
+    for f in faces():
+        full, cut, kept = f.shapes()
+        block = "chest" if f.code[0] == "U" else "base"
+        g = full if block == "chest" else kept
+        rings = [[f.o + x * f.e1 + y * f.e2 for x, y in list(p.exterior.coords)[:-1]]
+                 for p in getattr(g, "geoms", [g]) if p.geom_type == "Polygon" and p.area > 1e-4]
+        c3 = f.o + f.e1 * g.centroid.x + f.e2 * g.centroid.y
+        n = f.n if not _inside(block, c3 + 0.05 * f.n) else -f.n
+        out[f.code] = dict(f=f, block=block, g2=g, rings=rings, n=n, c=float(n @ f.o))
+    return out
+
+
+def _seg_dist(p, a, b):
+    t = np.clip((p - a) @ (b - a) / max((b - a) @ (b - a), 1e-12), 0, 1)
+    return np.linalg.norm(p - (a + t * (b - a)))
+
+
+def _on_boundary(s, p, tol=2e-3):
+    return any(_seg_dist(p, r[i], r[(i + 1) % len(r)]) < tol for r in s["rings"] for i in range(len(r)))
+
+
+def _into(s, mid, e):
+    """unit vector in the slab's plane, perpendicular to edge e, pointing into the slab."""
+    d = nrm(np.cross(s["n"], e))
+    q = s["f"].to2d([mid + 0.02 * d])[0]
+    return d if s["g2"].buffer(1e-6).contains(Point(q)) else -d
+
+
+def _intervals(p, q, rings, tol=2e-3):
+    """parts of segment pq (as t-intervals) that lie on any edge of the given rings."""
+    L2 = (q - p) @ (q - p); out = []
+    for r in rings:
+        for i in range(len(r)):
+            a, b = r[i], r[(i + 1) % len(r)]
+            # both ends of ab on the infinite line pq?
+            da = np.linalg.norm(np.cross(q - p, a - p)) / math.sqrt(L2)
+            db = np.linalg.norm(np.cross(q - p, b - p)) / math.sqrt(L2)
+            if da > tol or db > tol: continue
+            ta, tb = sorted([(a - p) @ (q - p) / L2, (b - p) @ (q - p) / L2])
+            t0, t1 = max(0.0, ta), min(1.0, tb)
+            if (t1 - t0) * math.sqrt(L2) > tol: out.append((t0, t1))
+    return out
+
+
+def joints():
+    """code -> list of (a3, b3, label, kind, other, angle) for every edge run of every slab."""
+    S = slabs(); res = {c: [] for c in S}
+    for ca, A in S.items():
+        others = [cb for cb, B in S.items() if cb != ca and B["block"] == A["block"]]
+        for r in A["rings"]:
+            for i in range(len(r)):
+                p, q = r[i], r[(i + 1) % len(r)]
+                L = np.linalg.norm(q - p)
+                if L < 1e-3: continue
+                e = (q - p) / L
+                cuts = sorted([(t0, t1, cb) for cb in others for t0, t1 in _intervals(p, q, S[cb]["rings"])])
+                pieces, t = [], 0.0
+                for t0, t1, cb in cuts:
+                    if t0 > t + 1e-6: pieces.append((t, t0, None))
+                    pieces.append((max(t, t0), t1, cb)); t = max(t, t1)
+                if t < 1 - 1e-6: pieces.append((t, 1.0, None))
+                for t0, t1, cb in pieces:
+                    if t1 - t0 < 1e-6: continue
+                    a3, b3 = p + (q - p) * t0, p + (q - p) * t1
+                    mid = (a3 + b3) / 2; dA = _into(A, mid, e)
+                    if cb is not None:
+                        B = S[cb]; dB = _into(B, mid, e)
+                        geo = math.degrees(math.acos(np.clip(dA @ dB, -1, 1)))
+                        if B["n"] @ (0.02 * dA) < 0:       # convex corner: mitre, each slab cut at half the angle
+                            res[ca].append((a3, b3, f"∠{geo / 2:.0f}°", "miter", cb, geo))
+                        else:                               # inside corner of the seat
+                            res[ca].append((a3, b3, "⟂ + حبل", "inner", cb, 360 - geo))
+                        continue
+                    hit = None
+                    for cb2 in others:
+                        B = S[cb2]
+                        for kind, cc in (("butt", B["c"] - WALL), ("cap", B["c"])):
+                            if abs(B["n"] @ a3 - cc) < 2e-3 and abs(B["n"] @ b3 - cc) < 2e-3:
+                                if kind == "butt" and not B["g2"].buffer(0.05).contains(Point(B["f"].to2d([mid])[0])): continue
+                                hit = (kind, cb2); break
+                        if hit: break
+                    if hit:
+                        B = S[hit[1]]
+                        u = nrm(np.cross(e, B["n"]))
+                        if u @ (-A["n"]) < 0: u = -u
+                        th = math.degrees(math.acos(np.clip(dA @ u, -1, 1)))
+                        lab = f"∠{th:.0f}° على {hit[1]}" if hit[0] == "butt" else f"∠{th:.0f}° حافة ظاهرة"
+                        res[ca].append((a3, b3, lab, hit[0], hit[1], th))
+                    else:
+                        res[ca].append((a3, b3, None, "free", None, None))
+    return res
+
+
+def _joint_labels(svg, j, T, k, J):
+    f = j["f"]
+    if f is None or f.code not in J: return
+    g = j["kept"] if j["kind"] == "base" else j["geom"]
+    for a3, b3, lab, kind, cb, ang in J[f.code]:
+        if lab is None or np.linalg.norm(b3 - a3) * k < 14: continue
+        a2, b2 = f.to2d([a3, b3])
+        A, B = np.array(T(a2)), np.array(T(b2))
+        mid = (A + B) / 2; t = nrm(B - A); nn = np.array([t[1], -t[0]])
+        m2 = (np.array(a2) + np.array(b2)) / 2; tt = nrm(np.array(b2) - np.array(a2))
+        side = np.array([-tt[1], tt[0]])
+        if not g.buffer(1e-6).contains(Point(m2 + side * 0.15)): side = -side
+        inside_dir = np.array(T(m2 + side * 0.2)) - np.array(T(m2))
+        if nn @ inside_dir < 0: nn = -nn
+        ang_t = math.degrees(math.atan2(t[1], t[0]))
+        if ang_t > 90: ang_t -= 180
+        if ang_t < -90: ang_t += 180
+        out = -nn                                   # angle sits just outside the cut line, length just inside
+        up = np.array([math.sin(math.radians(ang_t)), -math.cos(math.radians(ang_t))])
+        pos = mid + out * (1.1 if out @ up > 0 else 3.1)
+        svg.text(pos, lab, size=2.5, fill="#7d3c98", rot=ang_t, rtl="على" in lab or "حبل" in lab or "ظاهرة" in lab)
+
+
+def verify():
+    """Numbers that back the accuracy claims in README §9."""
+    S = slabs(); J = joints(); rep = {}
+    shared, free = {}, []
+    for ca, runs in J.items():
+        for a3, b3, lab, kind, cb, ang in runs:
+            Lmm = np.linalg.norm(b3 - a3) * 10
+            if kind == "free":
+                if Lmm > 3: free.append((ca, round(Lmm, 1)))
+            elif kind in ("miter", "inner"):
+                shared[(ca, cb)] = shared.get((ca, cb), 0) + Lmm
+    n_pairs = len(shared) // 2
+    pair_err = max(abs(v_ - shared.get((b_, a_), 0)) for (a_, b_), v_ in shared.items())
+    rep["paired edge runs"] = n_pairs
+    rep["max unmatched length (mm)"] = round(pair_err, 3)
+    rep["edges with no joint info"] = free
+    mods = modules()
+    rep["chest/base overlap (cm3)"] = round((mods[0]["chest"] ^ mods[1]["base"]).volume(), 4)
+    area_b = sum(Polygon(S[c]["f"].to2d(r)).area for c in S if S[c]["block"] == "base" for r in S[c]["rings"])
+    area_u = sum(Polygon(S[c]["f"].to2d(r)).area for c in S if S[c]["block"] == "chest" for r in S[c]["rings"])
+    rep["base slabs area vs chair surface (cm2)"] = (round(area_b, 1), round(mods[0]["base"].surface_area(), 1))
+    rep["chest slabs area vs prism surface (cm2)"] = (round(area_u, 1), round(mods[0]["chest"].surface_area(), 1))
+    return rep, J
 
 
 # ───────────────────────── main ─────────────────────────

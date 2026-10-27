@@ -10,7 +10,9 @@ const sheets = fs.readdirSync(OUT)
   .filter(f => /^templates-\d+-[a-z]+-\d+\.svg$/.test(f))
   .sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
 
-const pages = sheets.map(f => `<div class="page">${fs.readFileSync(path.join(OUT, f), 'utf8')}</div>`).join('\n');
+// after the 1:1 templates: the assembly guide and the 1:2 engineering drawing
+const extra = ['assembly.svg', 'drawings.svg'].filter(f => fs.existsSync(path.join(OUT, f)));
+const pages = sheets.concat(extra).map(f => `<div class="page">${fs.readFileSync(path.join(OUT, f), 'utf8')}</div>`).join('\n');
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>
   @page { size: 420mm 297mm; margin: 0; }
   html, body { margin: 0; padding: 0; }
@@ -27,5 +29,5 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><style>
   await page.pdf({ path: dest, width: '420mm', height: '297mm', printBackground: true,
                    margin: { top: 0, right: 0, bottom: 0, left: 0 }, preferCSSPageSize: true });
   await browser.close();
-  console.log(`${sheets.length} sheets -> ${dest}`);
+  console.log(`${sheets.length} template sheets + ${extra.length} guide sheets -> ${dest}`);
 })();
