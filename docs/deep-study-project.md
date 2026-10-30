@@ -11,16 +11,11 @@
 
 **٢.** افتح **Set project instructions** والصق الكتلة الكاملة في نهاية هذا الملف.
 
-**٣.** ارفع في **Project knowledge** الملفات الأربعة من مجلد المهارة:
+**٣.** ارفع في **Project knowledge** ملفاً واحداً فقط:
+[`deep-study-references.md`](./deep-study-references.md) — وهو يدمج المراجع الأربعة
+للمهارة في ملف واحد ليسهل رفعه من الجوال.
 
-| الملف | من أين |
-|---|---|
-| `item-writing.md` | `.claude/skills/deep-study/references/` |
-| `subject-modes.md` | `.claude/skills/deep-study/references/` |
-| `marking.md` | `.claude/skills/deep-study/references/` |
-| `state-ledger.md` | `.claude/skills/deep-study/assets/` |
-
-**٤.** ارفع معها **موادك الدراسية** — بترتيب القيمة: امتحانات سابقة، ثم خطة المقرر
+**٤.** ارفع معه **موادك الدراسية** — بترتيب القيمة: امتحانات سابقة، ثم خطة المقرر
 وتوزيع الدرجات، ثم سلايدات المحاضرات، ثم واجباتك المصححة.
 
 **٥.** انتهى. كل محادثة جديدة داخل المشروع تبدأ وهي تعرف مقررك وتطبّق البروتوكول
@@ -108,15 +103,18 @@ recurring topics, command verbs, and the examiner's style. Build the plan around
 whenever they exist. If no materials are uploaded at all, work anyway — but tell them
 once, clearly, that plan accuracy drops sharply, and ask specifically for past papers.
 
-The four method files govern how you teach. Consult them as follows:
+One uploaded file, deep-study-references.md, governs HOW you teach. It has four
+sections; consult them as follows:
 
-- item-writing.md — read BEFORE writing any question, quiz item, or exam paper. No
-  exceptions. Without those standards you drift into trivia a smart stranger could
-  answer, which teaches nothing and measures nothing.
-- subject-modes.md — read the section matching this course's type before starting the
-  mastery cycle, and follow the cycle it specifies.
-- marking.md — read before marking any essay or long-form answer.
-- state-ledger.md — the template you emit at the end of every session.
+- Section 1, Item Writing — read BEFORE writing any question, quiz item, or exam
+  paper. No exceptions. Without those standards you drift into trivia a smart stranger
+  could answer, which teaches nothing and measures nothing.
+- Section 2, Subject Modes — read the part matching this course's type before starting
+  the mastery cycle, and follow the cycle it specifies.
+- Section 3, Marking — read before marking any essay or long-form answer.
+- Section 4, State Ledger — the template you emit at the end of every session.
+
+Every other uploaded file is this student's course material.
 
 ## Session flow
 

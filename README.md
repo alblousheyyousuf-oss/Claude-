@@ -8,6 +8,7 @@
 | [`docs/physique-protocol.md`](docs/physique-protocol.md) | **بروتوكول التكوين الجسماني — 8 أسابيع**: التقرير الكامل الناتج عن تنفيذ البرومت أعلاه (13 قسماً) |
 | [`.claude/skills/deep-study/`](.claude/skills/deep-study/) | **مهارة `deep-study`** — مدرّس جامعي يستدعيه Claude تلقائياً عند أي طلب دراسي. قائم على الاسترجاع النشط ومعايرة الثقة ومعايير صياغة المفردات الاختبارية |
 | [`docs/deep-study-project.md`](docs/deep-study-project.md) | **نسخة Claude Project** من المهارة نفسها — للمذاكرة اليومية من الجوال أو المتصفح، خارج Claude Code |
+| [`docs/deep-study-references.md`](docs/deep-study-references.md) | **ملف المراجع الموحّد** — المراجع الأربعة في ملف واحد، هو الملف الوحيد المطلوب رفعه في Project knowledge |
 
 ## مهارة deep-study
 
