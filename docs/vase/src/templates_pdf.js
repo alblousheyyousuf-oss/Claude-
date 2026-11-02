@@ -1,18 +1,15 @@
-// Combine the template sheets (grouped by part) into one print-ready A3 PDF (1:1, no margins).
+// Combine the template sheets (all pieces nested, assembly guide on sheet 1) into one print-ready A3 PDF (1:1, no margins).
 // Run:  node docs/vase/src/templates_pdf.js      (needs Playwright + Chromium)
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
 
 const OUT = path.dirname(__dirname);
-// templates-<n>-<part>-<page>.svg : part 1 base, 2 chest, 3 neck
 const sheets = fs.readdirSync(OUT)
-  .filter(f => /^templates-\d+-[a-z]+-\d+\.svg$/.test(f))
+  .filter(f => /^templates-\d+\.svg$/.test(f))
   .sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
 
-// after the 1:1 templates: the assembly guide and the 1:2 engineering drawing
-const extra = ['assembly.svg', 'drawings.svg'].filter(f => fs.existsSync(path.join(OUT, f)));
-const pages = sheets.concat(extra).map(f => `<div class="page">${fs.readFileSync(path.join(OUT, f), 'utf8')}</div>`).join('\n');
+const pages = sheets.map(f => `<div class="page">${fs.readFileSync(path.join(OUT, f), 'utf8')}</div>`).join('\n');
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>
   @page { size: 420mm 297mm; margin: 0; }
   html, body { margin: 0; padding: 0; }
@@ -29,5 +26,5 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><style>
   await page.pdf({ path: dest, width: '420mm', height: '297mm', printBackground: true,
                    margin: { top: 0, right: 0, bottom: 0, left: 0 }, preferCSSPageSize: true });
   await browser.close();
-  console.log(`${sheets.length} template sheets + ${extra.length} guide sheets -> ${dest}`);
+  console.log(`${sheets.length} sheets -> ${dest}`);
 })();
