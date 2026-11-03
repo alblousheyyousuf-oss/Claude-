@@ -10,6 +10,7 @@
 | [`docs/deep-study-project.md`](docs/deep-study-project.md) | **نسخة Claude Project** من المهارة نفسها — للمذاكرة اليومية من الجوال أو المتصفح، خارج Claude Code |
 | [`docs/deep-study-references.md`](docs/deep-study-references.md) | **ملف المراجع الموحّد** — المراجع الأربعة في ملف واحد، هو الملف الوحيد المطلوب رفعه في Project knowledge |
 | [`docs/deep-study-instructions.txt`](docs/deep-study-instructions.txt) | **كتلة تعليمات المشروع** كملف نصي مستقل — انسخ محتواه كاملاً والصقه في Project instructions |
+| [`docs/ared4130-course-brief.md`](docs/ared4130-course-brief.md) | **موجز مقرر ARED4130** — مستخرَج من مخطط المقرر: نطاق الاختبار النصفي، ومخرج التعلم الذي يقيسه، وتوزيع الدرجات |
 
 ## مهارة deep-study
 
