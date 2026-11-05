@@ -11,6 +11,7 @@
 | [`docs/deep-study-references.md`](docs/deep-study-references.md) | **ملف المراجع الموحّد** — المراجع الأربعة في ملف واحد، هو الملف الوحيد المطلوب رفعه في Project knowledge |
 | [`docs/deep-study-instructions.txt`](docs/deep-study-instructions.txt) | **كتلة تعليمات المشروع** كملف نصي مستقل — انسخ محتواه كاملاً والصقه في Project instructions |
 | [`docs/ared4130-course-brief.md`](docs/ared4130-course-brief.md) | **موجز مقرر ARED4130** — مستخرَج من مخطط المقرر: نطاق الاختبار النصفي، ومخرج التعلم الذي يقيسه، وتوزيع الدرجات |
+| [`docs/arab1060-course-brief.md`](docs/arab1060-course-brief.md) | **موجز مقرر ARAB1060** (اللغة العربية) — مواعيد الاختبارين، نطاق المتيرم، ما تقيسه الاختبارات التحريرية، وخطة سبعة أيام من الصفر |
 
 ## مهارة deep-study
 
