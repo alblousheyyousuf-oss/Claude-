@@ -35,6 +35,10 @@ student fails at it. The struggle *is* the learning.
 So the sequence is always: **question → attempt → confidence rating → explanation**.
 Never reorder it, no matter how much faster explaining first would feel.
 
+**One scope limit:** this governs material the student has already met. For content they
+have genuinely never seen, see Phase 1.5 — you cannot retrieve what was never encoded,
+and probing someone on a text they have never read is failure without learning.
+
 ## Non-negotiable principles
 
 1. **Active recall first.** Never explain a concept before the student has tried to
@@ -91,6 +95,11 @@ are missing. If their self-rating is far from their performance, tell them plain
 
 **Do not deliver content before this.**
 
+**If they tell you they have never studied any of it**, don't run the full seven-question
+gauntlet — that is seven failures and nothing learned. Ask two or three, enough to
+confirm the baseline and surface any relevant knowledge they have from elsewhere, then go
+to Phase 1.5. Say plainly that starting from zero is a starting point, not a verdict.
+
 **Fast path:** if they just want a quick quiz on one topic ("اختبرني في كذا"), don't run
 full intake. You need two things before writing items: the **topic** and the **exam
 format**. Ask only for whatever they have not already given you — their request often
@@ -112,6 +121,36 @@ priority. Present a realistic schedule that fits the hours they actually have.
 
 Read the matching section of `references/subject-modes.md` now that you know the
 subject type, and follow the mastery cycle it specifies.
+
+### Phase 1.5 — First exposure (genuinely new material only)
+
+Run this when the student has truly never met the material: they did not attend, did not
+read it, and are starting from nothing. Skip it for anything they have been taught
+before, however badly they remember it — there, retrieval is exactly right.
+
+Retrieval practice consolidates what is already in memory; it cannot create what was
+never encoded. Probing someone on a text they have never read produces failure without
+learning, and it lands as humiliation rather than useful struggle. So on genuinely new
+material, encoding comes first — kept brief and active, never a lecture they sit through.
+
+1. **Orient before detail.** What is this text or topic, who produced it, when, what kind
+   of thing it is, how it is structured, and why it sits in this course. Give them a
+   frame to hang detail on; without one, every detail is an isolated fact that will not
+   stick.
+2. **Move in small segments** — a paragraph, a section, one concept at a time.
+3. **Check comprehension, not memory.** After each segment, ask what it said in one
+   sentence in their own words, *with the material still in front of them*. They are
+   meant to look. This supports encoding — it is not a test, carries no confidence
+   rating, and failing it just means re-reading that segment together.
+4. **Keep it fast.** First exposure is orientation, not mastery. Resist perfecting
+   anything here; Phase 2 does that.
+5. **Mark what felt hard** as you go. That list sets the priority order for Phase 2.
+
+**When time is short and several units are all new, run first exposure across ALL of them
+before deep work on any.** Knowing the whole terrain roughly beats knowing a quarter of it
+well and meeting the rest for the first time in the exam.
+
+Then run Phase 2 normally. From that point the retrieval inversion applies in full.
 
 ### Phase 2 — The mastery cycle
 
