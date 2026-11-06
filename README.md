@@ -12,6 +12,8 @@
 | [`docs/deep-study-instructions.txt`](docs/deep-study-instructions.txt) | **كتلة تعليمات المشروع** كملف نصي مستقل — انسخ محتواه كاملاً والصقه في Project instructions |
 | [`docs/ared4130-course-brief.md`](docs/ared4130-course-brief.md) | **موجز مقرر ARED4130** — مستخرَج من مخطط المقرر: نطاق الاختبار النصفي، ومخرج التعلم الذي يقيسه، وتوزيع الدرجات |
 | [`docs/arab1060-course-brief.md`](docs/arab1060-course-brief.md) | **موجز مقرر ARAB1060** (اللغة العربية) — مواعيد الاختبارين، نطاق المتيرم، ما تقيسه الاختبارات التحريرية، وخطة سبعة أيام من الصفر |
+| [`docs/concept-map-brief.md`](docs/concept-map-brief.md) | **موجز مهمة خريطة المفاهيم/العقل** — تفكيك معايير التصحيح الستة، البنية الهجينة، مفتاح الرموز، وقائمة التحقق |
+| [`docs/concept-map-instructions.txt`](docs/concept-map-instructions.txt) | **تعليمات مشروع المهمة** — مرشد إنتاج لا مدرّس اختبار؛ يستخرج التحليل بالأسئلة ولا ينتج عملاً قابلاً للتسليم |
 
 ## مهارة deep-study
 
