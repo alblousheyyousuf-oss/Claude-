@@ -16,7 +16,7 @@ authors:
 instructor: "Dr. Instructor Name"
 instructor_label: "Submitted to"    # or "Supervised by" for capstone projects
 semester: "Fall 2026"
-date: "2026-11-12"
+date: "12 November 2026"
 
 # ===== Layout (common university defaults) =====
 font: "Times New Roman"

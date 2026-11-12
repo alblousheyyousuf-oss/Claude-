@@ -313,6 +313,17 @@ class Report:
         normal = styles["Normal"].paragraph_format
         normal.line_spacing = float(self.meta.get("line_spacing", 1.5))
         normal.space_after = Pt(6)
+        # Base sizes in both font slots: list numbers, field results (caption
+        # numbers) and TOC entries take their size from the style, not the run.
+        for name, pts in (("Normal", self.size), ("Caption", self.size - 1),
+                          ("List Bullet", self.size), ("List Number", self.size)):
+            try:
+                rpr = styles[name].element.get_or_add_rPr()
+            except KeyError:
+                continue
+            half = str(round(pts * 2))
+            _flag(rpr, "w:sz", half)
+            _flag(rpr, "w:szCs", half)
         black = RGBColor(0, 0, 0)
         for name in ("Heading 1", "Heading 2", "Heading 3", "Heading 4", "Title",
                      "TOC Heading", "Caption"):
@@ -333,8 +344,13 @@ class Report:
     # -- low-level paragraph helpers ---------------------------------------
 
     def _ltr(self, p, align="start"):
+        """Left-to-right paragraph inside an Arabic document.
+
+        Removing <w:bidi/> is not enough: the document defaults set bidi on,
+        so the paragraph would inherit RTL. It has to be switched off explicitly.
+        """
         ppr = p._p.get_or_add_pPr()
-        _unflag(ppr, "w:bidi")
+        _flag(ppr, "w:bidi", "0")
         _flag(ppr, "w:jc", align)
 
     def _rich(self, p, text, bold=False, italic=False, size=None):
@@ -372,9 +388,24 @@ class Report:
 
     # -- cover -------------------------------------------------------------
 
+    def _gap(self, points):
+        """Fixed vertical gap: an empty 1 pt line, so it does not grow with
+        the base font size or line spacing and push the cover onto a 2nd page."""
+        p = self.doc._new_p()
+        self.doc._rtl_para(p)
+        p.paragraph_format.line_spacing = Pt(1)
+        p.paragraph_format.space_before = Pt(0)
+        p.paragraph_format.space_after = Pt(points)
+
     def cover(self):
         m, L, s = self.meta, self.L, self.size
-        center = lambda text, **kw: self._para(str(text), align="center", count=False, **kw)
+
+        def center(text, **kw):
+            p = self._para(str(text), align="center", count=False, **kw)
+            p.paragraph_format.line_spacing = 1.15
+            p.paragraph_format.space_after = Pt(4)
+            return p
+
         if m.get("logo"):
             logo = self._path(m["logo"])
             if logo.exists():
@@ -385,21 +416,21 @@ class Report:
                                  ("department", 1, False)):
             if m.get(key):
                 center(m[key], size=s + extra, bold=bold)
-        self.doc.spacer(48)
+        self._gap(48)
         if m.get("report_type"):
             center(m["report_type"], size=s + 1, italic=True)
         if m.get("title"):
             center(m["title"], size=s + 10, bold=True)
         if m.get("subtitle"):
             center(m["subtitle"], size=s + 2)
-        self.doc.spacer(48)
+        self._gap(48)
         if m.get("course"):
             center(f"**{L['course']}:** {m['course']}")
         if m.get("section"):
             center(f"**{L['section']}:** {m['section']}")
         authors = m.get("authors") or ([m["author"]] if m.get("author") else [])
         if authors:
-            self.doc.spacer(12)
+            self._gap(12)
             center(f"**{m.get('prepared_by_label', L['prepared_by'])}**")
             for a in authors:
                 if isinstance(a, dict):
@@ -410,10 +441,10 @@ class Report:
                     line = str(a)
                 center(line)
         if m.get("instructor"):
-            self.doc.spacer(12)
+            self._gap(12)
             center(f"**{m.get('instructor_label', L['submitted_to'])}**")
             center(m["instructor"])
-        self.doc.spacer(24)
+        self._gap(24)
         if m.get("semester"):
             center(f"{L['semester']}: {m['semester']}")
         if m.get("date"):
@@ -425,6 +456,7 @@ class Report:
     # -- blocks ------------------------------------------------------------
 
     def toc(self):
+        self.pending_break = True          # the contents always start a page
         self._flush_break()
         self.doc.toc(title=self.L["toc"])
         for flag, label, seq in (("list_of_figures", "lof", "figure"),
@@ -436,9 +468,10 @@ class Report:
                 t.paragraph_format.page_break_before = True
                 p = self.doc._new_p()
                 self.doc._rtl_para(p)
-                _add_field(p, f'TOC \\h \\z \\c "{self.L[seq]}"',
-                           "حدِّث الحقول لعرض القائمة" if self.rtl else
-                           "Update fields (F9) to show this list")
+                res = _add_field(p, f'TOC \\h \\z \\c "{self.L[seq]}"',
+                                 "حدِّث الحقول لعرض القائمة" if self.rtl else
+                                 "Update fields (F9) to show this list")
+                self.doc._format_run(res._r.get_or_add_rPr(), self.rtl, size=self.size)
         self.toc_done = True
         self.pending_break = True
 
@@ -530,7 +563,7 @@ class Report:
                 for p in cell.paragraphs:
                     p.paragraph_format.line_spacing = 1.0
                     p.paragraph_format.space_after = Pt(2)
-        self.doc.spacer(6)
+        self._gap(6)
 
     def image(self, caption, path, width):
         self._flush_break()
