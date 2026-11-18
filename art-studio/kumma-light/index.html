@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kumma Light</title>
+<style>
+  :root { --bg: #05040a; --ink: #efe9ff; --muted: #a99cc8; --accent: #e86bb8; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); overflow: hidden;
+    font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; }
+  canvas { display: block; }
+  #cap { position: fixed; inset-inline-start: 16px; top: 14px; max-width: min(520px, calc(100vw - 32px));
+    pointer-events: none; text-shadow: 0 1px 6px #000; }
+  #cap h1 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: .02em; }
+  #cap p { margin: 4px 0 0; font-size: 13px; color: var(--muted); line-height: 1.6; }
+  #act { position: fixed; inset-inline-end: 16px; top: 16px; font-size: 13px; color: var(--muted); }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="cap">
+  <h1>نور الكمّة</h1>
+  <p>زخارف الكمّة العُمانية رموزاً من الضوء: تتشكّل من تيار مضطرب ثم تذوب فيه. في نظارة Quest اضغط «ENTER VR» في الأسفل.</p>
+</div>
+<div id="act"></div>
+<script type="module">
+import * as THREE from 'three';
+import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const params = new URLSearchParams(location.search);
+const CAPTURE = params.has('capture');
+// number of particles = SIM x SIM (default 320x320 = about 100k)
+const SIM = Math.min(Math.max(parseInt(params.get('n') || '320', 10), 64), 724);
+const N = SIM * SIM;
+const LOOP = 72;                       // loop length (seconds)
+
+// ---------- seeded randomness ----------
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const rand = mulberry32(7);
+
+// ---------- the kumma's colors ----------
+const PALETTE = [
+  [0.24, 0.24, 0.85], [0.30, 0.58, 1.00], [0.55, 0.85, 1.00], [0.95, 0.22, 0.38], [1.00, 0.22, 0.66],
+  [1.00, 0.52, 0.80], [0.62, 0.30, 1.00], [0.30, 0.85, 0.40], [0.62, 0.95, 0.40], [1.00, 0.92, 0.98]];
+const NEBULA = [5, 6, 4, 1, 2, 9, 6, 5];       // nebula colors (pink, violet, blue, cyan, white)
+
+// ---------- the symbols: paths of points ----------
+// each symbol = a list of paths; a path = {pts:[[x,y,z],...], closed, col}
+const TAU = Math.PI * 2;
+const circle = (r, n = 64, cx = 0, cy = 0) => Array.from({ length: n }, (_, i) => [cx + r * Math.cos(TAU * i / n), cy + r * Math.sin(TAU * i / n), 0]);
+function khatam(R, rot = 0) {         // eight-pointed star: two squares (outline of 16 points)
+  const r = R * Math.cos(Math.PI / 4) / Math.cos(Math.PI / 8);
+  return Array.from({ length: 16 }, (_, i) => { const a = rot + i * Math.PI / 8 + Math.PI / 2; const rr = i % 2 ? r : R;
+    return [rr * Math.cos(a), rr * Math.sin(a), 0]; });
+}
+function lens(a, r0, r1, w, n = 24) { // petal / leaf: from radius r0 to r1 along angle a
+  const pts = [];
+  for (const s of [1, -1]) for (let i = 0; i <= n; i++) { const t = s > 0 ? i / n : 1 - i / n;
+    const d = r0 + (r1 - r0) * t, o = s * w * Math.sin(Math.PI * t);
+    pts.push([d * Math.cos(a) - o * Math.sin(a), d * Math.sin(a) + o * Math.cos(a), 0]); }
+  return pts;
+}
+const rhombus = (w, h, cx = 0, cy = 0) => [[cx, cy + h, 0], [cx + w, cy, 0], [cx, cy - h, 0], [cx - w, cy, 0]];
+function place(paths, M) {            // move a symbol into space with a matrix
+  const v = new THREE.Vector3();
+  return paths.map(p => ({ ...p, pts: p.pts.map(q => v.set(q[0], q[1], q[2]).applyMatrix4(M).toArray()) }));
+}
+const P = (pts, col, closed = true) => ({ pts, col, closed });
+
+function symStar(R) {                 // the khatam star with an octagon and a circle inside
+  return [P(khatam(R), 4), P(khatam(R * 0.84), 6), P(circle(R * 0.47, 8).map((q, i) => { const a = i * TAU / 8 + Math.PI / 8;
+    return [R * 0.47 * Math.cos(a), R * 0.47 * Math.sin(a), 0]; }), 1), P(circle(R * 0.24), 2), P(circle(R * 0.07, 16), 9)];
+}
+function symMedallion(R) {            // the medallion: two rings, 8 petals, a small star, a center
+  const out = [P(circle(R), 7), P(circle(R * 0.88), 8)];
+  for (let k = 0; k < 8; k++) out.push(P(lens(k * TAU / 8 + Math.PI / 2, R * 0.14, R * 0.74, R * 0.13), 6));
+  out.push(P(khatam(R * 0.3), 1), P(circle(R * 0.08, 16), 4));
+  return out;
+}
+function symFlower(R) {               // the great rosette (the top of the kumma)
+  const out = [P(circle(R * 1.04, 128), 6), P(circle(R * 0.13), 8), P(circle(R * 0.06, 16), 2)];
+  for (let k = 0; k < 8; k++) { const a = k * TAU / 8 + Math.PI / 2;
+    out.push(P(lens(a, R * 0.14, R * 0.98, R * 0.17), 4), P(lens(a, R * 0.22, R * 0.8, R * 0.07), 5),
+             P(lens(a + Math.PI / 8, R * 0.18, R * 0.66, R * 0.07), 7)); }
+  return out;
+}
+function bandRing(R, y0, h, n) {      // a ring of triangles (zigzag) around the vertical axis
+  const out = [];
+  for (let k = 0; k < n; k++) { const a0 = k * TAU / n, a1 = (k + 1) * TAU / n, am = (a0 + a1) / 2;
+    const p = (a, y) => [R * Math.sin(a), y, R * Math.cos(a)];
+    out.push(P([p(a0, y0), p(am, y0 + h), p(a1, y0)], k % 2 ? 3 : 6)); }
+  return out;
+}
+function beadRing(R, y, r, n) {
+  const out = [];
+  for (let k = 0; k < n; k++) { const a = k * TAU / n;
+    const c = circle(r, 20).map(q => [R * Math.sin(a) + q[0] * Math.cos(a), y + q[1], R * Math.cos(a) - q[0] * Math.sin(a)]);
+    out.push(P(c, k % 2 ? 2 : 5)); }
+  return out;
+}
+function vineHelix(R, y0, y1, turns) {  // a rising vine (a wave on a helix) with clusters of berries
+  const out = [], pts = [], n = 600;
+  for (let i = 0; i <= n; i++) { const t = i / n, a = TAU * turns * t, w = 0.09 * Math.sin(a * 6);
+    pts.push([(R + w) * Math.sin(a), y0 + (y1 - y0) * t, (R + w) * Math.cos(a)]); }
+  out.push(P(pts, 7, false), P(pts.map(q => [q[0] * 1.015, q[1] + 0.012, q[2] * 1.015]), 8, false));
+  const m = Math.round(turns * 12);
+  for (let j = 0; j < m; j++) { const t = (j + 0.25) / m, a = TAU * turns * t, y = y0 + (y1 - y0) * t;
+    const rr = R + (j % 2 ? -0.13 : 0.13);
+    for (const [dx, dy] of [[-0.035, 0], [0.035, 0], [0, 0.055]]) {
+      const c = circle(0.03, 14).map(q => [(rr) * Math.sin(a) + (q[0] + dx) * Math.cos(a), y + q[1] + dy, rr * Math.cos(a) - (q[0] + dx) * Math.sin(a)]);
+      out.push(P(c, j % 3 ? 4 : 5)); } }
+  return out;
+}
+
+// ---------- the acts (symbols in time) ----------
+const M4 = () => new THREE.Matrix4();
+const ACTS = [
+  { name: 'النجمة الثمانية', t0: 4, t1: 11.5, center: [0, 0, 0], spin: [0, 0, 1], speed: 0.12,
+    paths: [...symStar(0.95), ...[0, 1, 2, 3].flatMap(k => { const a = Math.PI / 4 + k * Math.PI / 2;
+      return [P(rhombus(0.11, 0.17, 1.38 * Math.cos(a), 1.38 * Math.sin(a)), 7), P(rhombus(0.06, 0.09, 1.38 * Math.cos(a), 1.38 * Math.sin(a)), 8)]; })] },
+  { name: 'الميداليات', t0: 15, t1: 22.5, center: [0, 0, 0], spin: [0, 1, 0], speed: 0.22,
+    paths: [[-0.78, -0.32, 0.25, 0.5], [0.78, -0.32, 0.25, -0.5], [0, 0.6, -0.1, 0]].flatMap(([x, y, z, ry]) =>
+      place(symMedallion(0.44), M4().makeRotationY(ry).setPosition(x, y, z))) },
+  { name: 'الأشرطة', t0: 26, t1: 33.5, center: [0, 0, 0], spin: [0, 1, 0], speed: 0.3, tilt: 0.42,
+    paths: [...bandRing(1.05, -0.16, 0.3, 20), ...beadRing(1.05, 0.33, 0.045, 32), ...beadRing(1.05, -0.33, 0.045, 32),
+      ...bandRing(1.05, 0.48, -0.1, 40).map(p => ({ ...p, col: 8 }))] },
+  { name: 'الغصن', t0: 37, t1: 44.5, center: [0, 0, 0], spin: [0, 1, 0], speed: -0.35,
+    paths: vineHelix(0.72, -0.95, 0.95, 2.5) },
+  { name: 'الوردة', t0: 50, t1: 60.5, center: [0, 0, 0], spin: [0, 0, 1], speed: 0.07, hold: 5,
+    paths: [...symFlower(1.0), ...Array.from({ length: 8 }, (_, k) => { const a = k * TAU / 8 + Math.PI / 8;
+      return place(symStar(0.16).slice(0, 3), M4().makeRotationZ(a).setPosition(1.5 * Math.cos(a), 1.5 * Math.sin(a), 0)); }).flat()] },
+];
+
+// sample each act's paths: a point for each participating particle (by length), with a color
+function sampleAct(act, share) {
+  const segs = []; let total = 0;
+  for (const p of act.paths) { const n = p.pts.length, m = p.closed ? n : n - 1;
+    for (let i = 0; i < m; i++) { const a = p.pts[i], b = p.pts[(i + 1) % n];
+      const L = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]); segs.push([a, b, L, p.col]); total += L; } }
+  const cum = new Float64Array(segs.length); let c = 0; segs.forEach((s, i) => { c += s[2]; cum[i] = c; });
+  const data = new Float32Array(N * 4);
+  for (let i = 0; i < N; i++) {
+    if (rand() > share) { data[i * 4 + 3] = 0; continue; }        // not taking part: stays in the stream
+    const x = rand() * total; let lo = 0, hi = segs.length - 1;
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (cum[mid] < x) lo = mid + 1; else hi = mid; }
+    const [a, b, , col] = segs[lo], t = rand();
+    const j = 0.006 * (rand() - 0.5);                                 // the line's thickness
+    data[i * 4] = a[0] + (b[0] - a[0]) * t + j; data[i * 4 + 1] = a[1] + (b[1] - a[1]) * t + j;
+    data[i * 4 + 2] = a[2] + (b[2] - a[2]) * t + j; data[i * 4 + 3] = 1 + col;
+  }
+  return data;
+}
+
+// ---------- renderer and scene ----------
+const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, preserveDrawingBuffer: CAPTURE });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.setClearColor(0x05040a);
+renderer.xr.enabled = true;
+renderer.xr.setReferenceSpaceType('local-floor');
+document.body.appendChild(renderer.domElement);
+if (!CAPTURE) document.body.appendChild(VRButton.createButton(renderer));
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.01, 50);
+camera.position.set(0, 0.15, 4.3);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.autoRotate = !CAPTURE; controls.autoRotateSpeed = 0.35;
+const world = new THREE.Group(); scene.add(world);
+renderer.xr.addEventListener('sessionstart', () => world.position.set(0, 1.45, -2.4));
+renderer.xr.addEventListener('sessionend', () => world.position.set(0, 0, 0));
+
+// ---------- the simulation on the graphics card ----------
+const gpu = new GPUComputationRenderer(SIM, SIM, renderer);
+const gl = renderer.getContext();
+if (!renderer.capabilities.isWebGL2 || !gl.getExtension('EXT_color_buffer_float')) gpu.setDataType(THREE.HalfFloatType);
+const pos0 = gpu.createTexture(), vel0 = gpu.createTexture();
+for (let i = 0; i < N; i++) {          // start: a small ball of light in the center
+  const u = rand(), v = rand(), r = 0.05 * Math.cbrt(rand()), th = TAU * u, ph = Math.acos(2 * v - 1);
+  pos0.image.data.set([r * Math.sin(ph) * Math.cos(th), r * Math.cos(ph), r * Math.sin(ph) * Math.sin(th), rand()], i * 4);
+  vel0.image.data.set([0, 0, 0, rand()], i * 4);
+}
+const targets = ACTS.map(a => { const t = new THREE.DataTexture(sampleAct(a, a.name === 'الوردة' ? 0.78 : 0.7), SIM, SIM, THREE.RGBAFormat, THREE.FloatType);
+  t.needsUpdate = true; return t; });
+
+const NOISE = /* glsl */`
+vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x,289.0);}
+vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}
+float snoise(vec3 v){const vec2 C=vec2(1.0/6.0,1.0/3.0);const vec4 D=vec4(0.0,0.5,1.0,2.0);
+vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.0-g;
+vec3 i1=min(g.xyz,l.zxy);vec3 i2=max(g.xyz,l.zxy);vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+2.0*C.xxx;vec3 x3=x0-1.0+3.0*C.xxx;
+i=mod(i,289.0);vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));
+float n_=1.0/7.0;vec3 ns=n_*D.wyz-D.xzx;vec4 j=p-49.0*floor(p*ns.z*ns.z);vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.0*x_);
+vec4 x=x_*ns.x+ns.yyyy;vec4 y=y_*ns.x+ns.yyyy;vec4 h=1.0-abs(x)-abs(y);vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);
+vec4 s0=floor(b0)*2.0+1.0;vec4 s1=floor(b1)*2.0+1.0;vec4 sh=-step(h,vec4(0.0));vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);
+vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
+vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0);m=m*m;
+return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));}
+vec3 snoise3(vec3 p){return vec3(snoise(p),snoise(p+vec3(31.4,-17.2,9.1)),snoise(p+vec3(-7.7,23.3,51.9)));}
+vec3 curl(vec3 p){const float e=0.08;
+ vec3 dx=vec3(e,0,0),dy=vec3(0,e,0),dz=vec3(0,0,e);
+ vec3 px0=snoise3(p-dx),px1=snoise3(p+dx),py0=snoise3(p-dy),py1=snoise3(p+dy),pz0=snoise3(p-dz),pz1=snoise3(p+dz);
+ return vec3(py1.z-py0.z-pz1.y+pz0.y, pz1.x-pz0.x-px1.z+px0.z, px1.y-px0.y-py1.x+py0.x)/(2.0*e);}
+`;
+const velShader = /* glsl */`
+uniform float uTime, uDt, uAttract, uNoise, uFreq, uVortex, uBurst, uCollapse, uRise;
+uniform sampler2D uTarget; uniform mat4 uActM;
+${NOISE}
+void main(){
+  vec2 uv = gl_FragCoord.xy / resolution.xy;
+  vec4 P = texture2D(texturePosition, uv); vec4 V = texture2D(textureVelocity, uv);
+  vec3 p = P.xyz, v = V.xyz; float r1 = P.w, r2 = V.w;
+  vec4 T = texture2D(uTarget, uv);
+  float part = step(0.5, T.w);
+  // each particle arrives at its own moment: the symbol assembles from the stream
+  float a = part * clamp((uAttract - r1 * 0.35) / 0.65, 0.0, 1.0);
+  vec3 tgt = (uActM * vec4(T.xyz, 1.0)).xyz;
+  // the particles follow the stream lines (smoke-like filaments) instead of diffusing at random
+  vec3 flow = curl(p * uFreq + vec3(0.0, uTime * 0.07, uTime * 0.05)) * uNoise * 0.32;
+  vec3 acc = (flow - v) * 2.4 * (1.0 - 0.93 * a);
+  acc += (tgt - p) * a * 38.0 - v * a * 9.0;                            // a soft spring toward the symbol
+  float rxz = length(p.xz) + 0.25;
+  acc += vec3(-p.z, 0.0, p.x) / rxz * uVortex * (1.0 - a);              // vortex around the vertical axis
+  acc += normalize(p + 1e-4) * uBurst * (0.4 + r2) * (1.0 - a);          // burst outward
+  acc += vec3(0.0, 1.0, 0.0) * uRise * (0.3 + r1) * (1.0 - a);           // rising like smoke
+  acc += -p * uCollapse * (1.0 + 3.0 * r2);                              // collapse toward the center
+  float d = length(p); acc += -p / max(d, 1e-3) * max(d - 1.45, 0.0) * 5.0; // a soft boundary: a compact mass
+  v += acc * uDt;
+  v *= exp(-uDt * (1.1 + 3.0 * uCollapse));
+  gl_FragColor = vec4(v, r2);
+}`;
+const posShader = /* glsl */`
+uniform float uDt;
+void main(){ vec2 uv = gl_FragCoord.xy / resolution.xy;
+  vec4 P = texture2D(texturePosition, uv); vec4 V = texture2D(textureVelocity, uv);
+  gl_FragColor = vec4(P.xyz + V.xyz * uDt, P.w); }`;
+const velVar = gpu.addVariable('textureVelocity', velShader, vel0);
+const posVar = gpu.addVariable('texturePosition', posShader, pos0);
+gpu.setVariableDependencies(velVar, [posVar, velVar]);
+gpu.setVariableDependencies(posVar, [posVar, velVar]);
+const VU = velVar.material.uniforms, PU = posVar.material.uniforms;
+Object.assign(VU, { uTime: { value: 0 }, uDt: { value: 0 }, uAttract: { value: 0 }, uNoise: { value: 1 }, uFreq: { value: 0.9 },
+  uVortex: { value: 0 }, uBurst: { value: 0 }, uCollapse: { value: 0 }, uRise: { value: 0 }, uTarget: { value: targets[0] },
+  uActM: { value: new THREE.Matrix4() } });
+PU.uDt = { value: 0 };
+const err = gpu.init(); if (err) console.error(err);
+
+// ---------- drawing the light ----------
+const geo = new THREE.BufferGeometry();
+const ref = new Float32Array(N * 2), seed = new Float32Array(N), col = new Float32Array(N * 3);
+for (let i = 0; i < N; i++) { ref[i * 2] = (i % SIM + 0.5) / SIM; ref[i * 2 + 1] = (Math.floor(i / SIM) + 0.5) / SIM;
+  seed[i] = rand(); const c = PALETTE[NEBULA[Math.floor(rand() * NEBULA.length)]]; col.set(c, i * 3); }
+geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N * 3), 3));
+geo.setAttribute('ref', new THREE.BufferAttribute(ref, 2));
+geo.setAttribute('seed', new THREE.BufferAttribute(seed, 1));
+geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 4);
+const pointsMat = new THREE.ShaderMaterial({
+  uniforms: { tPos: { value: null }, tVel: { value: null }, uTarget: { value: targets[0] }, uAttract: { value: 0 },
+    uPal: { value: PALETTE.map(c => new THREE.Vector3(...c)) }, uSize: { value: 1 }, uScale: { value: innerHeight }, uTime: { value: 0 } },
+  vertexShader: /* glsl */`
+    attribute vec2 ref; attribute float seed; attribute vec3 color;
+    uniform sampler2D tPos, tVel, uTarget; uniform float uAttract, uSize, uScale, uTime; uniform vec3 uPal[10];
+    ${NOISE}
+    // color fields: the color depends on the place in space (zones of blue, violet, magenta, pink) and moves slowly
+    vec3 field(vec3 p){
+      float n = 0.5 + 0.5 * snoise(p * 0.55 + vec3(0.0, uTime * 0.03, uTime * 0.02));
+      vec3 c = mix(vec3(0.22, 0.32, 1.0), vec3(0.58, 0.26, 1.0), smoothstep(0.0, 0.35, n));
+      c = mix(c, vec3(1.0, 0.2, 0.68), smoothstep(0.35, 0.62, n));
+      c = mix(c, vec3(1.0, 0.6, 0.84), smoothstep(0.62, 0.95, n));
+      float core = exp(-dot(p, p) * 5.0);                                   // a glowing white-cyan core
+      return mix(c, vec3(0.75, 0.95, 1.0), core * 0.85);
+    }
+    varying vec3 vCol; varying float vA;
+    void main(){
+      vec3 p = texture2D(tPos, ref).xyz; vec3 v = texture2D(tVel, ref).xyz;
+      vec4 T = texture2D(uTarget, ref);
+      float a = step(0.5, T.w) * clamp((uAttract - texture2D(tPos, ref).w * 0.35) / 0.65, 0.0, 1.0);
+      int ci = int(clamp(T.w - 1.0, 0.0, 9.0) + 0.5);
+      vec3 symCol = uPal[0];
+      for (int k = 0; k < 10; k++) if (k == ci) symCol = uPal[k];
+      float sp = length(v);
+      vCol = mix(mix(field(p), color, 0.25), symCol, a);
+      vCol = mix(vCol, vec3(1.0, 0.95, 1.0), clamp(sp * 0.18, 0.0, 0.35));   // fast particles turn whiter
+      vA = mix(0.34, 0.11, a) * (0.6 + 0.4 * seed);                         // less light on the symbol's lines: its colors stay
+      vec4 mv = modelViewMatrix * vec4(p, 1.0);
+      gl_PointSize = clamp(uSize * (1.2 + 1.6 * seed) * (1.0 + 0.6 * a) * uScale * 0.0075 / -mv.z, 1.0, 28.0);
+      gl_Position = projectionMatrix * mv;
+    }`,
+  fragmentShader: /* glsl */`
+    varying vec3 vCol; varying float vA;
+    void main(){ vec2 q = gl_PointCoord * 2.0 - 1.0; float d = dot(q, q); if (d > 1.0) discard;
+      float f = exp(-d * 3.2); gl_FragColor = vec4(vCol * f * vA, 1.0); }`,
+  blending: THREE.AdditiveBlending, depthWrite: false, transparent: true });
+const points = new THREE.Points(geo, pointsMat); points.frustumCulled = false; world.add(points);
+
+// soft nebula clouds (large glows)
+const glowTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.35, 'rgba(255,255,255,0.35)');
+  gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })();
+const clouds = [];
+for (let i = 0; i < 34; i++) {
+  const c = PALETTE[[5, 6, 4, 1, 2, 6, 5][i % 7]];
+  const m = new THREE.SpriteMaterial({ map: glowTex, color: new THREE.Color(...c), transparent: true, opacity: 0.07 + 0.06 * rand(),
+    blending: THREE.AdditiveBlending, depthWrite: false });
+  const s = new THREE.Sprite(m); s.userData = { r: 0.3 + 1.2 * rand(), a: TAU * rand(), y: (rand() - 0.5) * 1.4, w: 0.04 + 0.1 * rand(),
+    size: 0.7 + 1.3 * rand(), ph: TAU * rand() };
+  clouds.push(s); world.add(s);
+}
+
+// ---------- the timeline ----------
+const env = (t, a, b, c, d) => t < a || t > d ? 0 : t < b ? sm((t - a) / (b - a)) : t < c ? 1 : 1 - sm((t - c) / (d - c));
+const sm = x => { x = Math.min(Math.max(x, 0), 1); return x * x * x * (x * (x * 6 - 15) + 10); };
+const bump = (t, c, w) => Math.max(0, 1 - Math.abs(t - c) / w) ** 2;
+function timeline(t) {
+  let act = -1, attract = 0;
+  ACTS.forEach((A, i) => { const hold = A.hold || 3.2, ramp = 2.6;
+    const v = env(t, A.t0, A.t0 + ramp, A.t0 + ramp + hold, A.t1); if (v > attract) { attract = v; act = i; } if (t >= A.t0 && t <= A.t1) act = i; });
+  return {
+    act, attract,
+    noise: 1.2 + 1.6 * bump(t, 13, 2) + 1.4 * bump(t, 24.5, 2) + 1.2 * bump(t, 35.5, 1.6) + 2.2 * bump(t, 47, 3) + 0.6 * Math.sin(t * 0.7) ** 2,
+    freq: 0.75 + 0.35 * Math.sin(t * 0.11),
+    vortex: 1.6 * bump(t, 13.5, 2.5) - 1.8 * bump(t, 35, 2.2) + 2.5 * env(t, 60, 62, 64.5, 67) + 0.4 * Math.sin(t * 0.2),
+    burst: 7 * bump(t, 1.0, 1.0) + 3.5 * bump(t, 11.7, 0.8) + 3.5 * bump(t, 22.7, 0.8) + 4 * bump(t, 33.7, 0.8) + 3 * bump(t, 44.7, 0.8)
+           + 5 * bump(t, 60.8, 0.9) + 9 * bump(t, 69.3, 1.0),
+    rise: 1.2 * bump(t, 24.5, 1.8) + 0.8 * bump(t, 46, 2.5),
+    collapse: 2.2 * env(t, 61.5, 64.5, 67.5, 68.8),
+  };
+}
+
+// ---------- the loop ----------
+let simTime = 0;
+const tmpM = new THREE.Matrix4(), tmpQ = new THREE.Quaternion();
+function step(dt) {
+  simTime += dt;
+  const t = simTime % LOOP, tl = timeline(t);
+  const A = ACTS[Math.max(tl.act, 0)];
+  const ang = A.speed * (t - A.t0);
+  tmpQ.setFromAxisAngle(new THREE.Vector3(...A.spin).normalize(), ang);
+  tmpM.makeRotationFromQuaternion(tmpQ);
+  if (A.tilt) tmpM.premultiply(new THREE.Matrix4().makeRotationX(A.tilt));
+  const breathe = 1 + 0.03 * Math.sin(t * 2.1);
+  tmpM.scale(new THREE.Vector3(breathe, breathe, breathe));
+  VU.uTarget.value = targets[Math.max(tl.act, 0)]; pointsMat.uniforms.uTarget.value = VU.uTarget.value;
+  VU.uActM.value.copy(tmpM);
+  VU.uTime.value = simTime; VU.uDt.value = dt; PU.uDt.value = dt; pointsMat.uniforms.uTime.value = simTime;
+  VU.uAttract.value = tl.attract; pointsMat.uniforms.uAttract.value = tl.attract;
+  VU.uNoise.value = tl.noise; VU.uFreq.value = tl.freq; VU.uVortex.value = tl.vortex; VU.uBurst.value = tl.burst;
+  VU.uRise.value = tl.rise; VU.uCollapse.value = tl.collapse;
+  gpu.compute();
+  pointsMat.uniforms.tPos.value = gpu.getCurrentRenderTarget(posVar).texture;
+  pointsMat.uniforms.tVel.value = gpu.getCurrentRenderTarget(velVar).texture;
+  // the clouds drift, gather around a symbol, and pull in when everything collapses
+  const pull = 1 - 0.75 * tl.collapse / 2.2;
+  clouds.forEach(s => { const u = s.userData, a = u.a + t * u.w;
+    const r = u.r * pull * (1 - 0.3 * tl.attract) * (1 + 0.25 * Math.sin(t * 0.3 + u.ph));
+    s.position.set(r * Math.cos(a), u.y * pull + 0.1 * Math.sin(t * 0.4 + u.ph), r * Math.sin(a) - 0.25);
+    const sc = u.size * (1 + 0.5 * bump(t, 69.3, 1.5) + 0.3 * tl.attract); s.scale.set(sc, sc, sc); });
+  document.getElementById('act').textContent = tl.attract > 0.2 ? ACTS[tl.act].name : '';
+  return t;
+}
+
+addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight); pointsMat.uniforms.uScale.value = innerHeight; });
+
+if (!CAPTURE) {
+  const clock = new THREE.Clock();
+  renderer.setAnimationLoop(() => {
+    const dt = Math.min(clock.getDelta(), 1 / 30);
+    step(dt * 0.5); step(dt * 0.5);                 // two small steps per frame: smoother and more stable
+    pointsMat.uniforms.uScale.value = renderer.xr.isPresenting ? 1600 : innerHeight;
+    controls.update(); renderer.render(scene, camera);
+  });
+} else {
+  // recording mode (for the preview video): fixed steps and a scripted camera
+  window.frameAt = (i, fps) => {
+    const dt = 1 / fps; step(dt / 3); step(dt / 3); const t = step(dt / 3);
+    const u = t / LOOP, orbit = 0.5 * Math.sin(TAU * u * 2) + 0.15, dist = 3.6 + 0.6 * Math.sin(TAU * u * 3);
+    camera.position.set(Math.sin(orbit) * dist, 0.25 + 0.3 * Math.sin(TAU * u), Math.cos(orbit) * dist); camera.lookAt(0, 0, 0);
+    renderer.render(scene, camera); return renderer.domElement.toDataURL('image/jpeg', 0.88);
+  };
+  window.advance = (sec, fps) => { const n = Math.round(sec * fps); for (let k = 0; k < n; k++) { step(1 / fps / 3); step(1 / fps / 3); step(1 / fps / 3); } };
+  window.ready = true;
+}
+</script>
+</body>
+</html>
