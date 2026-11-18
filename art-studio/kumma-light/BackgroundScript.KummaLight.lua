@@ -4,8 +4,8 @@
 -- is swallowed into a core and explodes again. A 72-second loop.
 --
 -- How to use: turn it on in Extras > Plugins and Scripts > Background (the eye button + the big
--- button of the row), then point your hand forward and press the trigger once: the work appears
--- 2.5 meters in front of you. Turning it off removes its layers.
+-- button of the row). Point your hand forward and press the trigger, or wait 3 seconds: the work
+-- appears in front of you at its real size (it follows the scene's zoom). Turning it off removes its layers.
 
 Settings = {
     description = "Kumma Light: Omani kumma symbols forming from a living nebula of smoke and stars",
@@ -29,6 +29,8 @@ local C = {0, 0, 0}             -- center of the work (in canvas units)
 local RIGHT, UPV, FWD = {1, 0, 0}, {0, 1, 0}, {0, 0, 1}   -- the work's frame (FWD toward the user)
 local layers = {}               -- {layer=, base=Vector3, kind=, ...}
 local clock0 = 0
+local startTime = 0
+local S_UNITS = 10              -- canvas units for one real meter (set when placed, follows the scene's zoom)
 local saved = {}
 
 -- ---------- small vector helpers (plain Lua numbers) ----------
@@ -42,7 +44,7 @@ local function cross(a, b) return {a[2] * b[3] - a[3] * b[2], a[3] * b[1] - a[1]
 
 -- a point in the work's frame (meters) -> a canvas position
 local function world(p)
-    local s = UNITS * Parameters.size
+    local s = S_UNITS * Parameters.size
     return Vector3:New(
         C[1] + (p[1] * RIGHT[1] + p[2] * UPV[1] + p[3] * FWD[1]) * s,
         C[2] + (p[1] * RIGHT[2] + p[2] * UPV[2] + p[3] * FWD[2]) * s,
@@ -429,23 +431,31 @@ end
 function Start()
     placed = false
     layers = {}
+    startTime = App.time
+end
+
+-- place the work: in front of the hand, in the direction it points; its real size follows the scene's zoom
+local function place()
+    local p = Brush.position
+    local d = Brush.direction
+    FWD = norm({-d.x, 0, -d.z})                 -- the symbols face the user
+    UPV = {0, 1, 0}
+    RIGHT = norm(cross(UPV, FWD))
+    local zoom = App.currentScale
+    if zoom == nil or zoom < 0.01 then zoom = 1 end
+    S_UNITS = UNITS / zoom
+    local dist = (1.0 + 1.4 * Parameters.size) * S_UNITS
+    C = {p.x - FWD[1] * dist, p.y + 0.15 * S_UNITS, p.z - FWD[3] * dist}
+    build()
+    placed = true
+    clock0 = App.time - 68.2 / Parameters.speed  -- it begins with an explosion from a point
+    App:Error("Kumma Light: ready (" .. #layers .. " layers)")
 end
 
 function Main()
     if not placed then
-        if Brush.triggerPressedThisFrame then
-            local p = Brush.position
-            local d = Brush.direction
-            FWD = norm({-d.x, 0, -d.z})                 -- the symbols face the user
-            UPV = {0, 1, 0}
-            RIGHT = norm(cross(UPV, FWD))
-            -- the center: 2.5 meters in front of the hand (in the pointing direction), a little higher
-            local dist = 2.5 * UNITS * Parameters.size
-            C = {p.x - FWD[1] * dist, p.y + 0.15 * UNITS, p.z - FWD[3] * dist}
-            build()
-            placed = true
-            clock0 = App.time - 68.2 / Parameters.speed  -- it begins with an explosion from a point
-        end
+        -- press the trigger to place it, or it places itself after 3 seconds
+        if Brush.triggerPressedThisFrame or (App.time - startTime > 3) then place() end
         return
     end
     local t = ((App.time - clock0) * Parameters.speed) % LOOP
