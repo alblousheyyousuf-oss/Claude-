@@ -3,8 +3,9 @@
 -- (eight-pointed star, medallions, bands, vine, rosette), then dissolve. At the end everything
 -- is swallowed into a core and explodes again. A 72-second loop.
 --
--- How to use: turn it on in Extras > Plugins and Scripts > Background, then press the trigger
--- once where you want the center of the work, with your hand pointing forward.
+-- How to use: turn it on in Extras > Plugins and Scripts > Background (the eye button + the big
+-- button of the row), then point your hand forward and press the trigger once: the work appears
+-- 2.5 meters in front of you. Turning it off removes its layers.
 
 Settings = {
     description = "Kumma Light: Omani kumma symbols forming from a living nebula of smoke and stars",
@@ -103,8 +104,8 @@ end
 -- a symbol path: a glowing tube (Neon Pulse) + sparkles of stars along it
 local function symbolPath(pts, closed, color)
     local d = densify(pts, closed, 0.025)
-    stroke(d, "Neon Pulse", 0.035, color)
-    if Parameters.density >= 2 then stroke(d, "Stars", 0.09, color) end
+    stroke(d, "Neon Pulse", 0.11, color)
+    stroke(d, "Stars", 0.16, color)
 end
 
 -- ---------- the symbols (2D in the plane facing the user, or 3D rings around the vertical axis) ----------
@@ -297,12 +298,11 @@ local function drawNebula(brush, count, size, steps)
 end
 
 local function drawCore()
-    for i = 1, 6 do
-        local r = 0.05 + 0.03 * i
-        stroke(densify(circle(r, 24), true, 0.03), "Smoke", 0.45, (i % 2 == 0) and COL.white or COL.sky)
+    for i = 1, 3 do
+        stroke(streamline(randomSeed(0.12), 8, 0.02), "Smoke", 0.12, (i == 1) and COL.sky or COL.pink)
     end
-    for i = 1, 10 do
-        stroke(streamline(randomSeed(0.25), 10, 0.03), "Stars", 0.12, COL.white)
+    for i = 1, 14 do
+        stroke(streamline(randomSeed(0.3), 12, 0.03), "Stars", 0.08, (i % 3 == 0) and COL.sky or COL.white)
     end
 end
 
@@ -331,14 +331,14 @@ local ACTS = {
 local function build()
     saved = {type = Brush.type, size = Brush.size, color = Brush.colorRgb}
     local d = Parameters.density
-    newLayer("smokeA", function() drawNebula("Smoke", 22 * d, 0.6, 28) end, {turns = 1, wob = 9})
-    newLayer("smokeB", function() drawNebula("Smoke", 22 * d, 0.45, 24) end, {turns = -1, wob = 12})
-    newLayer("sparkle", function()
-        drawNebula("Stars", 14 * d, 0.14, 22)
-        drawNebula("Snow", 6 * d, 0.12, 18)
-        drawNebula("Embers", 5 * d, 0.16, 14)
-    end, {turns = 2, wob = 6})
-    newLayer("core", drawCore, {turns = -2, wob = 0})
+    -- each layer turns around its own tilted axis, at its own speed (whole turns per loop -> seamless)
+    newLayer("smoke", function() drawNebula("Smoke", 9 * d, 0.3, 26) end, {turns = 1, wob = 9, axis = {0.15, 1, 0.1}})
+    newLayer("smoke", function() drawNebula("Smoke", 9 * d, 0.25, 22) end, {turns = -1, wob = 12, axis = {-0.3, 1, 0.2}})
+    newLayer("dust", function() drawNebula("Stars", 16 * d, 0.1, 26) end, {turns = 2, wob = 7, axis = {0.4, 1, -0.2}})
+    newLayer("dust", function() drawNebula("Snow", 12 * d, 0.07, 24) end, {turns = -2, wob = 10, axis = {0.1, 1, 0.5}})
+    newLayer("dust", function() drawNebula("Stars", 14 * d, 0.07, 30) end, {turns = 1, wob = 14, axis = {1, 0.4, 0.2}})
+    newLayer("dust", function() drawNebula("Embers", 6 * d, 0.1, 14) end, {turns = -1, wob = 6, axis = {-0.6, 1, -0.4}})
+    newLayer("core", drawCore, {turns = -2, wob = 0, axis = {0, 1, 0}})
     local draws = {
         star = function()
             drawStar(0.95)
@@ -385,7 +385,6 @@ local function animate(t)
     nebScale = nebScale * (1 - 0.92 * collapse) + 0.35 * explode * (1 - collapse)
     if t >= 68.2 and t < 69.2 then nebScale = 0.08 + (1.35 - 0.08) * smooth((t - 68.2) / 1.0) end
     local flowA = 0.35 * (0.5 + 0.5 * Math:Sin(TAU * t / 9))         -- the smoke stretches and retracts
-    local up = Vector3:New(0, 1, 0)
     local tiltAxis = Vector3:New(RIGHT[1], RIGHT[2], RIGHT[3])
 
     for _, rec in ipairs(layers) do
@@ -393,13 +392,17 @@ local function animate(t)
         if rec.kind ~= "symbol" then
             local turn = 360 * rec.turns * t / LOOP + 25 * Math:Sin(TAU * 2 * t / LOOP) * rec.turns
             local spinFaster = 140 * env(t, 60, 62.5, 66, 68.2) * (rec.turns > 0 and 1 or -1)   -- the final vortex
+            local a = rec.axis
+            local ax = Vector3:New(a[1] * RIGHT[1] + a[2] * UPV[1] + a[3] * FWD[1],
+                                   a[1] * RIGHT[2] + a[2] * UPV[2] + a[3] * FWD[2],
+                                   a[1] * RIGHT[3] + a[2] * UPV[3] + a[3] * FWD[3])
             local rot = Rotation:AngleAxis(rec.wob * Math:Sin(TAU * t / 18 + rec.wob), tiltAxis)
-            rot = rot:Multiply(Rotation:AngleAxis(turn + spinFaster, up))
+            rot = rot:Multiply(Rotation:AngleAxis(turn + spinFaster, ax))
             L.rotation = rot
             local s = nebScale
-            if rec.kind == "core" then s = 1 + 1.2 * collapse + 0.6 * bump(t, 68.6, 1.2) end
+            if rec.kind == "core" then s = 1 + 0.6 * collapse + 0.3 * bump(t, 68.6, 1.2) end
             L.scale = s
-            if rec.kind == "smokeA" or rec.kind == "smokeB" then
+            if rec.kind == "smoke" then
                 L:SetShaderClipping(flowA * 0.6, 0.35 - flowA * 0.6)
             end
         else
@@ -432,11 +435,13 @@ function Main()
     if not placed then
         if Brush.triggerPressedThisFrame then
             local p = Brush.position
-            C = {p.x, p.y, p.z}
             local d = Brush.direction
             FWD = norm({-d.x, 0, -d.z})                 -- the symbols face the user
             UPV = {0, 1, 0}
             RIGHT = norm(cross(UPV, FWD))
+            -- the center: 2.5 meters in front of the hand (in the pointing direction), a little higher
+            local dist = 2.5 * UNITS * Parameters.size
+            C = {p.x - FWD[1] * dist, p.y + 0.15 * UNITS, p.z - FWD[3] * dist}
             build()
             placed = true
             clock0 = App.time - 68.2 / Parameters.speed  -- it begins with an explosion from a point
@@ -448,7 +453,10 @@ function Main()
 end
 
 function End()
-    -- when stopped: the layers stay as they are (you can delete them from the Layers panel)
+    -- when turned off: remove its layers, so turning it on again starts clean
+    for _, rec in ipairs(layers) do rec.layer:Delete() end
+    layers = {}
+    placed = false
     if saved.type then
         Brush.type = saved.type
         Brush.size = saved.size
