@@ -1,29 +1,31 @@
--- Kumma Ink for Open Brush (Background Plugin) - live pen version.
--- An invisible pen draws the Omani kumma's symbols in the air in front of you, live, a few points per frame:
--- the outline, then a back-and-forth scribble fill like the original pen drawing. Each symbol breathes and
--- turns, then is swallowed by a small core of ink and disappears, and the pen draws the next one. Ink
--- tendrils are drawn, drift and are swallowed around it. At the end the core bursts into a splash of
--- droplets and the cycle starts again (about 70 seconds).
+-- Kumma Ink for Open Brush (Background Plugin).
+-- The Omani kumma's symbols drawn in the air in ink: a pen draws each symbol in front of you (outline, then a
+-- scribble fill like the original pen drawing), it floats and breathes, then unwrites itself and fades while ink
+-- flows around it in living streams. At the climax all the symbols return together as a turning constellation
+-- around the great rosette, then everything is swallowed into a knot of ink that bursts, and it starts again.
 --
--- How to use: Extras > Plugins and Scripts > Background: pick KummaInk, press the eye button, then the
--- big button of the row. Point your hand forward and press the trigger, or wait 3 seconds.
--- It draws very little per frame, and the pen slows down by itself if the headset is busy.
+-- How it works (from the Open Brush source): everything is drawn ONCE, hidden, a few strokes per frame. After that
+-- the animation only reveals strokes (SetShaderClipping), dissolves them (_Dissolve) and moves layers, so it never
+-- draws again: no hangs and nothing piling up in memory, however long it runs.
+--
+-- How to use: Extras > Plugins and Scripts > Background: pick KummaInk, press the eye button, then the big button
+-- of the row. Point your hand forward; after 3 seconds (or press the trigger) the work appears in front of you.
 -- Turning it off removes its layers.
 
 Settings = {
-    description = "Kumma Ink: a live pen draws the Omani kumma's symbols in the air",
+    description = "Kumma Ink: the Omani kumma's symbols drawn in the air, flowing ink and a constellation",
     space = "canvas"
 }
 
 Parameters = {
-    size = {label = "Size", type = "float", min = 0.2, max = 2, default = 0.55},
-    speed = {label = "Speed", type = "float", min = 0.3, max = 2, default = 1},
-    thickness = {label = "Thickness", type = "float", min = 0.2, max = 4, default = 1},
+    size = {label = "Size", type = "float", min = 0.2, max = 2, default = 0.9},
+    distance = {label = "Distance (m)", type = "float", min = 0.8, max = 5, default = 2.1},
+    speed = {label = "Speed", type = "float", min = 0.4, max = 2, default = 1},
+    thickness = {label = "Thickness", type = "float", min = 0.3, max = 3, default = 1},
     density = {label = "Density", type = "int", min = 1, max = 3, default = 2},
 }
 
-local LOOP = 70
-local UNITS = 10                -- 1 meter = 10 units in Open Brush
+local UNITS = 10                -- 1 meter = 10 units in Open Brush (at scene scale 1)
 local TAU = 2 * Math.pi
 
 -- ---------- state ----------
@@ -31,7 +33,8 @@ local placed = false
 local C = {0, 0, 0}
 local RIGHT, UPV, FWD = {1, 0, 0}, {0, 1, 0}, {0, 0, 1}
 local S_UNITS = 10
-local clock0, startTime, lastTime = 0, 0, 0
+local ZOOM = 1
+local startTime, lastTime = 0, 0
 local saved = {}
 
 -- ---------- helpers ----------
@@ -43,7 +46,7 @@ end
 local function cross(a, b) return {a[2] * b[3] - a[3] * b[2], a[3] * b[1] - a[1] * b[3], a[1] * b[2] - a[2] * b[1]} end
 
 local function world(p)
-    local s = S_UNITS * Parameters.size
+    local s = S_UNITS
     return Vector3:New(
         C[1] + (p[1] * RIGHT[1] + p[2] * UPV[1] + p[3] * FWD[1]) * s,
         C[2] + (p[1] * RIGHT[2] + p[2] * UPV[2] + p[3] * FWD[2]) * s,
@@ -71,18 +74,6 @@ local COL = {
     navy = "#5251C8", blue = "#4D8EF0", sky = "#8FD0F7", red = "#D0405F", magenta = "#E0359A",
     pink = "#F07CC4", purple = "#8A4BE0", green = "#4DC75E", lime = "#9BE060", ink = "#3A1A66",
 }
-
--- ---------- brushes (with a safe fallback if a name is missing in this version) ----------
-local brushOK = {}
-local function setBrush(name, fallback)
-    if brushOK[name] == nil then
-        pcall(function() Brush.type = fallback end)
-        local before = Brush.type
-        local ok = pcall(function() Brush.type = name end)
-        brushOK[name] = ok and (Brush.type ~= before)
-    end
-    if brushOK[name] then Brush.type = name else Brush.type = fallback end
-end
 
 local function densify(pts, closed, step)
     local out = {}
@@ -175,12 +166,17 @@ local function planar(dx, dy, dz, ry)
     local c, s = Math:Cos(ry or 0), Math:Sin(ry or 0)
     return function(p) return {p[1] * c + dx, p[2] + dy, -p[1] * s + dz} end
 end
+local RADIAL = {}                      -- maps that lie on the imagined kumma's surface
 local function ringMap(R)              -- (arc length, height) on a cylinder of radius R
-    return function(p) local a = p[1] / R; return {R * Math:Sin(a), p[2], R * Math:Cos(a)} end
+    local f = function(p) local a = p[1] / R; return {R * Math:Sin(a), p[2], R * Math:Cos(a)} end
+    RADIAL[f] = true
+    return f
 end
 local function tangentMap(R, a, y0)    -- a small plane touching the cylinder at angle a
     local c, s = Math:Cos(a), Math:Sin(a)
-    return function(p) return {R * s + p[1] * c, y0 + p[2], R * c - p[1] * s} end
+    local f = function(p) return {R * s + p[1] * c, y0 + p[2], R * c - p[1] * s} end
+    RADIAL[f] = true
+    return f
 end
 local IDENT = planar(0, 0, 0, 0)
 
@@ -222,7 +218,7 @@ end
 -- shape list helpers
 local function S(list, poly, col, map, outline, fill, spacing)
     list[#list + 1] = {poly = poly, col = col, map = map or IDENT, outline = outline ~= false,
-                       fill = fill, spacing = spacing or 0.02}
+                       fill = fill, spacing = spacing or 0.02, radial = RADIAL[map or IDENT] or false}
 end
 local function khatamTips(list, R, col, map, cx, cy)   -- the 8 points of the star, each filled
     local k = khatam(R, cx, cy)
@@ -300,7 +296,7 @@ local function symVine()
         local w = 0.09 * Math:Sin(a * 6)
         pts[#pts + 1] = {(R + w) * Math:Sin(a), y0 + (y1 - y0) * u, (R + w) * Math:Cos(a)}
     end
-    L[#L + 1] = {path3 = pts, col = COL.green}
+    L[#L + 1] = {path3 = pts, col = COL.green, radial = true}
     local m = Math:Round(turns * 12)
     for j = 0, m - 1 do
         local u = (j + 0.25) / m
@@ -371,9 +367,9 @@ local function tendril(seed, steps, h)
 end
 
 
-local STRAND = {COL.magenta, COL.purple, COL.blue, COL.pink, COL.navy, COL.sky, COL.purple, COL.magenta}
+local STRAND = {COL.magenta, COL.purple, COL.blue, COL.pink, COL.navy, COL.sky, COL.purple, COL.magenta, COL.green}
 
--- ---------- rotations (quaternions) so each layer turns around its own center ----------
+-- ---------- quaternions: each layer turns around its own center ----------
 local function qAxis(ax, deg)
     local a = norm(ax)
     local h = deg * Math.pi / 360
@@ -393,8 +389,16 @@ local function qRot(q, v)
 end
 local Q0 = {0, 0, 0, 1}
 
--- show a layer's content (drawn around canvas point P) turned by q, scaled by s, with its center at target
-local function applyPose(L, q, s, P, target)
+-- the work's frame (meters, relative to the center) -> canvas offset
+local function off(o)
+    local m = S_UNITS
+    return {(o[1] * RIGHT[1] + o[2] * UPV[1] + o[3] * FWD[1]) * m,
+            (o[1] * RIGHT[2] + o[2] * UPV[2] + o[3] * FWD[2]) * m,
+            (o[1] * RIGHT[3] + o[2] * UPV[3] + o[3] * FWD[3]) * m}
+end
+
+-- show a layer's content (drawn around canvas point P) turned by q, scaled by s, its center moved to target
+local function pose(L, q, s, P, target)
     local rp = qRot(q, P)
     L.position = Vector3:New(target[1] - s * rp[1], target[2] - s * rp[2], target[3] - s * rp[3])
     local w = q[4]
@@ -402,296 +406,475 @@ local function applyPose(L, q, s, P, target)
     if w > 1 then w = 1 end
     local half = Math:Acos(w)
     local sn = Math:Sin(half)
-    if sn < 1e-5 then
-        L.rotation = Rotation:AngleAxis(0, Vector3:New(0, 1, 0))
-    else
-        L.rotation = Rotation:AngleAxis(2 * half * 180 / Math.pi, Vector3:New(q[1] / sn, q[2] / sn, q[3] / sn))
-    end
+    if sn < 1e-5 then L.rotation = Rotation:AngleAxis(0, Vector3:New(0, 1, 0))
+    else L.rotation = Rotation:AngleAxis(2 * half * 180 / Math.pi, Vector3:New(q[1] / sn, q[2] / sn, q[3] / sn)) end
     L.scale = s
 end
 
--- ---------- the pen: strokes are drawn a few points at a time ----------
-local budget = 24               -- points per frame (adapts to how busy the headset is)
-local CHUNK = 14                -- points per drawn piece (pieces share an end point, so the line is continuous)
-local drawEvery, frameNo = 1, 0 -- if the headset is struggling, the pen only draws every few frames
-local pens = {}
-local drewThisFrame = false
-
-local function job(pts, brush, fallback, size, color, whole)
-    return {pts = pts, i = 1, brush = brush, fallback = fallback, size = size, color = color, whole = whole}
+-- reveal part of a layer's strokes, in the order they were drawn: from a to b (0..1). Never pass b <= 0
+-- (Open Brush then turns clipping off and shows everything).
+local function clip(L, a, b)
+    if b < 0.0005 then b = 0.0005 end
+    if a < 0 then a = 0 end
+    if a > b then a = b end
+    L:SetShaderClipping(a, b)
+end
+local function fade(L, v)
+    if v < 0 then v = 0 elseif v > 1 then v = 1 end
+    L:SetShaderFloat("_Dissolve", v)
 end
 
-local function drawPiece(j, n)
-    local last = j.i + n
-    if last > #j.pts then last = #j.pts end
+-- ---------- drawing (once, hidden, a few strokes per frame) ----------
+local VIEWROT = nil             -- the pen points away from the viewer: flat ribbons face you
+local useDWB = nil
+local strokesThisFrame, pointsThisFrame = 0, 0
+
+local function pressure(i, n, base)
+    local u = (i - 1) / Math:Max(1, n - 1)
+    local e = Math:Sin(Math.pi * u)
+    return base * (0.42 + 0.58 * e ^ 0.45)
+end
+
+local function drawInto(rec, pts, brush, widthM, color, smoothing, mode, taper)
+    local n = #pts
+    if n < 2 then return end
     local list = {}
-    for k = j.i, last do list[#list + 1] = world(j.pts[k]) end
-    if #list >= 2 then
-        setBrush(j.brush, j.fallback)
-        Brush.size = j.size * Parameters.thickness
-        Brush.colorRgb = Color:New(j.color)
-        local path = Path:New(list)
-        path:Draw()
-        drewThisFrame = true
-    end
-    local used = last - j.i + 1
-    j.i = last
-    return used
-end
-
-local function newPen(rec, jobs, duration)
-    local total = 0
-    for _, j in ipairs(jobs) do total = total + #j.pts end
-    local pen = {rec = rec, jobs = jobs, k = 1, rate = total / (duration * 0.8), credit = 0}   -- finishes with time to spare
-    pens[#pens + 1] = pen
-    rec.pen = pen
-end
-
-local function runPens(dt)
-    local spent = 0
-    for _, pen in ipairs(pens) do
-        if pen.k <= #pen.jobs and spent < budget then
-            pen.credit = pen.credit + pen.rate * dt
-            local cap = budget
-            if cap < CHUNK + 2 then cap = CHUNK + 2 end
-            if pen.credit > cap then pen.credit = cap end
-            local switched = false
-            while pen.k <= #pen.jobs and spent < budget do
-                local j = pen.jobs[pen.k]
-                local left = #j.pts - j.i + 1
-                local need = CHUNK
-                if j.whole or left < need then need = left end
-                if pen.credit < need then break end    -- wait until a whole piece is ready
-                if not switched then Sketch.layers.active = pen.rec.layer; switched = true end
-                local n = need - 1
-                if j.whole then n = #j.pts end
-                local used = drawPiece(j, n)
-                if used < 1 then used = 1 end
-                pen.credit = pen.credit - used
-                spent = spent + used
-                if j.i >= #j.pts then pen.k = pen.k + 1 end
-            end
+    for i = 1, n do
+        local p = pts[i]
+        local w = world(p)
+        local rot = VIEWROT
+        if mode == "radial" then           -- ribbons lie on the surface of the imagined kumma
+            local d = norm({-(p[1] * RIGHT[1] + p[3] * FWD[1]), 0, -(p[1] * RIGHT[3] + p[3] * FWD[3])})
+            if d[1] * d[1] + d[3] * d[3] > 0.01 then rot = Rotation:LookRotation(Vector3:New(d[1], 0, d[3]), Vector3:New(0, 1, 0)) end
         end
+        local pr = taper and pressure(i, n, 1) or 0.95
+        list[i] = Transform:New(w, rot, pr)
     end
-    local keep = {}
-    for _, pen in ipairs(pens) do
-        if pen.k <= #pen.jobs and not pen.cancelled then keep[#keep + 1] = pen end
+    list[n + 1] = list[n]                -- Open Brush skips the last point of a path
+    local path = Path:New(list)
+    local size = widthM * UNITS * Parameters.size * Parameters.thickness / ZOOM
+    local col = Color:New(color)
+    if useDWB ~= false then
+        local ok = pcall(function() path:DrawWithBrush(brush, size, col, smoothing, rec.layer) end)
+        if ok then useDWB = true else useDWB = false end
     end
-    pens = keep
+    if useDWB == false then              -- older versions: draw with the pointer's brush on the active layer
+        Sketch.layers.active = rec.layer
+        Brush.type = brush
+        -- Brush.size is 0..1 of the brush's range; sizeAbsolute is the real size
+        if not pcall(function() Brush.sizeAbsolute = size end) then Brush.size = 0.25 end
+        Brush.colorRgb = col
+        path:Draw()
+    end
+    strokesThisFrame = strokesThisFrame + 1
+    pointsThisFrame = pointsThisFrame + n * ((smoothing > 0) and 4 or 1)
 end
 
--- ---------- what the pen draws ----------
-local function tilted(pts, tilt)
-    if not tilt then return pts end
-    local q = qAxis({1, 0, 0}, tilt)
-    local out = {}
-    for i = 1, #pts do out[i] = qRot(q, pts[i]) end
-    return out
-end
-
-local function symbolJobs(shapes, tilt)
+-- jobs for a symbol: outlines first, then the scribble fills (that is also the order the pen reveals them)
+local function symbolJobs(shapes)
     local jobs = {}
-    for _, sh in ipairs(shapes) do                       -- the outlines first
+    for _, sh in ipairs(shapes) do
         local d
-        if sh.path3 then
-            d = densify(sh.path3, false, 0.035)
+        if sh.path3 then d = densify(sh.path3, false, 0.04)
         elseif sh.outline then
-            local flat = densify(sh.poly, true, 0.03)
+            local flat = densify(sh.poly, true, 0.04)
             d = {}
             for i = 1, #flat do d[i] = sh.map(flat[i]) end
             d = handLoop(d)
         end
-        if d then jobs[#jobs + 1] = job(tilted(wobble(d, 0.004), tilt), "Marker", "Marker", 0.06, sh.col) end
+        if d then jobs[#jobs + 1] = {pts = wobble(d, 0.0035), brush = "Marker", w = 0.02, col = sh.col, smooth = 0.18,
+                                     mode = sh.radial and "radial" or "view", taper = true} end
     end
-    for _, sh in ipairs(shapes) do                       -- then the scribble fills
+    for _, sh in ipairs(shapes) do
         if sh.fill then
-            local sp = sh.spacing * (2.4 - 0.6 * Parameters.density)
+            local sp = sh.spacing * (1.05 - 0.15 * Parameters.density)
             local z = densify(scribble(sh.poly, sp, Random.value * Math.pi), false, 0.06)
             local out = {}
             for i = 1, #z do out[i] = sh.map(z[i]) end
-            jobs[#jobs + 1] = job(tilted(wobble(out, 0.002), tilt), "Marker", "Marker", 0.028, sh.col)
+            jobs[#jobs + 1] = {pts = wobble(out, 0.0015), brush = "Marker", w = 0.0105, col = sh.col, smooth = 0,
+                               mode = sh.radial and "radial" or "view"}
         end
     end
     return jobs
 end
 
-local function strandJobs(center)
+local function strandJobs(k, n)
     local jobs = {}
-    for i = 1, 2 + Parameters.density do
-        local s = {center[1] + 0.15 * (Random.value * 2 - 1), center[2] + 0.12 * (Random.value * 2 - 1),
-                   center[3] + 0.15 * (Random.value * 2 - 1)}
-        local pts = tendril(s, 30 + Math:Round(18 * Random.value), 0.028)
-        jobs[#jobs + 1] = job(wobble(pts, 0.004), "Marker", "Marker", 0.026 + 0.012 * Random.value,
-                              STRAND[1 + Math:Floor(Random.value * #STRAND)])
+    for i = 1, 4 + Parameters.density do
+        local a = (k + Random.value) * TAU / n
+        local r = 0.45 + 0.85 * Random.value
+        local s = {r * Math:Sin(a), (Random.value * 2 - 1) * 0.55, r * Math:Cos(a)}
+        local pts = tendril(s, 40 + Math:Round(24 * Random.value), 0.03)
+        jobs[#jobs + 1] = {pts = wobble(pts, 0.004), brush = "Tapered Marker", w = 0.013 + 0.008 * Random.value,
+                           col = STRAND[1 + Math:Floor(Random.value * #STRAND)], smooth = 0.2, mode = "view", taper = true}
     end
-    local d = {center[1] + 0.2 * (Random.value * 2 - 1), center[2], center[3] + 0.2 * (Random.value * 2 - 1)}
-    jobs[#jobs + 1] = job({d, {d[1] + 0.05, d[2] + 0.02, d[3]}, {d[1] + 0.1, d[2] + 0.01, d[3] + 0.03}},
-                          "Dot Marker", "Stars", 0.03, COL.ink, true)
+    return jobs
+end
+
+local function dropJobs(k)
+    local jobs = {}
+    for i = 1, 14 + 6 * Parameters.density do       -- ink droplets in a loose shell
+        local d = norm({Random.value * 2 - 1, (Random.value * 2 - 1) * 0.75, Random.value * 2 - 1})
+        local r = 0.5 + 0.9 * Random.value ^ 0.7
+        local p = {d[1] * r, d[2] * r, d[3] * r}
+        local pts = {p, {p[1] + 0.02, p[2] + 0.01, p[3]}, {p[1] + 0.04, p[2] + 0.005, p[3] + 0.01}}
+        local col = (i % 3 == 0) and COL.ink or STRAND[1 + ((i + k) % #STRAND)]
+        jobs[#jobs + 1] = {pts = pts, brush = "Dot Marker", w = 0.012, col = col, smooth = 0, mode = "view"}
+    end
     return jobs
 end
 
 local function coreJobs()
     local jobs = {}
-    for i = 1, 6 do                                      -- a small tight knot of scribbles
+    for i = 1, 7 do                                  -- a tight knot of ink scribbles
         local pts = {}
         local ph = Random.value * TAU
-        for j = 0, 36 do
-            local a = ph + j * 0.55
-            local r = 0.025 + 0.04 * Random.value
-            pts[#pts + 1] = {r * Math:Cos(a), r * Math:Sin(a) * 0.8, 0.035 * Math:Sin(a * 0.7)}
+        local ax = Random.value * TAU
+        for j = 0, 34 do
+            local a = ph + j * 0.6
+            local r = 0.03 + 0.045 * Random.value
+            local x, y, z = r * Math:Cos(a), r * Math:Sin(a), 0.03 * Math:Sin(a * 0.7)
+            pts[#pts + 1] = {x * Math:Cos(ax) - z * Math:Sin(ax), y, x * Math:Sin(ax) + z * Math:Cos(ax)}
         end
-        jobs[#jobs + 1] = job(pts, "Marker", "Marker", 0.03, (i % 2 == 0) and COL.magenta or COL.navy)
+        jobs[#jobs + 1] = {pts = pts, brush = "Marker", w = 0.008, col = (i % 2 == 0) and COL.magenta or COL.navy,
+                           smooth = 0.15, mode = "view", taper = true}
     end
     return jobs
 end
 
-local function splashJobs()
-    local jobs = {}
-    for i = 1, 30 + 6 * Parameters.density do           -- droplets thrown outward along curved rays
-        local d = norm({Random.value * 2 - 1, (Random.value * 2 - 1) * 0.7, Random.value * 2 - 1})
-        local r0 = 0.12 + 0.25 * Random.value
-        local pts = {}
-        for j = 0, 4 do
-            local r = r0 + j * 0.05
-            pts[#pts + 1] = {d[1] * r + 0.025 * j * d[3], d[2] * r, d[3] * r - 0.025 * j * d[1]}
-        end
-        jobs[#jobs + 1] = job(pts, "Dot Marker", "Stars", 0.035,
-                              (i % 3 == 0) and COL.ink or STRAND[1 + (i % #STRAND)], true)
-    end
-    return jobs
-end
-
--- ---------- the timeline (seconds in a 70-second loop) ----------
-local ACTS = {
-    {fn = symStar, t0 = 2.5, draw = 5.5, hold = 2.5, absorb = 2.0, axis = "fwd", spin = 6},
-    {fn = symMedallions, t0 = 12.0, draw = 6.0, hold = 2.5, absorb = 2.0, axis = "up", spin = 12},
-    {fn = symBands, t0 = 22.5, draw = 6.0, hold = 2.5, absorb = 2.0, axis = "up", spin = 15, tilt = 22},
-    {fn = symVine, t0 = 33.0, draw = 6.0, hold = 2.5, absorb = 2.0, axis = "up", spin = -16},
-    {fn = symFlower, t0 = 43.5, draw = 7.0, hold = 4.5, absorb = 2.5, axis = "fwd", spin = 4},
-}
-local T_GROW, T_BURST, T_SPREAD, T_GATHER = 58.5, 63.0, 66.2, 69.6
-
-local plans, recs = {}, {}
-local loopIdx = -1
-local absorbed = 0
-
-local function makePlans()
-    plans = {}
-    plans[#plans + 1] = {kind = "core", t0 = 0.2, tDraw = 1.8, tAbsorb = T_BURST, tEnd = T_BURST,
-                         build = function() return coreJobs(), {0, 0, 0} end}
-    for _, A in ipairs(ACTS) do
-        plans[#plans + 1] = {kind = "symbol", act = A, t0 = A.t0, tDraw = A.t0 + A.draw, tAbsorb = A.t0 + A.draw + A.hold,
-                             tEnd = A.t0 + A.draw + A.hold + A.absorb,
-                             build = function() return symbolJobs(A.fn(), A.tilt), {0, 0, 0} end}
-    end
-    local ts = 1.0
-    while ts < 52 do                                     -- ink tendrils: drawn, drift, swallowed
-        local a = Random.value * TAU
-        local r = 0.55 + 0.6 * Random.value
-        local c = {r * Math:Sin(a), (Random.value * 2 - 1) * 0.5, r * Math:Cos(a)}
-        plans[#plans + 1] = {kind = "strand", t0 = ts, tDraw = ts + 2.2, tAbsorb = ts + 8.2, tEnd = ts + 10.2,
-                             build = function() return strandJobs(c), c end,
-                             drift = {(Random.value * 2 - 1) * 0.25, 0.1 + 0.2 * Random.value, (Random.value * 2 - 1) * 0.25},
-                             axis = {Random.value * 2 - 1, 1, Random.value * 2 - 1}, turn = (Random.value * 2 - 1) * 60}
-        ts = ts + 2.6 + 0.8 * Random.value
-    end
-    plans[#plans + 1] = {kind = "splash", t0 = T_BURST, tDraw = T_BURST + 0.6, tAbsorb = T_SPREAD, tEnd = T_GATHER,
-                         build = function() return splashJobs(), {0, 0, 0} end}
-end
-
-local function deleteRec(rec)
-    if rec.pen then rec.pen.cancelled = true end
-    Sketch.layers.active = saved.layer
-    rec.layer:Delete()
-end
-
-local function startPlan(p)
+-- ---------- the parts of the work (each one a hidden layer, drawn once) ----------
+local recs = {}
+local queue = {}
+local function newRec(kind, build, extra)
     local L = Layer:New()
-    local jobs, center = p.build()
-    local w = world(center)
-    local rec = {plan = p, layer = L, P = {w.x, w.y, w.z}}
+    local rec = {kind = kind, layer = L, build = build, ready = false, shown = true}
+    if extra then for k, v in pairs(extra) do rec[k] = v end end
     recs[#recs + 1] = rec
-    newPen(rec, jobs, p.tDraw - p.t0)
+    queue[#queue + 1] = rec
+    return rec
+end
+local function show(rec, on)
+    if on and not rec.shown then rec.layer:Show(); rec.shown = true end
+    if (not on) and rec.shown then rec.layer:Hide(); rec.shown = false end
 end
 
-local function axisOf(name)
-    if name == "fwd" then return FWD end
-    return {0, 1, 0}
-end
-
-local function updateRec(rec, t)
-    local p = rec.plan
-    local L = rec.layer
-    if t < p.tDraw then return end                       -- still being drawn: the layer stays still
-    if rec.pen and not rec.pen.cancelled then rec.pen.cancelled = true end
-    local m = S_UNITS * Parameters.size
-    local CW = {C[1], C[2], C[3]}
-    if p.kind == "symbol" then
-        local A = p.act
-        local h = t - p.tDraw
-        local q = qAxis(axisOf(A.axis), A.spin * h)
-        local s = 1 + 0.03 * Math:Sin(h * 2.2)
-        if t >= p.tAbsorb then                           -- swallowed by the core: spiral and shrink
-            local x = smooth((t - p.tAbsorb) / (p.tEnd - p.tAbsorb))
-            q = qMul(qAxis(FWD, 220 * x), q)
-            s = s * (1 - x) ^ 1.6 + 0.01
-        end
-        applyPose(L, q, s, rec.P, rec.P)
-    elseif p.kind == "strand" then
-        local h = t - p.tDraw
-        local life = smooth(h / (p.tAbsorb - p.tDraw))
-        local tg = {rec.P[1] + (p.drift[1] * RIGHT[1] + p.drift[2] * UPV[1] + p.drift[3] * FWD[1]) * m * life,
-                    rec.P[2] + (p.drift[1] * RIGHT[2] + p.drift[2] * UPV[2] + p.drift[3] * FWD[2]) * m * life,
-                    rec.P[3] + (p.drift[1] * RIGHT[3] + p.drift[2] * UPV[3] + p.drift[3] * FWD[3]) * m * life}
-        local q = qAxis(p.axis, p.turn * life)
-        local s = 1 + 0.08 * life
-        if t >= p.tAbsorb then
-            local x = smooth((t - p.tAbsorb) / (p.tEnd - p.tAbsorb))
-            tg = {tg[1] + (CW[1] - tg[1]) * x, tg[2] + (CW[2] - tg[2]) * x, tg[3] + (CW[3] - tg[3]) * x}
-            q = qMul(qAxis({0, 1, 0}, 160 * x), q)
-            s = s * (1 - x) ^ 1.4 + 0.01
-        end
-        applyPose(L, q, s, rec.P, tg)
-    elseif p.kind == "core" then
-        local grow = smooth((t - T_GROW) / (T_BURST - T_GROW))
-        local s = (1 + 0.1 * absorbed) * (1 + 0.08 * Math:Sin(t * 3.1)) * (1 + 2.5 * grow)
-        local q = qAxis({0.2, 1, 0.1}, 25 * t + 500 * grow * grow)
-        applyPose(L, q, s, rec.P, rec.P)
-    elseif p.kind == "splash" then
-        local s
-        if t < p.tAbsorb then s = 1 + 1.4 * smooth((t - p.tDraw) / (p.tAbsorb - p.tDraw))
-        else s = 2.4 * (1 - smooth((t - p.tAbsorb) / (p.tEnd - p.tAbsorb))) ^ 1.3 + 0.01 end
-        applyPose(L, qAxis({0.3, 1, 0.2}, 30 * (t - p.tDraw)), s, rec.P, rec.P)
+-- each symbol is made of parts (layers) that turn on their own: interlacing stars, orbiting medallions, gears of bands
+local function dirOf(v) return {v[1] * RIGHT[1] + v[2] * UPV[1] + v[3] * FWD[1], v[1] * RIGHT[2] + v[2] * UPV[2] + v[3] * FWD[2],
+                                v[1] * RIGHT[3] + v[2] * UPV[3] + v[3] * FWD[3]} end
+local function partsStar()
+    local outer, inner = {}, {}
+    S(outer, khatam(0.95), COL.magenta)
+    khatamTips(outer, 0.95, COL.magenta)
+    for k = 0, 3 do
+        local a = Math.pi / 4 + k * Math.pi / 2
+        local cx, cy = 1.38 * Math:Cos(a), 1.38 * Math:Sin(a)
+        S(outer, rhombus(0.11, 0.17, cx, cy), COL.green, nil, true, true, 0.016)
+        S(outer, rhombus(0.05, 0.08, cx, cy), COL.lime, nil, true, true, 0.012)
     end
+    S(inner, khatam(0.78), COL.purple)
+    khatamTips(inner, 0.78, COL.purple)
+    local oct = {}
+    for i = 0, 7 do
+        local a = i * TAU / 8 + Math.pi / 8
+        oct[#oct + 1] = {0.45 * Math:Cos(a), 0.45 * Math:Sin(a)}
+    end
+    S(inner, oct, COL.blue, nil, true, true, 0.02)
+    S(inner, circle(0.24, 36), COL.sky, nil, true, true, 0.016)
+    S(inner, circle(0.07, 16), COL.navy, nil, true, true, 0.01)
+    return {{shapes = outer, spin = 1}, {shapes = inner, spin = -1.8}}
+end
+local function partsMedallions()
+    local parts = {}
+    local spots = {{-0.78, -0.32, 0.25, 0.5}, {0.78, -0.32, 0.25, -0.5}, {0, 0.6, -0.1, 0}}
+    for i, sp in ipairs(spots) do
+        local L = {}
+        medallion(L, 0.44, planar(sp[1], sp[2], sp[3], sp[4]))
+        parts[#parts + 1] = {shapes = L, center = {sp[1], sp[2], sp[3]}, spin = (i % 2 == 0) and -3 or 3,
+                             axis = {Math:Sin(sp[4]), 0, Math:Cos(sp[4])}}
+    end
+    return parts
+end
+local function partsBands()                       -- a rosette border: triangles around a ring, two rings of beads
+    local tri, inner, outer = {}, {}, {}
+    local R, n = 0.92, 24
+    for k = 0, n - 1 do
+        local a0, a1 = k * TAU / n, (k + 1) * TAU / n
+        local am = (a0 + a1) / 2
+        S(tri, {{R * Math:Cos(a0), R * Math:Sin(a0)}, {(R + 0.3) * Math:Cos(am), (R + 0.3) * Math:Sin(am)},
+                {R * Math:Cos(a1), R * Math:Sin(a1)}}, (k % 2 == 0) and COL.purple or COL.red, nil, true, true, 0.015)
+    end
+    S(tri, circle(R, 96), COL.magenta)
+    S(inner, circle(0.62, 80), COL.blue)
+    for k = 0, 23 do
+        local a = k * TAU / 24
+        S(inner, circle(0.05, 14, 0.74 * Math:Cos(a), 0.74 * Math:Sin(a)), (k % 2 == 0) and COL.pink or COL.sky, nil, true, true, 0.01)
+    end
+    S(outer, circle(1.47, 120), COL.blue)
+    for k = 0, 35 do
+        local a = k * TAU / 36
+        S(outer, circle(0.045, 14, 1.36 * Math:Cos(a), 1.36 * Math:Sin(a)), (k % 2 == 0) and COL.sky or COL.pink, nil, true, true, 0.01)
+    end
+    return {{shapes = tri, spin = 1}, {shapes = inner, spin = -1.7}, {shapes = outer, spin = 2.2}}
+end
+local function leafAt(cx, cy, ang, len, w)
+    local L = lens(ang, 0, len, w, 12)
+    for i = 1, #L do L[i] = {L[i][1] + cx, L[i][2] + cy} end
+    return L
+end
+local function partsVine()                        -- an arabesque: four curling stems with leaves and berries
+    local parts = {}
+    for s = 0, 3 do
+        local sh = {}
+        local ph = s * Math.pi / 2
+        local stem = {}
+        local N = 160
+        for i = 0, N do
+            local u = i / N
+            local a = ph + u * 1.3 * Math.pi
+            local r = 0.14 + 0.95 * u ^ 0.8 + 0.03 * Math:Sin(u * 9 * Math.pi)
+            stem[#stem + 1] = {r * Math:Cos(a), r * Math:Sin(a), 0.1 * Math:Sin(u * 3 * Math.pi + s)}
+        end
+        sh[#sh + 1] = {path3 = stem, col = COL.green, radial = false}
+        for j = 1, 6 do                            -- leaves on alternating sides, berries at the ends of the curls
+            local i = Math:Floor(N * (0.12 + 0.14 * j))
+            if i > N - 2 then i = N - 2 end
+            local p, q = stem[i + 1], stem[i + 2]
+            local ta = Math:Atan2(q[2] - p[2], q[1] - p[1])
+            local side = (j % 2 == 0) and 1 or -1
+            S(sh, leafAt(p[1], p[2], ta + side * 1.0, 0.17, 0.05), (j % 3 == 0) and COL.lime or COL.green, nil, true, true, 0.01)
+            if j % 2 == 1 then
+                local bx, by = p[1] - side * 0.07 * Math:Sin(ta), p[2] + side * 0.07 * Math:Cos(ta)
+                for _, o in ipairs({{-0.03, 0}, {0.03, 0}, {0, 0.045}}) do
+                    S(sh, circle(0.026, 12, bx + o[1], by + o[2]), (j % 3 == 0) and COL.pink or COL.magenta, nil, true, true, 0.008)
+                end
+            end
+        end
+        parts[#parts + 1] = {shapes = sh, spin = (s % 2 == 0) and 1 or 1.25}
+    end
+    return parts
+end
+local function partsFlower()
+    local inner, outer = {}, {}
+    local R = 1.0
+    for k = 0, 7 do
+        local a = k * TAU / 8 + Math.pi / 2
+        S(inner, lens(a, R * 0.14, R * 0.98, R * 0.17, 20), COL.magenta, nil, true, true, 0.018)
+        S(inner, lens(a, R * 0.24, R * 0.78, R * 0.06, 16), COL.pink)
+        S(inner, lens(a + Math.pi / 8, R * 0.18, R * 0.66, R * 0.07, 16), COL.green, nil, true, true, 0.014)
+    end
+    S(inner, circle(R * 0.13, 32), COL.lime, nil, true, true, 0.012)
+    S(outer, circle(R * 1.04, 128), COL.purple)
+    S(outer, circle(R * 1.1, 128), COL.blue)
+    for k = 0, 7 do
+        local a = k * TAU / 8 + Math.pi / 8
+        local cx, cy = 1.5 * Math:Cos(a), 1.5 * Math:Sin(a)
+        local col = (k % 2 == 0) and COL.blue or COL.sky
+        S(outer, khatam(0.16, cx, cy), col)
+        khatamTips(outer, 0.16, col, nil, cx, cy)
+        S(outer, circle(0.05, 12, cx, cy), COL.navy, nil, true, true, 0.01)
+    end
+    return {{shapes = inner, spin = 1}, {shapes = outer, spin = -0.8}}
 end
 
-local function tick(t)
-    for _, p in ipairs(plans) do
-        if not p.started and t >= p.t0 then
-            p.started = true
-            if t < p.tEnd - 0.05 then startPlan(p) end
+-- the timeline (seconds in an 86-second loop)
+local LOOP = 86
+local ACTS = {
+    {name = "star",       fn = partsStar,       t0 = 4,  draw = 4.8, float = 4.2, unravel = 3.2, axis = "view", spin = 9},
+    {name = "medallions", fn = partsMedallions, t0 = 17, draw = 5.5, float = 4.0, unravel = 3.2, axis = "view", spin = -7},
+    {name = "bands",      fn = partsBands,      t0 = 30, draw = 5.5, float = 4.0, unravel = 3.2, axis = "view", spin = 8},
+    {name = "vine",       fn = partsVine,       t0 = 43, draw = 5.5, float = 4.0, unravel = 3.2, axis = "view", spin = -10},
+    {name = "flower",     fn = partsFlower,     t0 = 56, draw = 6.0, float = 3.5, unravel = 0,   axis = "view", spin = 5},
+}
+local T_CONST, T_COLLAPSE, T_BURST, T_CALM = 65.5, 76.5, 80.5, 84.5
+-- the constellation: where each symbol goes around the rosette (work frame, meters) and its size there
+local RING = {star = {-1.0, 0.5, -0.1, 0.34}, medallions = {1.0, 0.5, -0.1, 0.3}, bands = {-0.95, -0.6, 0.05, 0.3},
+              vine = {0.95, -0.6, 0.05, 0.34}, flower = {0, 0, 0, 0.6}}
+
+local function buildAll()
+    VIEWROT = Rotation:LookRotation(Vector3:New(-FWD[1], -FWD[2], -FWD[3]), Vector3:New(0, 1, 0))
+    newRec("core", coreJobs)
+    for i, A in ipairs(ACTS) do
+        local parts = A.fn()
+        for k, part in ipairs(parts) do
+            newRec("symbol", function() return symbolJobs(part.shapes) end,
+                   {act = A, part = k, center = part.center or {0, 0, 0}, spin = part.spin or 1, ownAxis = part.axis})
+        end
+        if i <= 4 then                               -- the ink streams are prepared between the symbols
+            newRec("strand", function() return strandJobs(2 * i - 2, 8) end,
+                   {axis = {Random.value - 0.5, 1, Random.value - 0.5}, turn = (Random.value < 0.5 and -1 or 1) * (0.5 + Random.value),
+                    period = 7 + 5 * Random.value, ph = Random.value, win = 0.35 + 0.2 * Random.value})
+            newRec("strand", function() return strandJobs(2 * i - 1, 8) end,
+                   {axis = {Random.value - 0.5, 1, Random.value - 0.5}, turn = (Random.value < 0.5 and -1 or 1) * (0.5 + Random.value),
+                    period = 7 + 5 * Random.value, ph = Random.value, win = 0.35 + 0.2 * Random.value})
         end
     end
-    local keep = {}
-    for _, rec in ipairs(recs) do
-        if t >= rec.plan.tEnd then
-            if rec.plan.kind == "symbol" or rec.plan.kind == "strand" then absorbed = absorbed + 1 end
-            deleteRec(rec)
+    for k = 1, 3 do newRec("drops", function() return dropJobs(k) end, {axis = {Random.value - 0.5, 1, Random.value - 0.5}, turn = (k % 2 == 0) and -0.4 or 0.6}) end
+    for _, rec in ipairs(recs) do rec.layer:Hide(); rec.shown = false end
+    Sketch.layers.active = saved.layer
+end
+
+-- draw a little of the queue each frame (adapts to how busy the headset is)
+local budget = 3
+local function prepare(dt)
+    if dt > 1 / 45 then budget = Math:Max(1, budget - 1) elseif dt < 1 / 66 then budget = Math:Min(10, budget + 0.25) end
+    strokesThisFrame, pointsThisFrame = 0, 0
+    while #queue > 0 and strokesThisFrame < Math:Floor(budget) and pointsThisFrame < 150 * budget do
+        local rec = queue[1]
+        if not rec.jobs then rec.jobs = rec.build(); rec.j = 1 end
+        if rec.j > #rec.jobs then
+            rec.ready = true
+            table.remove(queue, 1)
         else
-            updateRec(rec, t)
-            keep[#keep + 1] = rec
+            local jb = rec.jobs[rec.j]
+            drawInto(rec, jb.pts, jb.brush, jb.w, jb.col, jb.smooth, jb.mode, jb.taper)
+            rec.j = rec.j + 1
         end
     end
-    recs = keep
+    if useDWB == false then
+        Sketch.layers.active = saved.layer
+        if #queue == 0 and saved.type then           -- give the user's brush back once everything is drawn
+            Brush.type = saved.type
+            pcall(function() Brush.sizeAbsolute = saved.size end)
+            Brush.colorRgb = saved.color
+        end
+    end
+end
+
+-- ---------- the movement, every frame ----------
+local function actState(A, t)
+    local d0, d1 = A.t0, A.t0 + A.draw
+    local f1 = d1 + A.float
+    local u1 = f1 + A.unravel
+    if t < d0 then return "before" end
+    if t < d1 then return "draw", (t - d0) / A.draw end
+    if t < f1 then return "float", (t - d1) / A.float end
+    if A.unravel > 0 and t < u1 then return "unravel", (t - f1) / A.unravel end
+    return "after"
+end
+
+local function animSymbol(rec, t)
+    local A = rec.act
+    local L = rec.layer
+    local st, x = actState(A, t)
+    local h = t - A.t0
+    local ax = (A.axis == "up") and {0, 1, 0} or FWD
+    -- the symbol's own frame: a slow turn, a living sway, breathing and a gentle bob
+    local Qs = qAxis(ax, A.spin * h)
+    if A.tilt then Qs = qMul(qAxis(RIGHT, A.tilt), Qs) end
+    Qs = qMul(qAxis(UPV, 9 * Math:Sin(h * 0.45)), Qs)
+    local Ss = 1 + 0.025 * Math:Sin(h * 1.9)
+    local bob = off({0, 0.03 * Math:Sin(h * 0.8), 0})
+    local Ts = {C[1] + bob[1], C[2] + bob[2], C[3] + bob[3]}
+    local ca, cb, fv = 0, 1.0001, 1
+    if t >= T_CONST and t < T_COLLAPSE + 3.5 then                       -- the constellation, then the collapse
+        local R = RING[A.name]
+        local col = smooth((t - T_COLLAPSE) / 3.5)
+        local rp = qRot(qAxis(FWD, 14 * (t - T_CONST)), off({R[1], R[2], R[3]}))
+        Ts = {C[1] + rp[1] * (1 - col), C[2] + rp[2] * (1 - col), C[3] + rp[3] * (1 - col)}
+        Qs = qMul(qAxis(FWD, 300 * col * col), qMul(qAxis(ax, A.spin * 1.5 * h), A.tilt and qAxis(RIGHT, A.tilt) or Q0))
+        Ss = R[4] * (1 - col) ^ 1.5 + 0.01
+        local stagger = ({star = 0, medallions = 0.4, bands = 0.8, vine = 1.2, flower = 0})[A.name]
+        if A.name ~= "flower" then cb = 1.0001 * smooth((t - T_CONST - stagger) / 2.2) end
+        fv = 1 - col * col
+    else
+        if st == "before" or st == "after" then show(rec, false); return end
+        if st == "draw" then                                            -- the pens draw the parts, outline then fill
+            local k = rec.part - 1
+            local xx = (x - 0.12 * k) / (1 - 0.12 * k)
+            if xx < 0 then xx = 0 end
+            cb = 1.0001 * (0.03 + 0.97 * smooth(xx))
+            Ss = Ss * (0.97 + 0.03 * x)
+        elseif st == "unravel" then                                     -- it unwrites itself and fades, drifting up
+            local e = smooth(x)
+            ca = 0.9 * e
+            fv = 1 - e ^ 1.4
+            Ss = Ss * (1 + 0.22 * e)
+            local up = off({0, 0.18 * e, 0.05 * e})
+            Ts = {Ts[1] + up[1], Ts[2] + up[2], Ts[3] + up[3]}
+            Qs = qMul(qAxis(ax, 25 * e), Qs)
+        end
+    end
+    show(rec, true)
+    clip(L, ca, cb)
+    fade(L, fv)
+    -- the part turns on its own around its own center, carried by the symbol
+    local oax = rec.ownAxis and dirOf(rec.ownAxis) or ax
+    local q = qMul(Qs, qAxis(oax, A.spin * (rec.spin - 1) * h))
+    local co = off(rec.center)
+    local cr = qRot(Qs, co)
+    local target = {Ts[1] + Ss * cr[1], Ts[2] + Ss * cr[2], Ts[3] + Ss * cr[3]}
+    local P = {C[1] + co[1], C[2] + co[2], C[3] + co[3]}
+    pose(L, q, Ss, P, target)
+end
+
+local function animStrand(rec, t, life)
+    local L = rec.layer
+    local P = {C[1], C[2], C[3]}
+    -- the ink flows along its streams: a window slides along the strokes
+    local w = rec.win * (0.8 + 0.4 * life.surge)
+    local a = ((t / rec.period + rec.ph) % 1) * (1 + w) - w
+    clip(L, a, a + w)
+    fade(L, life.vis)
+    local q = qAxis(rec.axis, 360 * rec.turn * t / LOOP * life.spin)
+    local s = life.scale
+    pose(L, q, s, P, P)
+end
+
+local function lifeAt(t)
+    -- how the ink around behaves through the loop
+    local appear = smooth(t / 3.5)
+    local col = smooth((t - T_COLLAPSE) / 3.5)
+    local burst = smooth((t - T_BURST) / 1.2)
+    local calm = smooth((t - T_BURST - 1.2) / 2.8)
+    local scale = 0.15 + 0.85 * appear
+    if t >= T_COLLAPSE then scale = (1 - col) * 1 + 0.03 end
+    if t >= T_BURST then scale = 0.03 + 1.5 * burst - 0.5 * calm end
+    local vis = 0.35 + 0.65 * appear
+    if t >= T_COLLAPSE and t < T_BURST then vis = 1 - 0.6 * col end
+    if t >= T_BURST then vis = 0.4 + 0.6 * burst end
+    local surge = 0.5 + 0.5 * Math:Sin(t * 0.21) + smooth((t - T_CONST) / 3) * 0.6
+    local spin = 1 + 4 * col * (1 - burst)
+    return {scale = scale, vis = vis, surge = surge, spin = spin}
+end
+
+local function animCore(rec, t)
+    local L = rec.layer
+    local P = {C[1], C[2], C[3]}
+    local seed = 1 - smooth((t - 3.5) / 1.5)
+    local col = smooth((t - T_COLLAPSE) / 3.5)
+    local burst = smooth((t - T_BURST) / 0.6)
+    local vis = Math:Max(seed, col * (1 - burst))
+    for _, A in ipairs(ACTS) do                                    -- it flickers as each symbol unwrites itself
+        local st, x = actState(A, t)
+        if st == "unravel" then vis = Math:Max(vis, 0.55 * Math:Sin(Math.pi * x)) end
+    end
+    if vis < 0.02 then show(rec, false); return end
+    show(rec, true)
+    clip(L, 0, 1.0001 * Math:Max(smooth(t / 2.5), (t > 3) and 1 or 0))
+    fade(L, vis)
+    local s = 1 + 0.12 * Math:Sin(t * 3) + 3.2 * col * (1 - burst) + 2 * burst
+    pose(L, qAxis({0.2, 1, 0.1}, 40 * t + 600 * col * col), s, P, P)
+end
+
+local function animDrops(rec, t, life)
+    local L = rec.layer
+    local P = {C[1], C[2], C[3]}
+    show(rec, true)
+    clip(L, 0, 1.0001 * smooth((t - 0.5) / 4))
+    fade(L, 0.75 * life.vis)
+    local s = life.scale * (1 + 0.04 * Math:Sin(t * 0.9 + rec.turn))
+    pose(L, qAxis(rec.axis, 360 * rec.turn * t / LOOP * life.spin), s, P, P)
 end
 
 -- ---------- the plugin ----------
+local clockT, ready = 0, false
+
 function Start()
     placed = false
-    recs, pens, plans = {}, {}, {}
-    loopIdx = -1
+    recs, queue = {}, {}
     startTime = App.time
     lastTime = App.time
+    clockT, ready = 0, false
 end
 
 local function place()
@@ -700,15 +883,17 @@ local function place()
     FWD = norm({-d.x, 0, -d.z})
     UPV = {0, 1, 0}
     RIGHT = norm(cross(UPV, FWD))
-    local zoom = App.currentScale
-    if zoom == nil or zoom < 0.01 then zoom = 1 end
-    S_UNITS = UNITS / zoom
-    local dist = (0.9 + 1.3 * Parameters.size) * S_UNITS
-    C = {p.x - FWD[1] * dist, p.y + 0.1 * S_UNITS, p.z - FWD[3] * dist}
-    saved = {type = Brush.type, size = Brush.size, color = Brush.colorRgb, layer = Sketch.layers.active}
+    ZOOM = App.currentScale
+    if ZOOM == nil or ZOOM < 0.01 then ZOOM = 1 end
+    S_UNITS = UNITS / ZOOM * Parameters.size
+    local dist = Parameters.distance * UNITS / ZOOM
+    C = {p.x - FWD[1] * dist, p.y + 0.12 * UNITS / ZOOM, p.z - FWD[3] * dist}
+    local sz = Brush.size
+    pcall(function() sz = Brush.sizeAbsolute end)
+    saved = {layer = Sketch.layers.active, type = Brush.type, size = sz, color = Brush.colorRgb}
+    buildAll()
     placed = true
-    clock0 = App.time
-    App:Error("Kumma Ink: drawing (scene scale " .. Math:Round(zoom * 100) / 100 .. ")")
+    App:Error("Kumma Ink: preparing the ink...")
 end
 
 function Main()
@@ -719,50 +904,47 @@ function Main()
         if Brush.triggerPressedThisFrame or (now - startTime > 3) then place() end
         return
     end
-    -- the pen slows down by itself when frames take too long, and speeds up again when there is room
-    if dt > 1 / 45 then
-        budget = budget * 0.7
-        if budget < 6 then budget = 6 end
-    elseif dt < 1 / 65 then
-        budget = budget + 1
-        if budget > 160 then budget = 160 end
+    if #queue > 0 then prepare(dt) end
+    -- the clock waits if the next part is not drawn yet (only in the first loop)
+    local nextNeeded = nil
+    for _, rec in ipairs(recs) do
+        if not rec.ready then
+            local tNeed = 0
+            if rec.kind == "symbol" then tNeed = rec.act.t0 elseif rec.kind == "strand" or rec.kind == "drops" then tNeed = 0.5 end
+            if rec.kind == "core" then tNeed = 0 end
+            if nextNeeded == nil or tNeed < nextNeeded then nextNeeded = tNeed end
+        end
     end
-    local total = (now - clock0) * Parameters.speed
-    local idx = Math:Floor(total / LOOP)
-    local t = total - idx * LOOP
-    if idx ~= loopIdx then
-        for _, rec in ipairs(recs) do deleteRec(rec) end
-        recs, pens = {}, {}
-        absorbed = 0
-        makePlans()
-        loopIdx = idx
+    local step = dt
+    if step > 0.1 then step = 0.1 end
+    local tLoop = clockT % LOOP
+    if nextNeeded == nil or tLoop + step * Parameters.speed < nextNeeded or clockT >= LOOP then
+        clockT = clockT + step * Parameters.speed
     end
-    tick(t)
-    drewThisFrame = false
-    if dt > 0.2 then dt = 0.2 end
-    if dt > 1 / 36 then
-        drawEvery = drawEvery + 1
-        if drawEvery > 10 then drawEvery = 10 end
-    elseif dt < 1 / 65 and drawEvery > 1 then
-        drawEvery = drawEvery - 1
+    if not ready and #queue == 0 then
+        ready = true
+        App:Error("Kumma Ink: ready")
     end
-    frameNo = frameNo + 1
-    if frameNo % drawEvery == 0 then runPens(dt * Parameters.speed * drawEvery) end
-    if drewThisFrame then                                -- give the user's brush back after each frame of drawing
-        Brush.type = saved.type
-        Brush.size = saved.size
-        Brush.colorRgb = saved.color
+    local t = clockT % LOOP
+    local life = lifeAt(t)
+    for _, rec in ipairs(recs) do
+        if rec.ready or rec.kind == "symbol" then
+            if rec.kind == "symbol" then if rec.ready then animSymbol(rec, t) end
+            elseif rec.kind == "strand" then show(rec, true); animStrand(rec, t, life)
+            elseif rec.kind == "drops" then animDrops(rec, t, life)
+            elseif rec.kind == "core" then animCore(rec, t) end
+        end
     end
-    Sketch.layers.active = saved.layer
 end
 
 function End()
-    for _, rec in ipairs(recs) do deleteRec(rec) end
-    recs, pens = {}, {}
+    for _, rec in ipairs(recs) do rec.layer:Delete() end
+    recs, queue = {}, {}
     placed = false
-    if saved.type then
+    if saved.layer then Sketch.layers.active = Sketch.layers.main end
+    if useDWB == false and saved.type then
         Brush.type = saved.type
-        Brush.size = saved.size
+        pcall(function() Brush.sizeAbsolute = saved.size end)
         Brush.colorRgb = saved.color
     end
 end
