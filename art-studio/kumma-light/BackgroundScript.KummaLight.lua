@@ -1,9 +1,10 @@
--- «نور الكمّة» داخل Open Brush: إضافة خلفية (Background Plugin) ترسم سديماً من الدخان والنجوم،
--- وتتشكّل فيه رموز الكمّة العُمانية من الضوء (النجمة الثمانية، الميداليات، الأشرطة، الغصن، الوردة)،
--- ثم يذوب كل رمز، وفي النهاية يُبتلع كل شيء في نواة وينفجر من جديد. دورة 72 ثانية تتكرر.
+-- Kumma Light for Open Brush (Background Plugin).
+-- Draws a nebula of smoke and stars; the Omani kumma's symbols form in it as light
+-- (eight-pointed star, medallions, bands, vine, rosette), then dissolve. At the end everything
+-- is swallowed into a core and explodes again. A 72-second loop.
 --
--- الاستعمال: فعّل الإضافة من Extras > Plugins and Scripts > Background، ثم اضغط الزناد مرة واحدة
--- حيث تريد مركز العمل، ويدك تشير إلى الأمام. تُرسم الطبقات ثم تبدأ الحركة.
+-- How to use: turn it on in Extras > Plugins and Scripts > Background, then press the trigger
+-- once where you want the center of the work, with your hand pointing forward.
 
 Settings = {
     description = "Kumma Light: Omani kumma symbols forming from a living nebula of smoke and stars",
