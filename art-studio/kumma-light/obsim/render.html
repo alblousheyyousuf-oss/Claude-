@@ -36,7 +36,7 @@ Object.assign(SPEC, {
   'Unlit Hull':   {kind: 'hull', pmin: 0.1, mat: 'unlit'},
   'Diamond Hull': {kind: 'hull', pmin: 0.1, mat: 'shiny'},
   'Lofted':       {kind: 'tube', pmin: 0.0, mat: 'matte'},
-  'Icing':        {kind: 'tube', pmin: 0.1, mat: 'matte'},
+  'Icing':        {kind: 'tube', pmin: 0.1, mat: 'icing', sides: 8, caps: 0.8},
   'Faceted Tube': {kind: 'tube', pmin: 0.5, mat: 'unlit', sides: 6},
   'Tube Toon Inverted': {kind: 'tube', pmin: 0.1, mat: 'unlit'},
 });
@@ -49,7 +49,7 @@ for (const s of LOG.strokes) {
 function matFor(sp, color) {
   const col = new THREE.Color(color[0], color[1], color[2]);
   if (sp.mat === 'unlit') return new THREE.MeshBasicMaterial({color: col, side: THREE.DoubleSide});
-  return new THREE.MeshStandardMaterial({color: col, roughness: sp.mat === 'shiny' ? 0.28 : 0.75, metalness: 0.0, side: THREE.DoubleSide});
+  return new THREE.MeshStandardMaterial({color: col, roughness: sp.mat === 'shiny' ? 0.28 : (sp.mat === 'icing' ? 0.45 : 0.75), metalness: 0.0, side: THREE.DoubleSide});
 }
 const ICO = new THREE.IcosahedronGeometry(1, 0).getAttribute('position');
 function hullMesh(s, sp) {                              // HullBrush: the convex hull of small spheres around the knots
@@ -81,6 +81,16 @@ function tubeMesh(s, sp) {                              // TubeBrush: rings arou
     if (i > 0) for (let k = 0; k < sides; k++) {
       const a = (i - 1) * sides + k, b = (i - 1) * sides + (k + 1) % sides, c = i * sides + k, d = i * sides + (k + 1) % sides;
       idx.push(a, c, b, b, c, d);
+    }
+  }
+  if (sp.caps) {                                         // TubeBrush end caps: a tip point ahead of each end ring
+    const rad = i => s.size * (sp.pmin + (1 - sp.pmin) * Math.min(1, Math.max(0, s.cps[i][7]))) * 0.5;
+    const t0 = P[1].clone().sub(P[0]).normalize(), t1 = P[n - 1].clone().sub(P[n - 2]).normalize();
+    const tip0 = P[0].clone().addScaledVector(t0, -rad(0) * sp.caps), tip1 = P[n - 1].clone().addScaledVector(t1, rad(n - 1) * sp.caps);
+    const i0 = pos.length / 3; pos.push(tip0.x, tip0.y, tip0.z); const i1 = i0 + 1; pos.push(tip1.x, tip1.y, tip1.z);
+    for (let k = 0; k < sides; k++) {
+      idx.push(i0, k, (k + 1) % sides);
+      const a = (n - 1) * sides + k, b = (n - 1) * sides + (k + 1) % sides; idx.push(i1, b, a);
     }
   }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();

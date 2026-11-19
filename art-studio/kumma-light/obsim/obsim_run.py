@@ -11,6 +11,7 @@ ap.add_argument("--sample", type=float, default=30); ap.add_argument("--scale", 
 ap.add_argument("--seed", type=int, default=3); ap.add_argument("--set", action="append", default=[])
 ap.add_argument("--trigger-at", type=float, default=-1)
 ap.add_argument("--no-dwb", action="store_true", help="emulate an older Open Brush without Path:DrawWithBrush")
+ap.add_argument("--count", action="store_true", help="count the Lua VM instructions the plugin runs per frame (sampled)")
 a = ap.parse_args()
 random.seed(a.seed)
 lua = LuaRuntime(unpack_returned_tuples=True)
@@ -26,21 +27,35 @@ lua.execute(f"HAND.pos = Vector3:New({hand[0]}, {hand[1]}, {hand[2]})")
 lua.execute(f"HAND.rot = Rotation:LookRotation(Vector3:New({-direction[0]}, {-direction[1]}, {-direction[2]}), Vector3.up)")
 if a.no_dwb: lua.execute("Path.DrawWithBrush = function() error('no such method') end")
 src = Path(a.plugin).read_text()
-lua.execute(src)
+G.load(src, "=plugin")()
 lua.execute("for k, v in pairs(Parameters or {}) do Parameters[k] = v.default end")
 for kv in a.set:
     k, v = kv.split("="); lua.execute(f"Parameters.{k} = {v}")
+lua.execute("""
+VMC = {all = 0, plugin = 0}
+function VMC_on()
+    debug.sethook(function()
+        VMC.all = VMC.all + 1
+        local info = debug.getinfo(2, "S")
+        if info and info.source == "=plugin" then VMC.plugin = VMC.plugin + 1 end
+    end, "", 50)
+end
+function VMC_off() debug.sethook() end
+""")
 safe = lua.eval("function(f) local ok, err = pcall(f); if not ok then LOG.errors[#LOG.errors + 1] = tostring(err) end end")
 if G.Start: safe(G.Start)
 frames = int(a.seconds * a.fps)
-samples, perf = [], []
+samples, perf, vm = [], [], []
 next_sample = 0.0
 for f in range(frames):
     t = f / a.fps
     G.SIM.time = t; G.SIM.frame = f
     G.HAND.trigger = (a.trigger_at >= 0 and abs(t - a.trigger_at) < 0.5 / a.fps)
     G.SIM.strokesThisFrame = 0; p0 = G.SIM.points or 0
-    safe(G.Main)
+    if a.count:
+        c0 = G.VMC.plugin; G.VMC_on(); safe(G.Main); G.VMC_off(); vm.append((t, (G.VMC.plugin - c0) * 50))
+    else:
+        safe(G.Main)
     perf.append((G.SIM.strokesThisFrame or 0, (G.SIM.points or 0) - p0))
     if t + 1e-9 >= next_sample:
         snap = G.SIM_SNAPSHOT()
@@ -75,3 +90,8 @@ print(f"per frame: max strokes {max(sp)}, max points {max(pp)} | worst second: {
 print("live layers at end:", sum(1 for v in layers.values() if v['deleted'] is None) - 1)
 for e in events[:6]: print("event:", e)
 print("errors:", len(errors)); [print("  ", e) for e in sorted(set(errors))[:8]]
+
+if a.count and vm:
+    import statistics
+    late = [v for (t, v) in vm if t > a.seconds * 0.5]
+    print(f"plugin VM instructions per frame (2nd half): median {statistics.median(late):.0f}, max {max(late):.0f}")

@@ -154,6 +154,7 @@ LayerMT.__index = function(L, k)
     if k == "position" then return L.__T end
     if k == "rotation" then return L.__R end
     if k == "scale" then return L.__S end
+    if k == "transform" then return Transform:New(L.__T, L.__R, L.__S) end
     if k == "allowStrokeAnimation" then return L.__anim end
     if k == "index" then return L.__id - 1 end
     if k == "active" then return Sketch.layers.active == L end
@@ -163,6 +164,11 @@ LayerMT.__newindex = function(L, k, v)
     if k == "position" then assert(v.x == v.x, "NaN position"); L.__T = vnew(v.x, v.y, v.z)
     elseif k == "rotation" then assert(v.w == v.w, "NaN rotation"); L.__R = qnew(v.x, v.y, v.z, v.w)
     elseif k == "scale" then assert(type(v) == "number" and v == v, "bad scale"); L.__S = v
+    elseif k == "transform" then
+        assert(type(v) == "table" and v.__tr, "transform needs a Transform")
+        local t, r = v.position, v.rotation
+        assert(t.x == t.x and r.w == r.w and v.scale == v.scale, "NaN transform")
+        L.__T = vnew(t.x, t.y, t.z); L.__R = qnew(r.x, r.y, r.z, r.w); L.__S = v.scale
     elseif k == "allowStrokeAnimation" then L.__anim = v
     elseif k == "active" then if v then Sketch.layers.active = L end
     else rawset(L, k, v) end
