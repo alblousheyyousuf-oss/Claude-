@@ -2,7 +2,7 @@
 -- The Omani kumma's motifs as one living 3D flower: fleshy petals of the great rosette, inner petals and leaves,
 -- a pistil of pearls, a ring of pearls and a crown of triangles, and four stems that curl outward carrying leaves,
 -- berries, eight-pointed gem stars and small blooms (the medallions). It grows from a seed, blooms, breathes and
--- sways, closes again and sinks back into the seed, then grows again (a 60-second loop).
+-- sways, closes again and sinks back into the seed, then grows again (a 57-second loop).
 --
 -- Built only on what is safe in every recent Open Brush: it draws everything once (a few strokes per frame) and then
 -- only moves, turns and scales layers. Volumes come from Hull brushes and soft tubes from the Lofted brush.
@@ -26,7 +26,7 @@ Parameters = {
 
 local UNITS = 10
 local TAU = 2 * Math.pi
-local LOOP = 60
+local LOOP = 57
 
 -- ---------- small math ----------
 local function norm(a)
@@ -427,7 +427,7 @@ local function animate(t, T)
             local k = rec.kind
             if k == "pistil" then
                 local pulse = 1 + 0.08 * Math:Sin(T * 2.6) + 0.6 * L.sink
-                local seed = Math:Max(Sf, 0.12 * (1 - L.grow) + 0.06)
+                local seed = Math:Max(Sf, 0.38 * L.sink + 0.3 * (1 - L.grow) + 0.05)   -- a visible, pulsing seed pod
                 pose(rec, qMul(Qf, qAxis(FWD, 20 * T)), seed * pulse, canvas({0, 0, 0}), C)
             elseif k == "sepals" then
                 local s = Sf * (0.25 + 0.75 * smooth((t - 1) / 3))
