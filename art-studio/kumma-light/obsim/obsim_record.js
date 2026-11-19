@@ -1,5 +1,6 @@
 // OB-Sim recorder: renders a simulator log to frames (and an mp4 with ffmpeg).
 // usage: node obsim_record.js logs/x.json out.mp4 [--fps 24] [--from 0] [--to 75] [--bg night|paper] [--orbit 0] [--stills t1,t2,...]
+//        [--pitch deg [--pitch2 deg --t1 s --t2 s]] [--fov deg]   look from the head toward the hand's direction
 const {chromium} = require('playwright'); const http = require('http'), fs = require('fs'), path = require('path');
 const {execFileSync} = require('child_process');
 const args = process.argv.slice(2); const opt = (k, d) => { const i = args.indexOf('--' + k); return i >= 0 ? args[i + 1] : d; };
@@ -15,7 +16,8 @@ const srv = http.createServer((q, s) => { const f = path.join(root, decodeURICom
   const b = await chromium.launch({args: ['--use-gl=swiftshader', '--enable-webgl', '--ignore-gpu-blocklist']});
   const p = await b.newPage({viewport: {width: w, height: h}});
   p.on('pageerror', e => console.log('pageerror', e.message)); p.on('console', m => { if (m.type() === 'error') console.log('console', m.text()); });
-  await p.goto(`http://localhost:${port}/render.html?log=${encodeURIComponent(log)}&bg=${bg}&w=${w}&h=${h}`);
+  const extra = ['pitch', 'pitch2', 't1', 't2', 'fov'].filter(k => opt(k, null) !== null).map(k => `&${k}=${opt(k, null)}`).join('');
+  await p.goto(`http://localhost:${port}/render.html?log=${encodeURIComponent(log)}&bg=${bg}&w=${w}&h=${h}${extra}`);
   await p.waitForFunction('window.ready', null, {timeout: 300000});
   console.log(JSON.stringify(await p.evaluate('window.info')));
   const dir = out + '_frames'; fs.rmSync(dir, {recursive: true, force: true}); fs.mkdirSync(dir, {recursive: true});

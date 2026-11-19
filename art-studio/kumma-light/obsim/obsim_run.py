@@ -95,3 +95,5 @@ if a.count and vm:
     import statistics
     late = [v for (t, v) in vm if t > a.seconds * 0.5]
     print(f"plugin VM instructions per frame (2nd half): median {statistics.median(late):.0f}, max {max(late):.0f}")
+    top = sorted(vm, key=lambda tv: -tv[1])[:6]
+    print("heaviest frames (time s, instructions):", ", ".join(f"{t:.2f}:{v}" for t, v in top))

@@ -103,7 +103,7 @@ end
 Color.red = Color:New(1, 0, 0); Color.white = Color:New(1, 1, 1); Color.black = Color:New(0, 0, 0)
 
 Math = {pi = math.pi}
-for _, f in ipairs({"sin", "cos", "sqrt", "abs", "floor", "ceil", "acos", "asin", "atan", "exp", "log"}) do
+for _, f in ipairs({"sin", "cos", "tan", "sqrt", "abs", "floor", "ceil", "acos", "asin", "atan", "exp", "log"}) do
     local g = math[f]
     Math[f:sub(1, 1):upper() .. f:sub(2)] = function(self, x) return g(x) end
 end

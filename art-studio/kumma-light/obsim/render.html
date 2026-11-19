@@ -280,7 +280,15 @@ window.renderAt = (t, orbit) => {
     const d = head.clone().sub(look); const ang = orbit * Math.sin(t * 0.12);
     d.applyAxisAngle(new THREE.Vector3(0, 1, 0), ang); camera.position.copy(look).add(d);
   } else camera.position.set(head.x + sway, head.y + 0.1 * Math.sin(t * 0.5), head.z);
-  camera.lookAt(look);
+  if (P.get('pitch') !== null) {             // look from the head toward the hand's forward direction, tilted up
+    const md = M.direction, h = Math.hypot(md[0], md[2]) || 1;
+    const p1 = +P.get('pitch'), p2 = +(P.get('pitch2') ?? P.get('pitch')), t1 = +(P.get('t1') ?? 0), t2 = +(P.get('t2') ?? 1);
+    const f = Math.min(1, Math.max(0, (t - t1) / Math.max(1e-6, t2 - t1))), pitch = (p1 + (p2 - p1) * f * f * (3 - 2 * f)) * Math.PI / 180;
+    const yaw = 0.2 * Math.sin(t * 0.05);
+    const fx = md[0] / h, fz = md[2] / h, cx = fx * Math.cos(yaw) - fz * Math.sin(yaw), cz = fx * Math.sin(yaw) + fz * Math.cos(yaw);
+    camera.position.set(head.x, head.y, head.z);
+    camera.lookAt(head.x + cx * Math.cos(pitch) * 10, head.y + Math.sin(pitch) * 10, head.z + cz * Math.cos(pitch) * 10);
+  } else camera.lookAt(look);
   renderer.render(scene, camera);
   return renderer.domElement.toDataURL('image/jpeg', 0.9);
 };
