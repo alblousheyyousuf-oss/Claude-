@@ -46,15 +46,25 @@ for f in range(frames):
         snap = G.SIM_SNAPSHOT()
         samples.append({"t": t, "L": [[float(x) for x in row.values()] for row in snap.values()]})
         next_sample += 1.0 / a.sample
+def col(c):
+    try: return [float(c.r), float(c.g), float(c.b)]
+    except Exception: return None
+def rot(q):
+    try: return [float(q.x), float(q.y), float(q.z), float(q.w)]
+    except Exception: return None
+lights = {"ambient": col(G.Sketch.ambientLightColor), "main": col(G.Sketch.mainLightColor), "second": col(G.Sketch.secondaryLightColor),
+          "mainRot": rot(G.Sketch.mainLightRotation), "secondRot": rot(G.Sketch.secondaryLightRotation)}
 if G.End: safe(G.End)
 def tolist(tbl): return [tbl[i] for i in range(1, len(tbl) + 1)]
 strokes = [{"t": s.t, "layer": int(s.layer), "brush": s.brush, "size": float(s.size), "color": [float(c) for c in s.color.values()],
             "cps": [[float(v) for v in cp.values()] for cp in s.cps.values()]} for s in tolist(G.LOG.strokes)]
 events = [dict(e.items()) for e in tolist(G.LOG.events)]
 errors = [str(e) for e in tolist(G.LOG.errors)]
-layers = {int(k): {"created": float(v.created), "deleted": (float(v.deleted) if v.deleted is not None else None)} for k, v in G.LOG.layers.items()}
+layers = {int(k): {"created": float(v.created), "deleted": (float(v.deleted) if v.deleted is not None else None),
+                   "pivot": ([float(x) for x in v.pivot.values()] if v.pivot is not None else None),
+                   "pivotTime": (float(v.pivotTime) if v.pivotTime is not None else None)} for k, v in G.LOG.layers.items()}
 user_head = [hand[0] - direction[0] * 3.0, hand[1] + 2.0, hand[2] - direction[2] * 3.0]
-out = {"meta": {"fps": a.fps, "seconds": a.seconds, "scale": a.scale, "hand": hand, "direction": direction, "head": user_head},
+out = {"lights": lights, "meta": {"fps": a.fps, "seconds": a.seconds, "scale": a.scale, "hand": hand, "direction": direction, "head": user_head},
        "strokes": strokes, "layers": layers, "samples": samples, "events": events, "errors": errors}
 json.dump(out, open(a.out, "w"))
 sp = [s for s, p in perf]; pp = [p for s, p in perf]

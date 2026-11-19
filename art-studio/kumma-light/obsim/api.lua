@@ -127,7 +127,8 @@ end})
 BRUSHES = {}
 for _, n in ipairs({"Marker", "Tapered Marker", "Dot Marker", "Light", "Ink", "Soft Highlighter", "Highlighter",
                     "Stars", "Smoke", "Snow", "Embers", "Neon Pulse", "Dr. Wigglez", "Felt", "Wire", "Toon",
-                    "Velvet Ink", "Tapered Flat", "Flat", "Paper", "Splatter", "Bubbles"}) do
+                    "Velvet Ink", "Tapered Flat", "Flat", "Paper", "Splatter", "Bubbles", "Shiny Hull", "Matte Hull",
+                    "Unlit Hull", "Diamond Hull", "Lofted", "Icing", "Petal", "Faceted Tube", "Tube Toon Inverted"}) do
     BRUSHES[(n:lower():gsub("[^%w]", ""))] = n
 end
 local function lookupBrush(name)
@@ -192,7 +193,16 @@ function Layer:SetShaderFloat(a, b, c)
     if c ~= nil then a, b = b, c end
     if a == "_Dissolve" then self.__diss = b end
 end
-function Layer:CenterPivot() LOG.errors[#LOG.errors + 1] = "CenterPivot is not emulated (and is expensive in Open Brush)" end
+-- CanvasScript.CenterPivot: the pose moves to the bounds' center and the strokes shift so nothing moves on screen
+function Layer:CenterPivot()
+    local b = self.__bounds
+    if not b then return end
+    local c = vnew((b[1] + b[4]) / 2, (b[2] + b[5]) / 2, (b[3] + b[6]) / 2)
+    self.__T = vnew(self.__T.x + c.x, self.__T.y + c.y, self.__T.z + c.z)
+    LOG.layers[self.__id].pivot = {c.x, c.y, c.z}
+    LOG.layers[self.__id].pivotTime = SIM.time
+    self.__bounds = {b[1] - c.x, b[2] - c.y, b[3] - c.z, b[4] - c.x, b[5] - c.y, b[6] - c.z}
+end
 
 -- the main layer and the sketch
 MAINLAYER = nil
@@ -279,6 +289,16 @@ local function makeStroke(path, brush, size, color, smoothing, layer)
         end
     end
     layer.__nstrokes = layer.__nstrokes + 1
+    for _, cp in ipairs(cps) do
+        local b = layer.__bounds
+        if not b then layer.__bounds = {cp[1], cp[2], cp[3], cp[1], cp[2], cp[3]}
+        else
+            for k = 1, 3 do
+                if cp[k] < b[k] then b[k] = cp[k] end
+                if cp[k] > b[k + 3] then b[k + 3] = cp[k] end
+            end
+        end
+    end
     LOG.strokes[#LOG.strokes + 1] = {t = SIM.time, layer = layer.__id, brush = brush, size = size,
                                      color = {color.r, color.g, color.b}, cps = cps}
     SIM.points = (SIM.points or 0) + #cps

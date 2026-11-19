@@ -5,6 +5,8 @@
 </head><body>
 <script type="module">
 import * as THREE from 'three';
+import { ConvexGeometry } from './vendor/geometries/ConvexGeometry.js';
+import { mergeVertices } from './vendor/utils/BufferGeometryUtils.js';
 const P = new URLSearchParams(location.search);
 const W = +(P.get('w') || 960), H = +(P.get('h') || 540);
 const BG = P.get('bg') || 'night';
@@ -28,7 +30,62 @@ const SPEC = {
   'Embers':          {kind: 'dots', pmin: 1, blend: 'add', soft: 1.0, spacing: 2.0},
   'Smoke':           {kind: 'dots', pmin: 1, blend: 'add', soft: 1.0, spacing: 1.2, gain: 0.25, big: 6},
 };
+Object.assign(SPEC, {
+  'Shiny Hull':   {kind: 'hull', pmin: 0.1, mat: 'shiny'},
+  'Matte Hull':   {kind: 'hull', pmin: 0.1, mat: 'matte'},
+  'Unlit Hull':   {kind: 'hull', pmin: 0.1, mat: 'unlit'},
+  'Diamond Hull': {kind: 'hull', pmin: 0.1, mat: 'shiny'},
+  'Lofted':       {kind: 'tube', pmin: 0.0, mat: 'matte'},
+  'Icing':        {kind: 'tube', pmin: 0.1, mat: 'matte'},
+  'Faceted Tube': {kind: 'tube', pmin: 0.5, mat: 'unlit', sides: 6},
+  'Tube Toon Inverted': {kind: 'tube', pmin: 0.1, mat: 'unlit'},
+});
 const specOf = b => SPEC[b] || {kind: 'flat', pmin: 0.2, blend: 'alpha', soft: 0.3};
+// strokes drawn before a layer's CenterPivot are shifted like Open Brush does
+for (const s of LOG.strokes) {
+  const L = LOG.layers[s.layer];
+  if (L && L.pivot && s.t <= L.pivotTime + 1e-6) for (const c of s.cps) { c[0] -= L.pivot[0]; c[1] -= L.pivot[1]; c[2] -= L.pivot[2]; }
+}
+function matFor(sp, color) {
+  const col = new THREE.Color(color[0], color[1], color[2]);
+  if (sp.mat === 'unlit') return new THREE.MeshBasicMaterial({color: col, side: THREE.DoubleSide});
+  return new THREE.MeshStandardMaterial({color: col, roughness: sp.mat === 'shiny' ? 0.28 : 0.75, metalness: 0.0, side: THREE.DoubleSide});
+}
+const ICO = new THREE.IcosahedronGeometry(1, 0).getAttribute('position');
+function hullMesh(s, sp) {                              // HullBrush: the convex hull of small spheres around the knots
+  const pts = [];
+  for (const c of s.cps) {
+    const r = s.size * (sp.pmin + (1 - sp.pmin) * Math.min(1, Math.max(0, c[7]))) * 0.5;
+    for (let i = 0; i < ICO.count; i += 2) pts.push(new THREE.Vector3(c[0] + ICO.getX(i) * r, c[1] + ICO.getY(i) * r, c[2] + ICO.getZ(i) * r));
+  }
+  if (pts.length < 4) return null;
+  let g; try { g = new ConvexGeometry(pts); } catch (e) { return null; }
+  g.deleteAttribute('normal'); g.deleteAttribute('uv'); g = mergeVertices(g, 1e-4); g.computeVertexNormals();
+  return new THREE.Mesh(g, matFor(sp, s.color));
+}
+function tubeMesh(s, sp) {                              // TubeBrush: rings around the path, radius from pressure
+  const P = s.cps.map(c => new THREE.Vector3(c[0], c[1], c[2])); const n = P.length; if (n < 2) return null;
+  const sides = sp.sides || 10, pos = [], idx = [];
+  let normal = null;
+  for (let i = 0; i < n; i++) {
+    const tg = (i < n - 1 ? P[i + 1].clone().sub(P[i]) : P[i].clone().sub(P[i - 1])).normalize();
+    if (!normal) { normal = new THREE.Vector3(0, 1, 0); if (Math.abs(normal.dot(tg)) > 0.9) normal.set(1, 0, 0); }
+    normal = normal.clone().sub(tg.clone().multiplyScalar(normal.dot(tg))).normalize();
+    const bin = new THREE.Vector3().crossVectors(tg, normal);
+    const r = s.size * (sp.pmin + (1 - sp.pmin) * Math.min(1, Math.max(0, s.cps[i][7]))) * 0.5;
+    for (let k = 0; k < sides; k++) {
+      const a = k / sides * Math.PI * 2;
+      const v = P[i].clone().addScaledVector(normal, Math.cos(a) * r).addScaledVector(bin, Math.sin(a) * r);
+      pos.push(v.x, v.y, v.z);
+    }
+    if (i > 0) for (let k = 0; k < sides; k++) {
+      const a = (i - 1) * sides + k, b = (i - 1) * sides + (k + 1) % sides, c = i * sides + k, d = i * sides + (k + 1) % sides;
+      idx.push(a, c, b, b, c, d);
+    }
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+  return new THREE.Mesh(g, matFor(sp, s.color));
+}
 
 // ---------- geometry like FlatGeometryBrush (ComputeSurfaceFrameNew) ----------
 const v3 = (a) => new THREE.Vector3(a[0], a[1], a[2]);
@@ -113,6 +170,12 @@ const FS = `
 function buildBatches() {
   const tmp = new Map();
   LOG.strokes.forEach((s, k) => {
+    const sp0 = specOf(s.brush);
+    if (sp0.kind === 'hull' || sp0.kind === 'tube') {
+      const m = sp0.kind === 'hull' ? hullMesh(s, sp0) : tubeMesh(s, sp0);
+      if (m) { m.frustumCulled = false; m.userData.t = s.t; layerObj(s.layer).group.add(m); layerObj(s.layer).solids = (layerObj(s.layer).solids || []); layerObj(s.layer).solids.push(m); }
+      return;
+    }
     const key = s.layer + '|' + s.brush;
     if (!tmp.has(key)) tmp.set(key, {layer: s.layer, brush: s.brush, out: {pos: [], col: [], uv: [], vid: [], idx: [], corner: [], nv: 0}, marks: []});
     const b = tmp.get(key), sp = specOf(s.brush);
@@ -156,10 +219,25 @@ scene.add(sky);
 const floor = new THREE.GridHelper(400, 40, BG === 'night' ? 0x2a2638 : 0xc9c4ba, BG === 'night' ? 0x1d1a28 : 0xd9d4cb);
 floor.position.y = 0; scene.add(floor);
 
+// ---------- lights (the sketch's lights if the plugin set them) ----------
+const LG = LOG.lights || {};
+const toCol = c => c ? new THREE.Color(c[0], c[1], c[2]) : null;
+scene.add(new THREE.AmbientLight(toCol(LG.ambient) || new THREE.Color(0.35, 0.33, 0.4), 1.4));
+function dirLight(c, q, inten, fallback) {
+  const L = new THREE.DirectionalLight(toCol(c) || new THREE.Color(1, 1, 1), inten);
+  const f = q ? new THREE.Vector3(0, 0, 1).applyQuaternion(new THREE.Quaternion(q[0], q[1], q[2], q[3])) : fallback;
+  L.position.copy(f.clone().multiplyScalar(-1000)); L.target.position.set(0, 0, 0); scene.add(L); scene.add(L.target);
+}
+dirLight(LG.main, LG.mainRot, 2.6, new THREE.Vector3(0.3, -0.8, 0.5).normalize());
+dirLight(LG.second, LG.secondRot, 1.2, new THREE.Vector3(-0.4, 0.3, -0.8).normalize());
+
 // ---------- camera at the user's head ----------
 const M = LOG.meta;
 const camera = new THREE.PerspectiveCamera(+(P.get('fov') || 80), W / H, 0.05, 9000);
-const allP = []; LOG.strokes.forEach(s => { if (s.cps.length) allP.push(s.cps[0]); });
+// look at the middle of where the layers are (over the second half of the run), else at the strokes
+const allP = [];
+for (const S of LOG.samples.slice(LOG.samples.length >> 1)) for (const r of S.L) if (r[9] > 0.5 && r[8] > 0.05) allP.push([r[1], r[2], r[3]]);
+if (!allP.length) LOG.strokes.forEach(s => { if (s.cps.length) allP.push(s.cps[0]); });
 const med = k => { const a = allP.map(p => p[k]).sort((x, y) => x - y); return a.length ? a[a.length >> 1] : 0; };
 const look = new THREE.Vector3(med(0), med(1), med(2));
 const head = v3(M.head);
@@ -178,6 +256,7 @@ window.renderAt = (t, orbit) => {
     if (!r || deleted) { L.group.visible = false; continue; }
     L.group.visible = r[9] > 0.5;
     L.group.position.set(r[1], r[2], r[3]); L.group.quaternion.set(r[4], r[5], r[6], r[7]); L.group.scale.setScalar(r[8]);
+    for (const m of (L.solids || [])) m.visible = m.userData.t <= t + 1e-6;
     for (const b of L.batches.values()) {
       let nv = 0, ni = 0; for (const mk of b.marks) { if (mk[0] <= t + 1e-6) { nv = mk[1]; ni = mk[2]; } else break; }
       b.mesh.geometry.setDrawRange(0, ni); b.mesh.visible = ni > 0;
