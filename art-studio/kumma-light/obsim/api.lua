@@ -126,7 +126,7 @@ end})
 -- brushes known to the simulator (names matched like Open Brush: lowercase, letters and digits only)
 BRUSHES = {}
 for _, n in ipairs({"Marker", "Tapered Marker", "Dot Marker", "Light", "Ink", "Soft Highlighter", "Highlighter",
-                    "Stars", "Smoke", "Snow", "Embers", "Neon Pulse", "Dr. Wigglez", "Felt", "Wire", "Toon",
+                    "Stars", "Dots", "Smoke", "Snow", "Embers", "Neon Pulse", "Dr. Wigglez", "Felt", "Wire", "Toon",
                     "Velvet Ink", "Tapered Flat", "Flat", "Paper", "Splatter", "Bubbles", "Shiny Hull", "Matte Hull",
                     "Unlit Hull", "Diamond Hull", "Lofted", "Icing", "Petal", "Faceted Tube", "Tube Toon Inverted"}) do
     BRUSHES[(n:lower():gsub("[^%w]", ""))] = n
